@@ -30,7 +30,7 @@ public final class ThreadUtils {
   }
 
   /**
-   * Just suspend the current thread for defined interval in millliseconds.
+   * Just suspend the current thread for defined interval in milliseconds.
    * @param milliseconds milliseconds to sleep
    * @return false if the sleep has been interrupted by InterruptedException, true otherwise.
    * @see Thread#sleep(long) 
@@ -49,7 +49,7 @@ public final class ThreadUtils {
   
   /**
    * Get the stack element of the method caller.
-   * @return the stacke trace element for the calling method.
+   * @return the stack trace element for the calling method.
    * @since 1.0
    */
   @Weight (Weight.Unit.VARIABLE)

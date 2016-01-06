@@ -21,7 +21,7 @@ import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Warning;
 import com.igormaznitsa.meta.common.annotations.Weight;
 import com.igormaznitsa.meta.common.exceptions.TimeViolationError;
-import com.igormaznitsa.meta.common.global.special.GlobalCommonErrorProcessorService;
+import com.igormaznitsa.meta.common.global.special.GlobalErrorListeners;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -274,13 +274,13 @@ public final class TimeWatchers {
           if (detectedDelay > timeWatchItem.getMaxAllowedDelayInMilliseconds()) {
             final TimeAlertProcessor processor = timeWatchItem.getAlertProcessor() == null ? globalAlertProcessor : timeWatchItem.getAlertProcessor();
             if (processor == null) {
-              GlobalCommonErrorProcessorService.error("Detected time violation without any processor", new TimeViolationError(detectedDelay, timeWatchItem));
+              GlobalErrorListeners.error("Detected time violation without any processor", new TimeViolationError(detectedDelay, timeWatchItem));
             }else{
               try {
                 processor.onTimeAlert(detectedDelay, timeWatchItem);
               }
               catch (Exception ex) {
-                GlobalCommonErrorProcessorService.error("Error during time alert processing", ex);
+                GlobalErrorListeners.error("Error during time alert processing", ex);
               }
             }
           }

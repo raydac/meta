@@ -15,11 +15,16 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
+import com.igormaznitsa.meta.common.annotations.NonNull;
 import com.igormaznitsa.meta.common.annotations.Nullable;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Weight;
-import com.igormaznitsa.meta.common.global.special.GlobalCommonErrorProcessorService;
+import com.igormaznitsa.meta.common.global.special.GlobalErrorListeners;
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 /**
  * Auxiliary methods for IO operations.
@@ -31,6 +36,36 @@ public final class IOUtils {
   private IOUtils () {
   }
 
+  public static byte [] packData(@NonNull final byte [] data) {
+    final Deflater compressor = new Deflater(Deflater.BEST_COMPRESSION);
+    compressor.setInput(Assertions.assertNotNull(data));
+    compressor.finish();
+    final ByteArrayOutputStream resultData = new ByteArrayOutputStream(data.length+100);
+    
+    final byte [] buffer = new byte[1024];
+    while(!compressor.finished()){
+      resultData.write(buffer, 0, compressor.deflate(buffer));
+    }
+    
+    return resultData.toByteArray();
+  }
+  
+  public static byte [] unpackData(@NonNull final byte [] data){
+    final Inflater decompressor = new Inflater();
+    decompressor.setInput(Assertions.assertNotNull(data));
+    final ByteArrayOutputStream outStream = new ByteArrayOutputStream(data.length*2);
+    final byte [] buffer = new byte[1024];
+    try{
+      while(!decompressor.finished()){
+        outStream.write(buffer, 0, decompressor.inflate(buffer));
+      }
+      return outStream.toByteArray();
+    }catch(DataFormatException ex){
+      GlobalErrorListeners.error("Can't unpack data", ex);
+      throw new RuntimeException(ex);
+    }
+  }
+  
   @Weight (Weight.Unit.LIGHT)
   public static void closeQuetly (@Nullable final Closeable closeable) {
     try {
@@ -39,7 +74,7 @@ public final class IOUtils {
       }
     }
     catch (Exception ex) {
-      GlobalCommonErrorProcessorService.error("Excecption in closeQuetly", ex);
+      GlobalErrorListeners.error("Excecption in closeQuetly", ex);
     }
   }
 }

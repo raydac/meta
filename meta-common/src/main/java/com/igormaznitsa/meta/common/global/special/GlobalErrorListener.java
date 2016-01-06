@@ -18,35 +18,15 @@ package com.igormaznitsa.meta.common.global.special;
 import com.igormaznitsa.meta.common.annotations.Nullable;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Weight;
-import com.igormaznitsa.meta.common.annotations.NonNull;
 
 /**
- * Global service processing all error notifications in the common module methods.
+ * Interface of global processor catching errors detected by the common module methods.
  * 
  * @since 1.0
  */
 @ThreadSafe
-@Weight (Weight.Unit.LIGHT)
-public final class GlobalCommonErrorProcessorService {
+public interface GlobalErrorListener {
 
-  private GlobalCommonErrorProcessorService () {
-  }
-
-  @Nullable
-  private static volatile GlobalCommonErrorProcessor errorProcessor;
-
-  public static void setErrorProcessor (@Nullable final GlobalCommonErrorProcessor value) {
-    errorProcessor = value;
-  }
-
-  public static boolean hasErrorProcessor () {
-    return errorProcessor != null;
-  }
-
-  public static void error (@NonNull final String text, @Nullable final Throwable error) {
-    final GlobalCommonErrorProcessor log = errorProcessor;
-    if (log != null) {
-      log.error(text, error);
-    }
-  }
+  @Weight (Weight.Unit.EXTRALIGHT)
+  void onDetectedError (@Nullable String text, @Nullable Throwable error);
 }

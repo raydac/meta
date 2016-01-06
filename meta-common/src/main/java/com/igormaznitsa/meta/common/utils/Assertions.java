@@ -22,6 +22,7 @@ import java.util.Collection;
 import com.igormaznitsa.meta.common.exceptions.AlreadyDisposedError;
 import com.igormaznitsa.meta.common.interfaces.Disposable;
 import com.igormaznitsa.meta.common.annotations.NonNull;
+import com.igormaznitsa.meta.common.global.special.GlobalErrorListeners;
 
 /**
  * Set of auxiliary methods for assertion.
@@ -46,7 +47,9 @@ public final class Assertions {
    */
   public static <T> T assertNull (@Nullable final T object) {
     if (object != null) {
-      throw new AssertionError("Object must be NULL");
+      final AssertionError error = new AssertionError("Object must be NULL");
+      GlobalErrorListeners.error("Asserion error", error);
+      throw error;
     }
     return object;
   }
@@ -62,7 +65,9 @@ public final class Assertions {
    */
   public static <T> T assertNotNull (@NonNull final T object) {
     if (object == null) {
-      throw new AssertionError("Object must not be NULL");
+      final AssertionError error = new AssertionError("Object must not be NULL");
+      GlobalErrorListeners.error("Asserion error", error);
+      throw error;
     }
     return object;
   }
@@ -81,7 +86,9 @@ public final class Assertions {
     assertNotNull(array);
     for (final T obj : array) {
       if (obj == null) {
-        throw new AssertionError("Array must not contain NULL");
+        final AssertionError error = new AssertionError("Array must not contain NULL");
+        GlobalErrorListeners.error("Asserion error", error);
+        throw error;
       }
     }
     return array;
@@ -115,7 +122,9 @@ public final class Assertions {
    */
   public static <T extends Disposable> T assertNotDisposed (@NonNull final T disposable) {
     if (disposable.isDisposed()) {
-      throw new AlreadyDisposedError("Object already disposed");
+      final AlreadyDisposedError error = new AlreadyDisposedError("Object already disposed");
+      GlobalErrorListeners.error("Asserion error", error);
+      throw error;
     }
     return disposable;
   }
