@@ -29,30 +29,58 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @since 1.0
  */
 @ThreadSafe
-@Weight (Weight.Unit.LIGHT)
+@Weight (Weight.Unit.NORMAL)
 public final class GlobalErrorListeners {
+
+  private static final List<GlobalErrorListener> ERROR_LISTENERS = new CopyOnWriteArrayList<GlobalErrorListener>();
 
   private GlobalErrorListeners () {
   }
 
-  @Nullable
-  private static final List<GlobalErrorListener> listeners = new CopyOnWriteArrayList<GlobalErrorListener>();
+  /**
+   * Remove all listeners.
+   * @since 1.0
+   */
+  public static void clear () {
+    ERROR_LISTENERS.clear();
+  }
 
+  /**
+   * Add new fireError listener for global fireError events.
+   * @param value listener to be added
+   * @since 1.0
+   */
   public static void addErrorListener (@NonNull final GlobalErrorListener value) {
-    listeners.add(Assertions.assertNotNull(value));
+    ERROR_LISTENERS.add(Assertions.assertNotNull(value));
   }
 
+  /**
+   * Remove listener.
+   * @param value listener to be removed
+   * @since 1.0
+   */
   public static void removeErrorListener (@NonNull final GlobalErrorListener value) {
-    listeners.remove(Assertions.assertNotNull(value));
+    ERROR_LISTENERS.remove(Assertions.assertNotNull(value));
   }
 
+  /**
+   * Check that there are registered listeners.
+   * @return true if presented listeners for global fireError events, false otherwise
+   * @since 1.0
+   */
   public static boolean hasErrorListeners () {
-    return !listeners.isEmpty();
+    return !ERROR_LISTENERS.isEmpty();
   }
 
+  /**
+   * Send notifications to all listeners.
+   * @param text message text
+   * @param error error object
+   * @since 1.0
+   */
   @Weight(Weight.Unit.VARIABLE)
-  public static void error (@NonNull final String text, @Nullable final Throwable error) {
-    for(final GlobalErrorListener p : listeners){
+  public static void fireError (@NonNull final String text, @NonNull final Throwable error) {
+    for(final GlobalErrorListener p : ERROR_LISTENERS){
       p.onDetectedError(text, error);
     }
   }

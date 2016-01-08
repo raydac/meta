@@ -25,10 +25,19 @@ import com.igormaznitsa.meta.common.annotations.Weight;
  */
 @Weight (Weight.Unit.VARIABLE)
 public interface Disposable {
-
+  
+  /**
+   * Check that the object is disposed.
+   * @return true if the object is disposed
+   * @since 1.0
+   */
   @ThreadSafe
   boolean isDisposed ();
 
+  /**
+   * Dispose object.
+   * @since 1.0
+   */
   @ThreadSafe
   void dispose ();
 

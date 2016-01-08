@@ -15,6 +15,7 @@
  */
 package com.igormaznitsa.meta.common.global.special;
 
+import com.igormaznitsa.meta.common.annotations.NonNull;
 import com.igormaznitsa.meta.common.annotations.Nullable;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Weight;
@@ -26,7 +27,14 @@ import com.igormaznitsa.meta.common.annotations.Weight;
  */
 @ThreadSafe
 public interface GlobalErrorListener {
-
-  @Weight (Weight.Unit.EXTRALIGHT)
-  void onDetectedError (@Nullable String text, @Nullable Throwable error);
+  
+  /**
+   * The Method will be called if detected some error.
+   * @param text text message
+   * @param error error object
+   * 
+   * @since 1.0
+   */
+  @Weight (Weight.Unit.LIGHT)
+  void onDetectedError (@Nullable String text, @NonNull Throwable error);
 }

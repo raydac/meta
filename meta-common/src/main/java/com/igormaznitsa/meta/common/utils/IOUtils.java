@@ -28,6 +28,7 @@ import java.util.zip.Inflater;
 
 /**
  * Auxiliary methods for IO operations.
+ *
  * @since 1.0
  */
 @ThreadSafe
@@ -36,45 +37,74 @@ public final class IOUtils {
   private IOUtils () {
   }
 
-  public static byte [] packData(@NonNull final byte [] data) {
+  /**
+   * Pack some binary data.
+   *
+   * @param data data to be packed
+   * @return packed data as byte array
+   * @since 1.0
+   */
+  @NonNull
+  @Weight (Weight.Unit.VARIABLE)
+  public static byte[] packData (@NonNull final byte[] data) {
     final Deflater compressor = new Deflater(Deflater.BEST_COMPRESSION);
     compressor.setInput(Assertions.assertNotNull(data));
     compressor.finish();
-    final ByteArrayOutputStream resultData = new ByteArrayOutputStream(data.length+100);
-    
-    final byte [] buffer = new byte[1024];
-    while(!compressor.finished()){
+    final ByteArrayOutputStream resultData = new ByteArrayOutputStream(data.length + 100);
+
+    final byte[] buffer = new byte[1024];
+    while (!compressor.finished()) {
       resultData.write(buffer, 0, compressor.deflate(buffer));
     }
-    
+
     return resultData.toByteArray();
   }
-  
-  public static byte [] unpackData(@NonNull final byte [] data){
+
+  /**
+   * Unpack binary data packed by the packData method.
+   *
+   * @param data packed data array
+   * @return unpacked byte array
+   * @throws IllegalArgumentException it will be thrown if the data has wrong
+   * format, global error listeners will be also notified
+   * @see #packData(byte[])
+   * @since 1.0
+   */
+  @NonNull
+  @Weight (Weight.Unit.VARIABLE)
+  public static byte[] unpackData (@NonNull final byte[] data) {
     final Inflater decompressor = new Inflater();
     decompressor.setInput(Assertions.assertNotNull(data));
-    final ByteArrayOutputStream outStream = new ByteArrayOutputStream(data.length*2);
-    final byte [] buffer = new byte[1024];
-    try{
-      while(!decompressor.finished()){
+    final ByteArrayOutputStream outStream = new ByteArrayOutputStream(data.length * 2);
+    final byte[] buffer = new byte[1024];
+    try {
+      while (!decompressor.finished()) {
         outStream.write(buffer, 0, decompressor.inflate(buffer));
       }
       return outStream.toByteArray();
-    }catch(DataFormatException ex){
-      GlobalErrorListeners.error("Can't unpack data", ex);
-      throw new RuntimeException(ex);
+    }
+    catch (DataFormatException ex) {
+      GlobalErrorListeners.fireError("Can't unpack data for wrong format", ex);
+      throw new IllegalArgumentException("Wrong formatted data", ex);
     }
   }
-  
+
+  /**
+   * Closing quetly any closeable object. Any exception will be caught (but
+   * global error listeners will be notified)
+   *
+   * @param closeable object to be closed quetly
+   * @since 1.0
+   */
   @Weight (Weight.Unit.LIGHT)
   public static void closeQuetly (@Nullable final Closeable closeable) {
-    try {
-      if (closeable != null) {
+    if (closeable != null) {
+      try {
         closeable.close();
       }
-    }
-    catch (Exception ex) {
-      GlobalErrorListeners.error("Excecption in closeQuetly", ex);
+      catch (Exception ex) {
+        GlobalErrorListeners.fireError("Exception in closeQuetly", ex);
+      }
     }
   }
 }

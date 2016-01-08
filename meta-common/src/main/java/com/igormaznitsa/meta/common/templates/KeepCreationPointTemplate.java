@@ -19,6 +19,7 @@ import com.igormaznitsa.meta.common.annotations.NonNull;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Warning;
 import com.igormaznitsa.meta.common.utils.CallTrace;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -29,7 +30,9 @@ import java.util.WeakHashMap;
  * @since 1.0
  * @see CallTrace
  */
-public abstract class KeepCreationPointTemplate {
+public abstract class KeepCreationPointTemplate implements Serializable {
+  
+  private static final long serialVersionUID = 2779254573622012575L;
   
   private static final Map<KeepCreationPointTemplate,CallTrace> REGISTRY = Collections.synchronizedMap(new WeakHashMap<KeepCreationPointTemplate, CallTrace>());
 

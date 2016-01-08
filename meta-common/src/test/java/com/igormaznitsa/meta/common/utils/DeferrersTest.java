@@ -15,15 +15,34 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
+import com.igormaznitsa.meta.common.global.special.GlobalErrorListeners;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
 
 public class DeferrersTest {
   
+  @Before
+  public void before () {
+    GlobalErrorListeners.clear();
+    TimeWatchers.cancelAll();
+  }
+
+  @After
+  public void after () {
+    GlobalErrorListeners.clear();
+    TimeWatchers.cancelAll();
+  }
+
+
+  
   private static class TestDeferrer extends Deferrers.Deferred {
+
+    private static final long serialVersionUID = -4502902205113537851L;
     private final AtomicInteger value;
     private final int id;
     private final List<Integer> order;
@@ -36,7 +55,7 @@ public class DeferrersTest {
     }
 
     @Override
-    public void execute () throws Exception {
+    public void executeDeferred () throws Exception {
       this.value.decrementAndGet();
       this.order.add(id);
     }

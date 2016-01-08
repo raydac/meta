@@ -48,7 +48,7 @@ public final class Assertions {
   public static <T> T assertNull (@Nullable final T object) {
     if (object != null) {
       final AssertionError error = new AssertionError("Object must be NULL");
-      GlobalErrorListeners.error("Asserion error", error);
+      GlobalErrorListeners.fireError("Asserion error", error);
       throw error;
     }
     return object;
@@ -66,7 +66,7 @@ public final class Assertions {
   public static <T> T assertNotNull (@NonNull final T object) {
     if (object == null) {
       final AssertionError error = new AssertionError("Object must not be NULL");
-      GlobalErrorListeners.error("Asserion error", error);
+      GlobalErrorListeners.fireError("Asserion error", error);
       throw error;
     }
     return object;
@@ -87,13 +87,43 @@ public final class Assertions {
     for (final T obj : array) {
       if (obj == null) {
         final AssertionError error = new AssertionError("Array must not contain NULL");
-        GlobalErrorListeners.error("Asserion error", error);
+        GlobalErrorListeners.fireError("Asserion error", error);
         throw error;
       }
     }
     return array;
   }
 
+  /**
+   * Assert condition flag is TRUE. GEL will be notified about error.
+   * 
+   * @param message message describing situation
+   * @param condition condition which must be true
+   * @since 1.0
+   */
+  public static void assertTrue(@Nullable final String message, final boolean condition) {
+    if (!condition){
+      final AssertionError error = new AssertionError(GetUtils.ensureNotNull(message, "Condition must be TRUE"));
+      GlobalErrorListeners.fireError(error.getMessage(), error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Assert condition flag is FALSE. GEL will be notified about error.
+   *
+   * @param message message describing situation
+   * @param condition condition which must be false
+   * @since 1.0
+   */
+  public static void assertFalse(final String message, final boolean condition) {
+    if (condition) {
+      final AssertionError error = new AssertionError(GetUtils.ensureNotNull(message, "Condition must be FALSE"));
+      GlobalErrorListeners.fireError(error.getMessage(), error);
+      throw error;
+    }
+  }
+  
   /**
    * Assert that collection doesn't contain null value.
    *
@@ -123,7 +153,7 @@ public final class Assertions {
   public static <T extends Disposable> T assertNotDisposed (@NonNull final T disposable) {
     if (disposable.isDisposed()) {
       final AlreadyDisposedError error = new AlreadyDisposedError("Object already disposed");
-      GlobalErrorListeners.error("Asserion error", error);
+      GlobalErrorListeners.fireError("Asserion error", error);
       throw error;
     }
     return disposable;

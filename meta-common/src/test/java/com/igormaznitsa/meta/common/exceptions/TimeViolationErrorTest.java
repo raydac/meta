@@ -13,24 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.meta.common.templates;
+package com.igormaznitsa.meta.common.exceptions;
 
+import com.igormaznitsa.meta.common.utils.TimeWatchers;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class KeepCreationHistoryTemplateTest {
-  
-  private static class KCPTest extends KeepCreationPointTemplate {
-
-    private static final long serialVersionUID = 4734211109886249142L;
-
-  }
+public class TimeViolationErrorTest {
   
   @Test
-  public void testCreateInstance () {
-    final KCPTest t = new KCPTest();
-    final String [] parsed = t.getCreationPoint().toString().split("\n");
-    assertTrue(parsed[0].contains("KeepCreationHistoryTemplateTest") && parsed[0].contains("testCreateInstance") && parsed[0].contains(":31"));
+  public void testConstructorAndGetters () {
+    final TimeWatchers.TimeData data = new TimeWatchers.TimeData(334,"msg", 6789L, null);
+    final TimeViolationError error = new TimeViolationError(1234L, data);
+    assertEquals("msg",error.getMessage());
+    assertSame(data, error.getData());
+    assertEquals(1234L, error.getDetectedTimeInMilliseconds());
+    assertEquals(1234L-6789L, error.getDetectedViolationInMilliseconds());
   }
   
 }

@@ -32,11 +32,13 @@ public @interface Warning {
   /**
    * Text description of the warning.
    * @return text description
+   * @since 1.0
    */
   String value();
   /**
    * Flag shows that the warning text should be printed into log.
    * @return true if the warning text should be printed into log
+   * @since 1.0
    */
   boolean alert() default false;
 }

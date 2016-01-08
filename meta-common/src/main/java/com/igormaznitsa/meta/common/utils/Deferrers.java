@@ -18,7 +18,6 @@ package com.igormaznitsa.meta.common.utils;
 import com.igormaznitsa.meta.common.annotations.Immutable;
 import com.igormaznitsa.meta.common.annotations.Nullable;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
-import com.igormaznitsa.meta.common.annotations.Warning;
 import com.igormaznitsa.meta.common.annotations.Weight;
 import com.igormaznitsa.meta.common.global.special.GlobalErrorListeners;
 import static com.igormaznitsa.meta.common.utils.Assertions.assertNotNull;
@@ -29,6 +28,9 @@ import java.util.List;
 import com.igormaznitsa.meta.common.annotations.MustNotContainNull;
 import com.igormaznitsa.meta.common.interfaces.Disposable;
 import com.igormaznitsa.meta.common.annotations.NonNull;
+import com.igormaznitsa.meta.common.annotations.Warning;
+import com.igormaznitsa.meta.common.exceptions.UnexpectedProcessingError;
+import java.io.Serializable;
 
 /**
  * Auxiliary tool to defer some actions and process them in some point
@@ -40,37 +42,54 @@ import com.igormaznitsa.meta.common.annotations.NonNull;
  * @see ThreadLocal
  */
 @ThreadSafe
-@Warning ("Productivity depends on stack depth")
 public final class Deferrers {
 
   private Deferrers () {
   }
 
   /**
-   * Class wrapping execute method and stack depth for action.
+   * Class wrapping executeDeferred method and stack depth for action.
    *
    * @since 1.0
    */
   @ThreadSafe
   @Immutable
   @Weight (Weight.Unit.VARIABLE)
-  public abstract static class Deferred {
+  public abstract static class Deferred implements Serializable {
+
+    private static final long serialVersionUID = -1134788854676942497L;
 
     private final int stackDepth;
 
+    /**
+     * The Constructor.
+     * @since 1.0
+     */
+    @Weight(value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth@")
     public Deferred () {
       this.stackDepth = ThreadUtils.stackDepth() - 1;
     }
 
+    /**
+     * Get the stack depth detected during object creation.
+     * @return the stack depth
+     * @since 1.0
+     */
     public int getStackDepth () {
       return this.stackDepth;
     }
 
-    public abstract void execute () throws Exception;
+    /**
+     * Execute call.
+     * @throws Exception it will be thrown for error.
+     * @since 1.0
+     */
+    public abstract void executeDeferred () throws Exception;
   }
 
   /**
    * Inside registry for defer actions.
+   * @since 1.0
    */
   @MustNotContainNull
   private static final ThreadLocal<List<Deferred>> REGISTRY = new ThreadLocal<List<Deferred>>() {
@@ -84,6 +103,7 @@ public final class Deferrers {
    * Defer some action.
    *
    * @param deferred action to be defer.
+   * @since 1.0
    */
   @Weight (Weight.Unit.NORMAL)
   public static void defer (@NonNull final Deferred deferred) {
@@ -91,22 +111,25 @@ public final class Deferrers {
   }
 
   /**
-   * Defer object containing public close() method.
+   * Defer object containing public close() method. It catches all exceptions during closing and make notifications only for global error listeners.
+   * It finds a public 'close' method of the object and call that through reflection.
    *
    * @param closeable an object with close() method.
    * @since 1.0
    */
+  @Warning("Using reflection")
   @Weight (Weight.Unit.NORMAL)
   public static void deferredClosing (@Nullable final Object closeable) {
     if (closeable != null) {
       defer(new Deferred() {
+        private static final long serialVersionUID = 2265124256013043847L;
         @Override
-        public void execute () throws Exception {
+        public void executeDeferred () throws Exception {
           try {
             closeable.getClass().getMethod("close").invoke(closeable);
           }
           catch (Exception thr) {
-            GlobalErrorListeners.error("Error during deferred closing action", thr);
+            GlobalErrorListeners.fireError("Error during deferred closing action", thr);
           }
         }
       });
@@ -123,8 +146,9 @@ public final class Deferrers {
   public static void defer (@Nullable final Closeable closeable) {
     if (closeable != null) {
       defer(new Deferred() {
+        private static final long serialVersionUID = 2265124256013043847L;
         @Override
-        public void execute () throws Exception {
+        public void executeDeferred () throws Exception {
           IOUtils.closeQuetly(closeable);
         }
       });
@@ -141,10 +165,11 @@ public final class Deferrers {
   public static void defer (@NonNull final Runnable runnable) {
     assertNotNull(runnable);
     defer(new Deferred() {
+      private static final long serialVersionUID = 2061489024868070733L;
       private final Runnable value = runnable;
 
       @Override
-      public void execute () throws Exception {
+      public void executeDeferred () throws Exception {
         this.value.run();
       }
     });
@@ -162,10 +187,11 @@ public final class Deferrers {
   public static void defer (@NonNull final Disposable disposable) {
     assertNotNull(disposable);
     defer(new Deferred() {
+      private static final long serialVersionUID = 7940162959962038010L;
       private final Disposable value = disposable;
 
       @Override
-      public void execute () throws Exception {
+      public void executeDeferred () throws Exception {
         this.value.dispose();
       }
     });
@@ -177,7 +203,7 @@ public final class Deferrers {
    *
    * @since 1.0
    */
-  @Weight (Weight.Unit.LIGHT)
+  @Weight (Weight.Unit.NORMAL)
   public static void cancelAllDeferredActionsGlobally () {
     final List<Deferred> list = REGISTRY.get();
     list.clear();
@@ -189,7 +215,7 @@ public final class Deferrers {
    *
    * @since 1.0
    */
-  @Weight (Weight.Unit.LIGHT)
+  @Weight (value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
   public static void cancelDeferredActions () {
     final int stackDepth = ThreadUtils.stackDepth();
 
@@ -212,7 +238,7 @@ public final class Deferrers {
    *
    * @since 1.0
    */
-  @Weight (Weight.Unit.VARIABLE)
+  @Weight (value = Weight.Unit.VARIABLE,comment = "Depends on the current call stack depth")
   public static void processDeferredActions () {
     final int stackDepth = ThreadUtils.stackDepth();
 
@@ -223,10 +249,11 @@ public final class Deferrers {
       final Deferred deferred = iterator.next();
       if (deferred.getStackDepth() >= stackDepth) {
         try {
-          deferred.execute();
+          deferred.executeDeferred();
         }
         catch (Exception ex) {
-          GlobalErrorListeners.error("Error during a deferred processor execution", ex);
+          final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during deferred action processing", ex);
+          GlobalErrorListeners.fireError(error.getMessage(), error);
         }
         finally {
           iterator.remove();

@@ -29,7 +29,7 @@ public class TimeViolationError extends AssertionError {
   private static final long serialVersionUID = 9175073973098827533L;
   
   private final long detectedTimeInMilliseconds;
-  private final TimeWatchers.TimeAlertItem item;
+  private final TimeWatchers.TimeData item;
   
   /**
    * The Constructor.
@@ -37,7 +37,7 @@ public class TimeViolationError extends AssertionError {
    * @param item the data container contains registration data for time watcher
    * @since 1.0
    */
-  public TimeViolationError(final long detectedTimeInMilliseconds, @NonNull final TimeWatchers.TimeAlertItem item){
+  public TimeViolationError(final long detectedTimeInMilliseconds, @NonNull final TimeWatchers.TimeData item){
     super(item.getAlertMessage());
     this.detectedTimeInMilliseconds = detectedTimeInMilliseconds;
     this.item = item;
@@ -66,7 +66,7 @@ public class TimeViolationError extends AssertionError {
    * @return the data container contains data for time watcher
    */
   @NonNull
-  public TimeWatchers.TimeAlertItem getData(){
+  public TimeWatchers.TimeData getData(){
     return this.item;
   }
 }

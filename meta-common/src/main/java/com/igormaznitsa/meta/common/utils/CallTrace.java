@@ -18,7 +18,6 @@ package com.igormaznitsa.meta.common.utils;
 import com.igormaznitsa.meta.common.annotations.Immutable;
 import com.igormaznitsa.meta.common.annotations.NonNull;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
-import com.igormaznitsa.meta.common.annotations.Warning;
 import com.igormaznitsa.meta.common.annotations.Weight;
 import java.io.Serializable;
 import java.nio.charset.Charset;
@@ -31,14 +30,22 @@ import java.nio.charset.Charset;
 @Weight(Weight.Unit.VARIABLE)
 @ThreadSafe
 @Immutable
-@Warning("Depends on stack trace depth")
 public class CallTrace implements Serializable {
 
   private static final long serialVersionUID = -3908621401136825952L;
 
   private static final Charset UTF8 = Charset.forName("UTF-8");
 
+  /**
+   * Default end-of-line for linux.
+   * @since 1.0
+   */
   public static final String EOL_LINUX = "\n";
+  
+  /**
+   * Default end-of-line for windows.
+   * @since 1.0
+   */
   public static final String EOL_WINDOWS = "\r\n";
 
   private final boolean packed;
@@ -63,6 +70,7 @@ public class CallTrace implements Serializable {
    * @see #EOL_LINUX
    * @see #EOL_WINDOWS
    */
+  @Weight(value = Weight.Unit.VARIABLE, comment = "Depends on the call stack depth")
   public CallTrace (final int numberOfFirstIgnoredStackItems, final boolean pack, @NonNull final String eol) {
     final StackTraceElement[] allElements = Thread.currentThread().getStackTrace();
     final StringBuilder buffer = new StringBuilder((allElements.length - numberOfFirstIgnoredStackItems) * 32);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Igor Maznitsa.
+ * Copyright 2015 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,34 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.meta.common.exceptions;
+package com.igormaznitsa.meta.common.annotations;
 
-import com.igormaznitsa.meta.common.annotations.Nullable;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Error if detected attempt to dispose already disposed object.
- * 
+ * Marks field or parameter by some constraint.
  * @since 1.0
  */
-public class AlreadyDisposedError extends AssertionError {
-
-  private static final long serialVersionUID = 7712788236604932874L;
-
+@Documented
+@Target ({ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD, ElementType.LOCAL_VARIABLE})
+@Retention (RetentionPolicy.RUNTIME)
+public @interface Constraint {
   /**
-   * The Default constructor.
+   * Constraint.
+   * @return text represents constraint condition
    * @since 1.0
    */
-  public AlreadyDisposedError () {
-    super();
-  }
-
-  /**
-   * Constructor with provided message.
-   * @param message some text message
-   * @since 1.0
-   */
-  public AlreadyDisposedError (@Nullable final String message) {
-    super(message);
-  }
-  
+  String value ();
 }

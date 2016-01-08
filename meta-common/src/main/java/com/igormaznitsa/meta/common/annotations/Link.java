@@ -29,5 +29,10 @@ import java.lang.annotation.Target;
 @Target ({ElementType.FIELD, ElementType.METHOD, ElementType.LOCAL_VARIABLE, ElementType.PARAMETER, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Retention (RetentionPolicy.RUNTIME)
 public @interface Link {
+  /**
+   * Link to some resource in String format.
+   * @return String value
+   * @since 1.0
+   */
   String value();
 }

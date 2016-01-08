@@ -15,6 +15,7 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
+import com.igormaznitsa.meta.common.annotations.Constraint;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Weight;
 import com.igormaznitsa.meta.common.annotations.NonNull;
@@ -65,6 +66,7 @@ public final class ThreadUtils {
    * @since 1.0
    */
   @Weight (Weight.Unit.VARIABLE)
+  @Constraint(">0")
   public static int stackDepth () {
     return Thread.currentThread().getStackTrace().length - 1;
   }

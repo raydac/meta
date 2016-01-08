@@ -34,38 +34,47 @@ import java.lang.annotation.Target;
 public @interface Weight {
   /**
    * Contains units. They are very subjective ones but allow to describe weight of a method in subjective units.
+   * @since 1.0
    */
   enum Unit {
     /**
      * Variable weight, can be changed in wide interval. Mainly the same like undefined.
+     * @since 1.0
      */
     VARIABLE,
     /**
      * Very very extra light.
+     * @since 1.0
      */
     FLUFF,
     /**
      * Lighter than light one. May be just a getter for a field.
+     * @since 1.0
      */
     EXTRALIGHT,
     /**
      * Light, for instance a getter with some condition of light logic.
+     * @since 1.0
      */
     LIGHT,
     /**
      * Normal weight for regular execution with conditions and short loops.
+     * @since 1.0
      */
     NORMAL,
     /**
      * Contains long loops or calls for hard methods.
+     * @since 1.0
      */
     HARD,
     /**
      * A Call like ask "Ultimate Question of Life, the Universe, and Everything".
+     * @since 1.0
      */
     EXTRAHARD,
     /** 
      * A Call of the method can break the universe.
+     * @since 1.0
      */
     BLACK_HOLE
   }
@@ -73,6 +82,14 @@ public @interface Weight {
   /**
    * Contains weight value for marked entity.
    * @return weight value for marked entity.
+   * @since 1.0
    */
   Unit value ();
+  
+  /**
+   * May contain some description or comment.
+   * @return comment or note as string
+   * @since 1.0
+   */
+  String comment() default "";
 }

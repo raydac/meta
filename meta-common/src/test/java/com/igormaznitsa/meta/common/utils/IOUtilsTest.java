@@ -15,6 +15,9 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -26,6 +29,27 @@ public class IOUtilsTest {
     final byte [] packed = IOUtils.packData(data);
     assertTrue(packed.length<data.length);
     assertArrayEquals(data, IOUtils.unpackData(packed));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testPackUnpackData_ExceptionForWrongFormat () {
+    IOUtils.unpackData(new byte[]{1,2,3,4,5});
+  }
+
+  @Test
+  public void testCloseQuetly(){
+    final AtomicInteger callCounter = new AtomicInteger();
+    
+    final Closeable clb = new Closeable() {
+      @Override
+      public void close () throws IOException {
+        callCounter.incrementAndGet();
+        throw new NullPointerException("Some error!");
+      }
+    };
+    
+    IOUtils.closeQuetly(clb);
+    assertEquals(1,callCounter.get());
   }
   
 }

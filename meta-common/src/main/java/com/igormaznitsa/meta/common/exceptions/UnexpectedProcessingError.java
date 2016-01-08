@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.meta.common.templates;
+package com.igormaznitsa.meta.common.exceptions;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import com.igormaznitsa.meta.common.annotations.Nullable;
 
-public class KeepCreationHistoryTemplateTest {
-  
-  private static class KCPTest extends KeepCreationPointTemplate {
+/**
+ * Thrown if detected unexpected exception during processing.
+ * @since 1.0
+ */
+public class UnexpectedProcessingError extends Error {
 
-    private static final long serialVersionUID = 4734211109886249142L;
+  private static final long serialVersionUID = 2301251513584024632L;
 
-  }
-  
-  @Test
-  public void testCreateInstance () {
-    final KCPTest t = new KCPTest();
-    final String [] parsed = t.getCreationPoint().toString().split("\n");
-    assertTrue(parsed[0].contains("KeepCreationHistoryTemplateTest") && parsed[0].contains("testCreateInstance") && parsed[0].contains(":31"));
+  /**
+   * Constructor for description and cause.
+   * @param message the description
+   * @param cause  the cause
+   * @since 1.0
+   */
+  public UnexpectedProcessingError (@Nullable final String message, @Nullable final Throwable cause) {
+    super(message, cause);
   }
   
 }

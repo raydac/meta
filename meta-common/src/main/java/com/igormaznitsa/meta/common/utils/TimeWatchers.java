@@ -18,7 +18,6 @@ package com.igormaznitsa.meta.common.utils;
 import com.igormaznitsa.meta.common.annotations.Immutable;
 import com.igormaznitsa.meta.common.annotations.Nullable;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
-import com.igormaznitsa.meta.common.annotations.Warning;
 import com.igormaznitsa.meta.common.annotations.Weight;
 import com.igormaznitsa.meta.common.exceptions.TimeViolationError;
 import com.igormaznitsa.meta.common.global.special.GlobalErrorListeners;
@@ -28,6 +27,10 @@ import java.util.Iterator;
 import java.util.List;
 import com.igormaznitsa.meta.common.annotations.MustNotContainNull;
 import com.igormaznitsa.meta.common.annotations.NonNull;
+import com.igormaznitsa.meta.common.exceptions.UnexpectedProcessingError;
+import static com.igormaznitsa.meta.common.utils.Assertions.assertNotNull;
+import com.igormaznitsa.meta.common.annotations.Constraint;
+import com.igormaznitsa.meta.common.annotations.Warning;
 
 /**
  * Allows to detect violations of execution time for blocks. It works separately
@@ -37,32 +40,29 @@ import com.igormaznitsa.meta.common.annotations.NonNull;
  * @since 1.0
  */
 @ThreadSafe
-@Weight (Weight.Unit.VARIABLE)
-@Warning ("Productivity depends on stack depth")
 public final class TimeWatchers {
 
   private TimeWatchers () {
   }
 
   /**
-   * Interface for any object to be informed about time bound violation.
+   * Interface for any object to be informed about time alerts.
    *
    * @since 1.0
    */
   @ThreadSafe
   @Weight (Weight.Unit.EXTRALIGHT)
-  public interface TimeAlertProcessor extends Serializable {
+  public interface TimeAlertListener extends Serializable {
 
     /**
-     * Process time bound violation.
+     * Process time.
      *
      * @param detectedTimeDelayInMilliseconds detected time delay in
      * milliseconds
-     * @param timeAlertItem data container with values provided during
-     * registration of time watching.
+     * @param timeData data container contains initial parameters.
      * @since 1.0
      */
-    void onTimeAlert (long detectedTimeDelayInMilliseconds, @NonNull TimeAlertItem timeAlertItem);
+    void onTimeAlert (long detectedTimeDelayInMilliseconds, @NonNull TimeData timeData);
   }
 
   /**
@@ -72,59 +72,80 @@ public final class TimeWatchers {
    */
   @ThreadSafe
   @Immutable
-  @Weight (Weight.Unit.VARIABLE)
-  public static final class TimeAlertItem implements Serializable {
+  public static final class TimeData implements Serializable {
 
     private static final long serialVersionUID = -2417415112571257128L;
 
     /**
      * Contains detected stack depth for creation.
+     *
+     * @since 1.0
      */
-    private final int detectedStackDepth;
+    private final int stackDepth;
 
     /**
      * Max allowed time delay in milliseconds.
+     *
+     * @since 1.0
      */
     private final long maxAllowedDelayInMilliseconds;
 
     /**
      * The Creation time of the data container in milliseconds.
+     *
+     * @since 1.0
      */
     private final long creationTimeInMilliseconds;
 
     /**
-     * The Alert message to be provided into log or somewhere else if detected
-     * violation.
+     * The Alert message to be provided into log or somewhere else, for time
+     * points it is ID.
+     *
+     * @since 1.0
      */
     private final String alertMessage;
 
     /**
-     * Some provided processor to be called for violation.
+     * Some provided processor to be called for alert.
+     *
+     * @since 1.0
      */
-    private final TimeAlertProcessor alertProcessor;
+    private final TimeAlertListener alertListener;
 
-    public TimeAlertItem (@Nullable final String alertMessage, final long maxAllowedDelayInMilliseconds, @Nullable final TimeAlertProcessor alertProcessor) {
-      this.detectedStackDepth = ThreadUtils.stackDepth() - 1;
+    /**
+     * The Constructor
+     *
+     * @param stackDepth stack depth
+     * @param alertMessage alert message for time violation
+     * @param maxAllowedDelayInMilliseconds max allowed time gap in milliseconds
+     * @param violationListener listener for the violation alert
+     * @since 1.0
+     */
+    @Weight (Weight.Unit.LIGHT)
+    public TimeData (@Constraint(">1")final int stackDepth, @NonNull final String alertMessage, final long maxAllowedDelayInMilliseconds, @Nullable final TimeAlertListener violationListener) {
+      this.stackDepth = stackDepth;
       this.maxAllowedDelayInMilliseconds = maxAllowedDelayInMilliseconds;
       this.creationTimeInMilliseconds = System.currentTimeMillis();
       this.alertMessage = alertMessage;
-      this.alertProcessor = alertProcessor;
+      this.alertListener = violationListener;
     }
 
     /**
-     * Get alert processor if provided
+     * Get alert listener if provided
      *
-     * @return the provided processor or null
+     * @return the provided alert listener
+     * @since 1.0
      */
     @Nullable
-    public TimeAlertProcessor getAlertProcessor () {
-      return this.alertProcessor;
+    public TimeAlertListener getAlertListener () {
+      return this.alertListener;
     }
 
     /**
-     * Get the alert message.
+     * Get the alert message. For time points it is ID.
      *
-     * @return defined alert message or null.
+     * @return defined alert message.
+     * @since 1.0
      */
     @Nullable
     public String getAlertMessage () {
@@ -135,15 +156,17 @@ public final class TimeWatchers {
      * Get the detected stack depth during the container creation.
      *
      * @return the detected stack depth
+     * @since 1.0
      */
     public int getDetectedStackDepth () {
-      return this.detectedStackDepth;
+      return this.stackDepth;
     }
 
     /**
      * Get the creation time of the container.
      *
      * @return the creation time in milliseconds
+     * @since 1.0
      */
     public long getCreationTimeInMilliseconds () {
       return this.creationTimeInMilliseconds;
@@ -153,96 +176,203 @@ public final class TimeWatchers {
      * Get defined max allowed time delay in milliseconds.
      *
      * @return the max allowed time delay in milliseconds
+     * @since 1.0
      */
     public long getMaxAllowedDelayInMilliseconds () {
       return this.maxAllowedDelayInMilliseconds;
+    }
+
+    /**
+     * Check that the object represents a named time point.
+     *
+     * @return true if the object represents a time point created for
+     * statistics.
+     */
+    public boolean isTimePoint () {
+      return this.maxAllowedDelayInMilliseconds < 0L;
     }
   }
 
   /**
    * Inside thread local storage of registered processors.
+   *
    * @since 1.0
    */
   @MustNotContainNull
-  private static final ThreadLocal<List<TimeAlertItem>> REGISTRY = new ThreadLocal<List<TimeAlertItem>>() {
+  private static final ThreadLocal<List<TimeData>> REGISTRY = new ThreadLocal<List<TimeData>>() {
     @Override
-    protected List<TimeAlertItem> initialValue () {
-      return new ArrayList<TimeAlertItem>();
+    protected List<TimeData> initialValue () {
+      return new ArrayList<TimeData>();
     }
   };
 
-  @Nullable
-  private static volatile TimeAlertProcessor globalAlertProcessor;
-
   /**
-   * Set the global processor of time violations.
-   * @param alertProcessor alert processor to be notified about <b>all non-processed violations</b>
-   * @since 1.0
-   */
-  public static void setGlobalAlertProcessor (@Nullable final TimeAlertProcessor alertProcessor) {
-    globalAlertProcessor = alertProcessor;
-  }
-
-  /**
-   * Check that provided global alert processor.
-   * @return true if such processor is defined, false otherwise
-   * @since 1.0
-   */
-  public static boolean hasDefinedGlobalAlertProcessor () {
-    return globalAlertProcessor != null;
-  }
-
-  /**
-   * Add a time watcher. The Global alert processor will be notified (if it is defined)
+   * Add a time watcher. The Global alert processor will be notified (if it is
+   * defined)
+   *
    * @param alertMessage message for time violation
-   * @param maxAllowedDelayInMilliseconds max allowed delay in milliseconds for executing block
-   * @see #checkTimeWatchers() 
-   * @see #cancelAllTimeWatchersGlobally() 
-   * @see #setGlobalAlertProcessor(com.igormaznitsa.meta.common.utils.TimeWatchers.TimeAlertProcessor) 
+   * @param maxAllowedDelayInMilliseconds max allowed delay in milliseconds for
+   * executing block
+   * @see #checkTime()
+   * @see #cancelAll()
+   * @see
+   * #setGlobalAlertProcessor(com.igormaznitsa.meta.common.utils.TimeWatchers.TimeAlertProcessor)
    * @since 1.0
    */
-  public static void addTimeWatcher (@Nullable final String alertMessage, final long maxAllowedDelayInMilliseconds) {
-    addTimeWatcher(alertMessage, maxAllowedDelayInMilliseconds, null);
+  @Weight (value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
+  @Warning ("Don't use for another similar methods")
+  public static void addWatcher (@Nullable final String alertMessage, @Constraint (">0") final long maxAllowedDelayInMilliseconds) {
+    final List<TimeData> list = REGISTRY.get();
+    list.add(new TimeData(ThreadUtils.stackDepth(), alertMessage, maxAllowedDelayInMilliseconds, null));
+  }
+
+  /**
+   * Add a named time point.
+   *
+   * @param timePointName name for the time point
+   * @param listener listener to be notified
+   * @see #endPoint(java.lang.String)
+   * @since 1.0
+   */
+  @Weight (value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
+  @Warning ("Don't use for another similar methods")
+  public static void addPoint (@NonNull final String timePointName, @NonNull final TimeAlertListener listener) {
+    final List<TimeData> list = REGISTRY.get();
+    list.add(new TimeData(ThreadUtils.stackDepth(),timePointName, -1L, assertNotNull(listener)));
+  }
+
+  /**
+   * Process named time point(s).
+   *
+   * @param timePointName the name of time point
+   * @since 1.0
+   */
+  @Weight (value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
+  public static void endPoint (@NonNull final String timePointName) {
+    final long time = System.currentTimeMillis();
+    final int stackDepth = ThreadUtils.stackDepth();
+
+    final List<TimeData> list = REGISTRY.get();
+    final Iterator<TimeData> iterator = list.iterator();
+
+    boolean detected = false;
+
+    while (iterator.hasNext()) {
+      final TimeData timeWatchItem = iterator.next();
+
+      if (timeWatchItem.isTimePoint() && timeWatchItem.getDetectedStackDepth() >= stackDepth) {
+        if (timePointName.equals(timeWatchItem.getAlertMessage())) {
+          detected |= true;
+          final long detectedDelay = time - timeWatchItem.getCreationTimeInMilliseconds();
+          try {
+            try {
+              timeWatchItem.getAlertListener().onTimeAlert(detectedDelay, timeWatchItem);
+            }
+            catch (Exception ex) {
+              final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time point processing", ex);
+              GlobalErrorListeners.fireError(error.getMessage(), error);
+            }
+          }
+          finally {
+            iterator.remove();
+          }
+        }
+      }
+    }
+    if (!detected) {
+      throw new IllegalStateException("Can't find time point [" + timePointName + ']');
+    }
+  }
+
+  /**
+   * Process all time points for the current stack level.
+   *
+   * @since 1.0
+   */
+  @Weight (value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
+  public static void endPoints () {
+    final long time = System.currentTimeMillis();
+    final int stackDepth = ThreadUtils.stackDepth();
+
+    final List<TimeData> list = REGISTRY.get();
+    final Iterator<TimeData> iterator = list.iterator();
+
+    while (iterator.hasNext()) {
+      final TimeData timeWatchItem = iterator.next();
+
+      if (timeWatchItem.isTimePoint() && timeWatchItem.getDetectedStackDepth() >= stackDepth) {
+        final long detectedDelay = time - timeWatchItem.getCreationTimeInMilliseconds();
+        try {
+          try {
+            timeWatchItem.getAlertListener().onTimeAlert(detectedDelay, timeWatchItem);
+          }
+          catch (Exception ex) {
+            final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time point processing", ex);
+            GlobalErrorListeners.fireError(error.getMessage(), error);
+          }
+        }
+        finally {
+          iterator.remove();
+        }
+      }
+    }
   }
 
   /**
    * Add a time watcher and provide processor of time violation.
+   *
    * @param alertMessage message for time violation
-   * @param maxAllowedDelayInMilliseconds max allowed delay in milliseconds for executing block
-   * @param alertProcessor alert processor to be notified, if it is null then the global one will get notification
-   * @see #checkTimeWatchers()
-   * @see #cancelAllTimeWatchersGlobally()
-   * @see #setGlobalAlertProcessor(com.igormaznitsa.meta.common.utils.TimeWatchers.TimeAlertProcessor)
+   * @param maxAllowedDelayInMilliseconds max allowed delay in milliseconds for
+   * executing block
+   * @param timeViolationListener alert listener to be notified, if it is null
+   * then the global one will get notification
+   * @see #checkTime()
+   * @see #cancelAll()
+   * @see
+   * #setGlobalAlertProcessor(com.igormaznitsa.meta.common.utils.TimeWatchers.TimeAlertProcessor)
    * @since 1.0
    */
-  public static void addTimeWatcher (@Nullable final String alertMessage, final long maxAllowedDelayInMilliseconds, @Nullable final TimeAlertProcessor alertProcessor) {
-    final List<TimeAlertItem> list = REGISTRY.get();
-    list.add(new TimeAlertItem(alertMessage, maxAllowedDelayInMilliseconds, alertProcessor));
+  @Weight (value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
+  @Warning("Don't use for another similar methods")
+  public static void addWatcher (@Nullable
+      final String alertMessage,
+                                 @Constraint (">0")
+                                 final long maxAllowedDelayInMilliseconds,
+                                 @Nullable
+                                 final TimeAlertListener timeViolationListener
+  ) {
+    final List<TimeData> list = REGISTRY.get();
+    list.add(new TimeData(ThreadUtils.stackDepth(), alertMessage, maxAllowedDelayInMilliseconds, timeViolationListener));
   }
 
   /**
-   * Cancel all time watchers globally.
+   * Cancel all time watchers and time points globally for the current thread.
+   *
+   * @see #cancel()
    * @since 1.0
    */
-  public static void cancelAllTimeWatchersGlobally () {
-    final List<TimeAlertItem> list = REGISTRY.get();
+  @Weight (Weight.Unit.NORMAL)
+  public static void cancelAll () {
+    final List<TimeData> list = REGISTRY.get();
     list.clear();
     REGISTRY.remove();
   }
 
   /**
-   * Cancel all time watchers for the current stack level.
-   * @see #cancelAllTimeWatchersGlobally() 
+   * Cancel all time watchers and time points for the current stack level.
+   *
+   * @see #cancelAll()
    * @since 1.0
    */
-  public static void cancelTimeWatchers () {
+  @Weight (value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
+  public static void cancel () {
     final int stackDepth = ThreadUtils.stackDepth();
 
-    final List<TimeAlertItem> list = REGISTRY.get();
-    final Iterator<TimeAlertItem> iterator = list.iterator();
+    final List<TimeData> list = REGISTRY.get();
+    final Iterator<TimeData> iterator = list.iterator();
 
     while (iterator.hasNext()) {
-      final TimeAlertItem timeWatchItem = iterator.next();
+      final TimeData timeWatchItem = iterator.next();
       if (timeWatchItem.getDetectedStackDepth() >= stackDepth) {
         iterator.remove();
       }
@@ -254,33 +384,48 @@ public final class TimeWatchers {
 
   /**
    * Check all registered time watchers for time bound violations.
-   * @see #addTimeWatcher(java.lang.String, long) 
-   * @see #addTimeWatcher(java.lang.String, long, com.igormaznitsa.meta.common.utils.TimeWatchers.TimeAlertProcessor) 
+   *
+   * @see #addWatcher(java.lang.String, long)
+   * @see #addWatcher(java.lang.String, long,
+   * com.igormaznitsa.meta.common.utils.TimeWatchers.TimeViolationListener)
    * @since 1.0
    */
-  public static void checkTimeWatchers () {
+  @Weight (value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
+  public static void checkTime () {
     final long time = System.currentTimeMillis();
 
     final int stackDepth = ThreadUtils.stackDepth();
 
-    final List<TimeAlertItem> list = REGISTRY.get();
-    final Iterator<TimeAlertItem> iterator = list.iterator();
+    final List<TimeData> list = REGISTRY.get();
+    final Iterator<TimeData> iterator = list.iterator();
 
     while (iterator.hasNext()) {
-      final TimeAlertItem timeWatchItem = iterator.next();
+      final TimeData timeWatchItem = iterator.next();
       if (timeWatchItem.getDetectedStackDepth() >= stackDepth) {
+        final boolean timePoint = timeWatchItem.isTimePoint();
         try {
           final long detectedDelay = time - timeWatchItem.getCreationTimeInMilliseconds();
-          if (detectedDelay > timeWatchItem.getMaxAllowedDelayInMilliseconds()) {
-            final TimeAlertProcessor processor = timeWatchItem.getAlertProcessor() == null ? globalAlertProcessor : timeWatchItem.getAlertProcessor();
+          if (timePoint) {
+            try {
+              timeWatchItem.getAlertListener().onTimeAlert(detectedDelay, timeWatchItem);
+            }
+            catch (Exception ex) {
+              final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time point processing", ex);
+              GlobalErrorListeners.fireError(error.getMessage(), error);
+            }
+          }
+          else if (detectedDelay > timeWatchItem.getMaxAllowedDelayInMilliseconds()) {
+            final TimeAlertListener processor = timeWatchItem.getAlertListener();
             if (processor == null) {
-              GlobalErrorListeners.error("Detected time violation without any processor", new TimeViolationError(detectedDelay, timeWatchItem));
-            }else{
+              GlobalErrorListeners.fireError("Detected time violation without any listener", new TimeViolationError(detectedDelay, timeWatchItem));
+            }
+            else {
               try {
                 processor.onTimeAlert(detectedDelay, timeWatchItem);
               }
               catch (Exception ex) {
-                GlobalErrorListeners.error("Error during time alert processing", ex);
+                final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time alert processing", ex);
+                GlobalErrorListeners.fireError(error.getMessage(), error);
               }
             }
           }
@@ -295,4 +440,18 @@ public final class TimeWatchers {
     }
   }
 
+  /**
+   * Check that the thread local for the current thread contains time points or
+   * watchers.
+   *
+   * @return true if the thread local storage is empty, false otherwise
+   */
+  @Weight (value = Weight.Unit.NORMAL, comment = "May create list in thread local storage")
+  public static boolean isEmpty () {
+    final boolean result = REGISTRY.get().isEmpty();
+    if (result) {
+      REGISTRY.remove();
+    }
+    return result;
+  }
 }

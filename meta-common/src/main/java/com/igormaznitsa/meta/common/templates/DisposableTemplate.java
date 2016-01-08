@@ -16,9 +16,11 @@
 package com.igormaznitsa.meta.common.templates;
 
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
+import com.igormaznitsa.meta.common.annotations.Warning;
 import com.igormaznitsa.meta.common.exceptions.AlreadyDisposedError;
 import com.igormaznitsa.meta.common.global.special.GlobalErrorListeners;
 import com.igormaznitsa.meta.common.interfaces.Disposable;
+import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -30,20 +32,32 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since 1.0
  */
 @ThreadSafe
-public abstract class DisposableTemplate implements Disposable {
+public abstract class DisposableTemplate implements Disposable,Serializable {
 
   private static final AtomicLong DISPOSABLE_OBJECT_COUNTER = new AtomicLong();
   
+  private static final long serialVersionUID = 789238003359873015L;
+  
   private final AtomicBoolean disposedFlag = new AtomicBoolean();
   
+  /**
+   * The Constructor.
+   * @since 1.0
+   */
+  @Warning("Must be called in successors")
   public DisposableTemplate () {
     DISPOSABLE_OBJECT_COUNTER.incrementAndGet();
   }
 
+  /**
+   * Auxiliary method to ensure that the object is not disposed.
+   * @throws AlreadyDisposedError if the object has been already disposed, with notification of the global error listeners
+   * @since 1.0
+   */
   protected void assertNotDisposed(){
     if (this.disposedFlag.get()){
       final AlreadyDisposedError error = new AlreadyDisposedError("Object already disposed");
-      GlobalErrorListeners.error("Detected call to disposed object", error);
+      GlobalErrorListeners.fireError("Detected call to disposed object", error);
       throw error;
     }
   }
