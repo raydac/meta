@@ -15,13 +15,13 @@
  */
 package com.igormaznitsa.meta.common.exceptions;
 
-import com.igormaznitsa.meta.common.utils.TimeWatchers;
+import com.igormaznitsa.meta.common.utils.TimeGuard;
 import com.igormaznitsa.meta.common.annotations.NonNull;
 
 /**
  * The Error shows that some time bounds violation detected during execution.
  * 
- * @see TimeWatchers
+ * @see TimeGuard
  * @since 1.0
  */
 public class TimeViolationError extends AssertionError {
@@ -29,7 +29,7 @@ public class TimeViolationError extends AssertionError {
   private static final long serialVersionUID = 9175073973098827533L;
   
   private final long detectedTimeInMilliseconds;
-  private final TimeWatchers.TimeData item;
+  private final TimeGuard.TimeData item;
   
   /**
    * The Constructor.
@@ -37,7 +37,7 @@ public class TimeViolationError extends AssertionError {
    * @param item the data container contains registration data for time watcher
    * @since 1.0
    */
-  public TimeViolationError(final long detectedTimeInMilliseconds, @NonNull final TimeWatchers.TimeData item){
+  public TimeViolationError(final long detectedTimeInMilliseconds, @NonNull final TimeGuard.TimeData item){
     super(item.getAlertMessage());
     this.detectedTimeInMilliseconds = detectedTimeInMilliseconds;
     this.item = item;
@@ -66,7 +66,7 @@ public class TimeViolationError extends AssertionError {
    * @return the data container contains data for time watcher
    */
   @NonNull
-  public TimeWatchers.TimeData getData(){
+  public TimeGuard.TimeData getData(){
     return this.item;
   }
 }

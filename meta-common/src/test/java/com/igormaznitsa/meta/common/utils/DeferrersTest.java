@@ -29,13 +29,13 @@ public class DeferrersTest {
   @Before
   public void before () {
     GlobalErrorListeners.clear();
-    TimeWatchers.cancelAll();
+    TimeGuard.cancelAll();
   }
 
   @After
   public void after () {
     GlobalErrorListeners.clear();
-    TimeWatchers.cancelAll();
+    TimeGuard.cancelAll();
   }
 
 

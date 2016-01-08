@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.meta.common.exceptions;
 
-import com.igormaznitsa.meta.common.utils.TimeWatchers;
+import com.igormaznitsa.meta.common.utils.TimeGuard;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -23,7 +23,7 @@ public class TimeViolationErrorTest {
   
   @Test
   public void testConstructorAndGetters () {
-    final TimeWatchers.TimeData data = new TimeWatchers.TimeData(334,"msg", 6789L, null);
+    final TimeGuard.TimeData data = new TimeGuard.TimeData(334,"msg", 6789L, null);
     final TimeViolationError error = new TimeViolationError(1234L, data);
     assertEquals("msg",error.getMessage());
     assertSame(data, error.getData());
