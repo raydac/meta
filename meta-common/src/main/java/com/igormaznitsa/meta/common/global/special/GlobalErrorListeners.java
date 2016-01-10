@@ -15,7 +15,6 @@
  */
 package com.igormaznitsa.meta.common.global.special;
 
-import com.igormaznitsa.meta.common.annotations.Nullable;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Weight;
 import com.igormaznitsa.meta.common.annotations.NonNull;
@@ -68,7 +67,7 @@ public final class GlobalErrorListeners {
    * @return true if presented listeners for global fireError events, false otherwise
    * @since 1.0
    */
-  public static boolean hasErrorListeners () {
+  public static boolean hasListeners () {
     return !ERROR_LISTENERS.isEmpty();
   }
 

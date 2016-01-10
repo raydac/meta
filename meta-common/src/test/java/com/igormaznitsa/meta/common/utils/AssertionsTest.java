@@ -68,5 +68,27 @@ public class AssertionsTest {
     final List list = Arrays.asList("Hello",null,"World","Universe");
     Assertions.assertDoesntContainNull(list);
   }
+
+  @Test
+  public void testAssertTrue(){
+    Assertions.assertTrue("test",true);
+    try{
+      Assertions.assertTrue("test", false);
+      fail("Must throw exception");
+    }catch(AssertionError exx){
+      
+    }
+  }
+  
+  @Test
+  public void testAssertFalse(){
+    Assertions.assertFalse("test",false);
+    try{
+      Assertions.assertFalse("test", true);
+      fail("Must throw exception");
+    }catch(AssertionError exx){
+      
+    }
+  }
   
 }

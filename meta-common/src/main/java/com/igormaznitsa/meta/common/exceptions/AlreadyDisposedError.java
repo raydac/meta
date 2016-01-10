@@ -27,14 +27,6 @@ public class AlreadyDisposedError extends AssertionError {
   private static final long serialVersionUID = 7712788236604932874L;
 
   /**
-   * The Default constructor.
-   * @since 1.0
-   */
-  public AlreadyDisposedError () {
-    super();
-  }
-
-  /**
    * Constructor with provided message.
    * @param message some text message
    * @since 1.0

@@ -116,7 +116,7 @@ public final class Assertions {
    * @param condition condition which must be false
    * @since 1.0
    */
-  public static void assertFalse(final String message, final boolean condition) {
+  public static void assertFalse(@Nullable final String message, final boolean condition) {
     if (condition) {
       final AssertionError error = new AssertionError(GetUtils.ensureNotNull(message, "Condition must be FALSE"));
       GlobalErrorListeners.fireError(error.getMessage(), error);
