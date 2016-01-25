@@ -35,7 +35,21 @@ public final class Assertions {
 
   private Assertions () {
   }
-
+  
+  /**
+   * Throw assertion error for some cause
+   * @param message description of the cause.
+   * @return generated error, but it throws AssertionError before return so that the value just for IDE.
+   * @throws AssertionError will be thrown
+   * @since 1.0
+   */
+  public static Error fail(@Nullable final String message){
+    final AssertionError error = new AssertionError(GetUtils.ensureNonNull(message, "failed"));
+    GlobalErrorListeners.fireError("Asserion error", error);
+    if (true) throw error;
+    return error;
+  }
+  
   /**
    * Assert that value is null
    *
@@ -103,7 +117,7 @@ public final class Assertions {
    */
   public static void assertTrue(@Nullable final String message, final boolean condition) {
     if (!condition){
-      final AssertionError error = new AssertionError(GetUtils.ensureNotNull(message, "Condition must be TRUE"));
+      final AssertionError error = new AssertionError(GetUtils.ensureNonNull(message, "Condition must be TRUE"));
       GlobalErrorListeners.fireError(error.getMessage(), error);
       throw error;
     }
@@ -118,7 +132,7 @@ public final class Assertions {
    */
   public static void assertFalse(@Nullable final String message, final boolean condition) {
     if (condition) {
-      final AssertionError error = new AssertionError(GetUtils.ensureNotNull(message, "Condition must be FALSE"));
+      final AssertionError error = new AssertionError(GetUtils.ensureNonNull(message, "Condition must be FALSE"));
       GlobalErrorListeners.fireError(error.getMessage(), error);
       throw error;
     }

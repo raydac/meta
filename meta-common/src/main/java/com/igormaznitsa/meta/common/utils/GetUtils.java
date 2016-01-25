@@ -22,7 +22,7 @@ import com.igormaznitsa.meta.common.annotations.NonNull;
 
 /**
  * Auxiliary methods to get values.
- * 
+ *
  * @since 1.0
  */
 @ThreadSafe
@@ -33,6 +33,7 @@ public final class GetUtils {
 
   /**
    * Get value and ensure that the value is not null
+   *
    * @param <T> type of value
    * @param value the value
    * @param defaultValue the default value to be returned if the value is null
@@ -42,12 +43,13 @@ public final class GetUtils {
    */
   @NonNull
   @Weight (Weight.Unit.LIGHT)
-  public static <T> T ensureNotNull (@Nullable final T value, @NonNull final T defaultValue) {
+  public static <T> T ensureNonNull (@Nullable final T value, @NonNull final T defaultValue) {
     return value == null ? Assertions.assertNotNull(defaultValue) : value;
   }
 
   /**
    * Get value if it is not null.
+   *
    * @param <T> type of value
    * @param value the value
    * @return the value if it is not null
@@ -56,7 +58,27 @@ public final class GetUtils {
    */
   @NonNull
   @Weight (Weight.Unit.LIGHT)
-  public static <T> T ensureNotNull (@NonNull final T value) {
+  public static <T> T ensureNonNull (@NonNull final T value) {
     return Assertions.assertNotNull(value);
+  }
+
+  /**
+   * Find the first non-null value in an array and return that.
+   *
+   * @param <T> type of value
+   * @param objects array to find value
+   * @throws AssertionError if the array is null or it doesn't contain a
+   * non-null value
+   * @return the first non-null value from the array
+   * @since 1.0
+   */
+  @NonNull
+  public static <T> T findFirstNonNull (@NonNull final T... objects) {
+    for (final T obj : ensureNonNull(objects)) {
+      if (obj != null) {
+        return obj;
+      }
+    }
+    throw Assertions.fail("Can't find non-null item [" + objects + ']');
   }
 }

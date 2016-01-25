@@ -21,37 +21,46 @@ import static org.junit.Assert.*;
 public class GetUtilsTest {
   
   @Test
-  public void testEnsureNotNull_NotNull () {
+  public void testEnsureNonNull_NonNull () {
     final Object obj = new Object();
-    assertSame(obj,GetUtils.ensureNotNull(obj));
+    assertSame(obj,GetUtils.ensureNonNull(obj));
   }
   
   @Test (expected = AssertionError.class)
-  public void testEnsureNotNull_Null () {
+  public void testEnsureNonNull_Null () {
     final Object obj = null;
-    GetUtils.ensureNotNull(obj);
+    GetUtils.ensureNonNull(obj);
   }
 
   @Test
-  public void testEnsureNotNull_ValueNotNull () {
+  public void testEnsureNonNull_ValueNonNull () {
     final Object obj = new Object();
     final Object dflt = new Object();
-    assertSame(obj, GetUtils.ensureNotNull(obj,dflt));
+    assertSame(obj, GetUtils.ensureNonNull(obj,dflt));
   }
 
   @Test
   public void testEnsureNotNull_ValueNull () {
     final Object obj = null;
     final Object dflt = new Object();
-    assertSame(dflt, GetUtils.ensureNotNull(obj,dflt));
+    assertSame(dflt, GetUtils.ensureNonNull(obj,dflt));
   }
 
   @Test (expected = AssertionError.class)
   public void testEnsureNotNull_ValueAndDefaultAreNull () {
     final Object obj = null;
     final Object dflt = null;
-    GetUtils.ensureNotNull(obj,dflt);
+    GetUtils.ensureNonNull(obj,dflt);
   }
 
-  
+  @Test
+  public void testFindFirstNonNull_Presented() {
+    final String str = "test";
+    assertSame(str, GetUtils.findFirstNonNull(null,str,new String("test")));
+  }
+
+  @Test(expected = AssertionError.class)
+  public void testFindFirstNonNull_NotPresented() {
+    GetUtils.findFirstNonNull(null,null,null);
+  }
 }
