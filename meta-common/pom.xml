@@ -13,7 +13,7 @@
   <packaging>jar</packaging>
 
   <name>meta-common</name>
-  <description>Small light set of different useful stuff for marking and measurement of code in runtime</description>
+  <description>Set of useful annotations to mark code and some auxuliary classes to make measurement and analyzing in runtime</description>
 
   <profiles>
     <profile>
