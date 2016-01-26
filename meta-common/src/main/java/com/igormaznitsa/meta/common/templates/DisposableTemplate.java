@@ -18,7 +18,7 @@ package com.igormaznitsa.meta.common.templates;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Warning;
 import com.igormaznitsa.meta.common.exceptions.AlreadyDisposedError;
-import com.igormaznitsa.meta.common.global.special.GlobalErrorListeners;
+import com.igormaznitsa.meta.common.global.special.MetaErrorListeners;
 import com.igormaznitsa.meta.common.interfaces.Disposable;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Template providing disposable functionality. It makes notification of the GCEPS.
  * 
  * @see #doDispose() 
- * @see GlobalErrorListeners
+ * @see MetaErrorListeners
  * @since 1.0
  */
 @ThreadSafe
@@ -57,7 +57,7 @@ public abstract class DisposableTemplate implements Disposable,Serializable {
   protected void assertNotDisposed(){
     if (this.disposedFlag.get()){
       final AlreadyDisposedError error = new AlreadyDisposedError("Object already disposed");
-      GlobalErrorListeners.fireError("Detected call to disposed object", error);
+      MetaErrorListeners.fireError("Detected call to disposed object", error);
       throw error;
     }
   }

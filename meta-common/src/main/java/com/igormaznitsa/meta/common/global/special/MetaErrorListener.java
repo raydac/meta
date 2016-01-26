@@ -21,12 +21,12 @@ import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Weight;
 
 /**
- * Interface of global processor catching errors detected by the common module methods.
+ * Interface for a meta error processor catching errors detected by the common module methods.
  * 
  * @since 1.0
  */
 @ThreadSafe
-public interface GlobalErrorListener {
+public interface MetaErrorListener {
   
   /**
    * The Method will be called if detected some error.

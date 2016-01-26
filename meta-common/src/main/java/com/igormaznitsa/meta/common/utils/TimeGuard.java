@@ -20,7 +20,7 @@ import com.igormaznitsa.meta.common.annotations.Nullable;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Weight;
 import com.igormaznitsa.meta.common.exceptions.TimeViolationError;
-import com.igormaznitsa.meta.common.global.special.GlobalErrorListeners;
+import com.igormaznitsa.meta.common.global.special.MetaErrorListeners;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -215,8 +215,6 @@ public final class TimeGuard {
    * executing block
    * @see #check()
    * @see #cancelAll()
-   * @see
-   * #setGlobalAlertProcessor(com.igormaznitsa.meta.common.utils.TimeWatchers.TimeAlertProcessor)
    * @since 1.0
    */
   @Weight (value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
@@ -270,7 +268,7 @@ public final class TimeGuard {
             }
             catch (Exception ex) {
               final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time point processing", ex);
-              GlobalErrorListeners.fireError(error.getMessage(), error);
+              MetaErrorListeners.fireError(error.getMessage(), error);
             }
           }
           finally {
@@ -308,7 +306,7 @@ public final class TimeGuard {
           }
           catch (Exception ex) {
             final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time point processing", ex);
-            GlobalErrorListeners.fireError(error.getMessage(), error);
+            MetaErrorListeners.fireError(error.getMessage(), error);
           }
         }
         finally {
@@ -328,8 +326,6 @@ public final class TimeGuard {
    * then the global one will get notification
    * @see #check()
    * @see #cancelAll()
-   * @see
-   * #setGlobalAlertProcessor(com.igormaznitsa.meta.common.utils.TimeWatchers.TimeAlertProcessor)
    * @since 1.0
    */
   @Weight (value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
@@ -410,13 +406,13 @@ public final class TimeGuard {
             }
             catch (Exception ex) {
               final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time point processing", ex);
-              GlobalErrorListeners.fireError(error.getMessage(), error);
+              MetaErrorListeners.fireError(error.getMessage(), error);
             }
           }
           else if (detectedDelay > timeWatchItem.getMaxAllowedDelayInMilliseconds()) {
             final TimeAlertListener processor = timeWatchItem.getAlertListener();
             if (processor == null) {
-              GlobalErrorListeners.fireError("Detected time violation without any listener", new TimeViolationError(detectedDelay, timeWatchItem));
+              MetaErrorListeners.fireError("Detected time violation without any listener", new TimeViolationError(detectedDelay, timeWatchItem));
             }
             else {
               try {
@@ -424,7 +420,7 @@ public final class TimeGuard {
               }
               catch (Exception ex) {
                 final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time alert processing", ex);
-                GlobalErrorListeners.fireError(error.getMessage(), error);
+                MetaErrorListeners.fireError(error.getMessage(), error);
               }
             }
           }

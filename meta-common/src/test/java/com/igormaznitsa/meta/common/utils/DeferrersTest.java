@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
-import com.igormaznitsa.meta.common.global.special.GlobalErrorListeners;
+import com.igormaznitsa.meta.common.global.special.MetaErrorListeners;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,13 +28,13 @@ public class DeferrersTest {
   
   @Before
   public void before () {
-    GlobalErrorListeners.clear();
+    MetaErrorListeners.clear();
     TimeGuard.cancelAll();
   }
 
   @After
   public void after () {
-    GlobalErrorListeners.clear();
+    MetaErrorListeners.clear();
     TimeGuard.cancelAll();
   }
 

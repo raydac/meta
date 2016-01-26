@@ -24,17 +24,17 @@ import org.mockito.Mockito;
  *
  * @author igorm
  */
-public class GlobalErrorListenersTest {
+public class MetaErrorListenersTest {
   
   @Test
   public void testHasListenersAndClear(){
-    final GlobalErrorListener listener = Mockito.mock(GlobalErrorListener.class);
-    assertFalse(GlobalErrorListeners.hasListeners());
-    GlobalErrorListeners.addErrorListener(listener);
-    assertTrue(GlobalErrorListeners.hasListeners());
-    GlobalErrorListeners.clear();
-    assertFalse(GlobalErrorListeners.hasListeners());
-    GlobalErrorListeners.fireError("test", new Throwable());
+    final MetaErrorListener listener = Mockito.mock(MetaErrorListener.class);
+    assertFalse(MetaErrorListeners.hasListeners());
+    MetaErrorListeners.addErrorListener(listener);
+    assertTrue(MetaErrorListeners.hasListeners());
+    MetaErrorListeners.clear();
+    assertFalse(MetaErrorListeners.hasListeners());
+    MetaErrorListeners.fireError("test", new Throwable());
     Mockito.verify(listener,Mockito.never()).onDetectedError(Mockito.anyString(), Mockito.any(Throwable.class));
   }
   
@@ -42,21 +42,21 @@ public class GlobalErrorListenersTest {
   public void testAddFireRemoveListener () {
     final AtomicInteger callCounter = new AtomicInteger();
     
-    final GlobalErrorListener listener = new GlobalErrorListener() {
+    final MetaErrorListener listener = new MetaErrorListener() {
       @Override
       public void onDetectedError (String text, Throwable error) {
         callCounter.incrementAndGet();
       }
     };
         
-    GlobalErrorListeners.fireError("test", new Throwable());
+    MetaErrorListeners.fireError("test", new Throwable());
     assertEquals(0, callCounter.get());
-    GlobalErrorListeners.addErrorListener(listener);
-    GlobalErrorListeners.fireError("test", new Throwable());
+    MetaErrorListeners.addErrorListener(listener);
+    MetaErrorListeners.fireError("test", new Throwable());
     assertEquals(1, callCounter.get());
     callCounter.set(0);
-    GlobalErrorListeners.removeErrorListener(listener);
-    GlobalErrorListeners.fireError("test", new Throwable());
+    MetaErrorListeners.removeErrorListener(listener);
+    MetaErrorListeners.fireError("test", new Throwable());
   }
   
 }

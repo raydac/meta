@@ -23,17 +23,17 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Global service processing all onDetectedError notifications in the common module methods.
+ * Service containing all error listeners for the common module methods and providing their notifications.
  * 
  * @since 1.0
  */
 @ThreadSafe
 @Weight (Weight.Unit.NORMAL)
-public final class GlobalErrorListeners {
+public final class MetaErrorListeners {
 
-  private static final List<GlobalErrorListener> ERROR_LISTENERS = new CopyOnWriteArrayList<GlobalErrorListener>();
+  private static final List<MetaErrorListener> ERROR_LISTENERS = new CopyOnWriteArrayList<MetaErrorListener>();
 
-  private GlobalErrorListeners () {
+  private MetaErrorListeners () {
   }
 
   /**
@@ -49,7 +49,7 @@ public final class GlobalErrorListeners {
    * @param value listener to be added
    * @since 1.0
    */
-  public static void addErrorListener (@NonNull final GlobalErrorListener value) {
+  public static void addErrorListener (@NonNull final MetaErrorListener value) {
     ERROR_LISTENERS.add(Assertions.assertNotNull(value));
   }
 
@@ -58,7 +58,7 @@ public final class GlobalErrorListeners {
    * @param value listener to be removed
    * @since 1.0
    */
-  public static void removeErrorListener (@NonNull final GlobalErrorListener value) {
+  public static void removeErrorListener (@NonNull final MetaErrorListener value) {
     ERROR_LISTENERS.remove(Assertions.assertNotNull(value));
   }
 
@@ -79,7 +79,7 @@ public final class GlobalErrorListeners {
    */
   @Weight(Weight.Unit.VARIABLE)
   public static void fireError (@NonNull final String text, @NonNull final Throwable error) {
-    for(final GlobalErrorListener p : ERROR_LISTENERS){
+    for(final MetaErrorListener p : ERROR_LISTENERS){
       p.onDetectedError(text, error);
     }
   }

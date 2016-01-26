@@ -19,7 +19,7 @@ import com.igormaznitsa.meta.common.annotations.NonNull;
 import com.igormaznitsa.meta.common.annotations.Nullable;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Weight;
-import com.igormaznitsa.meta.common.global.special.GlobalErrorListeners;
+import com.igormaznitsa.meta.common.global.special.MetaErrorListeners;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.util.zip.DataFormatException;
@@ -84,7 +84,7 @@ public final class IOUtils {
       return outStream.toByteArray();
     }
     catch (DataFormatException ex) {
-      GlobalErrorListeners.fireError("Can't unpack data for wrong format", ex);
+      MetaErrorListeners.fireError("Can't unpack data for wrong format", ex);
       throw new IllegalArgumentException("Wrong formatted data", ex);
     }
   }
@@ -103,7 +103,7 @@ public final class IOUtils {
         closeable.close();
       }
       catch (Exception ex) {
-        GlobalErrorListeners.fireError("Exception in closeQuetly", ex);
+        MetaErrorListeners.fireError("Exception in closeQuetly", ex);
       }
     }
   }

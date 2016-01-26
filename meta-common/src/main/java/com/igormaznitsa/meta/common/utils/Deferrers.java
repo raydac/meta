@@ -19,7 +19,7 @@ import com.igormaznitsa.meta.common.annotations.Immutable;
 import com.igormaznitsa.meta.common.annotations.Nullable;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Weight;
-import com.igormaznitsa.meta.common.global.special.GlobalErrorListeners;
+import com.igormaznitsa.meta.common.global.special.MetaErrorListeners;
 import static com.igormaznitsa.meta.common.utils.Assertions.assertNotNull;
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -129,7 +129,7 @@ public final class Deferrers {
             closeable.getClass().getMethod("close").invoke(closeable);
           }
           catch (Exception thr) {
-            GlobalErrorListeners.fireError("Error during deferred closing action", thr);
+            MetaErrorListeners.fireError("Error during deferred closing action", thr);
           }
         }
       });
@@ -253,7 +253,7 @@ public final class Deferrers {
         }
         catch (Exception ex) {
           final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during deferred action processing", ex);
-          GlobalErrorListeners.fireError(error.getMessage(), error);
+          MetaErrorListeners.fireError(error.getMessage(), error);
         }
         finally {
           iterator.remove();

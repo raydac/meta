@@ -17,8 +17,7 @@ package com.igormaznitsa.meta.common.utils;
 
 import com.igormaznitsa.meta.common.exceptions.TimeViolationError;
 import com.igormaznitsa.meta.common.exceptions.UnexpectedProcessingError;
-import com.igormaznitsa.meta.common.global.special.GlobalErrorListener;
-import com.igormaznitsa.meta.common.global.special.GlobalErrorListeners;
+import com.igormaznitsa.meta.common.global.special.MetaErrorListeners;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,18 +25,19 @@ import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import com.igormaznitsa.meta.common.global.special.MetaErrorListener;
 
 public class TimeGuardTest {
 
   @Before
   public void before(){
-    GlobalErrorListeners.clear();
+    MetaErrorListeners.clear();
     TimeGuard.cancelAll();
   }
   
   @After
   public void after(){
-    GlobalErrorListeners.clear();
+    MetaErrorListeners.clear();
     TimeGuard.cancelAll();
   }
   
@@ -74,7 +74,7 @@ public class TimeGuardTest {
   public void testGuard_OneLevel_NotificationOfGELaboutErrorDuringProcessing () throws Exception {
     final AtomicInteger detector = new AtomicInteger(0);
     
-    GlobalErrorListeners.addErrorListener(new GlobalErrorListener() {
+    MetaErrorListeners.addErrorListener(new MetaErrorListener() {
       @Override
       public void onDetectedError (final String text, final Throwable error) {
         assertEquals("UUUHHH!", error.getCause().getMessage());
@@ -100,7 +100,7 @@ public class TimeGuardTest {
   public void testGuard_OneLevel_NotificationOfGELaboutViolation () throws Exception {
     final AtomicInteger detector = new AtomicInteger(0);
     
-    GlobalErrorListeners.addErrorListener(new GlobalErrorListener() {
+    MetaErrorListeners.addErrorListener(new MetaErrorListener() {
       @Override
       public void onDetectedError (final String text, final Throwable error) {
         assertTrue(error instanceof TimeViolationError);

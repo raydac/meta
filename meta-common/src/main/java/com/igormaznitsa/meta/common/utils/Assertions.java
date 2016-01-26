@@ -22,7 +22,7 @@ import java.util.Collection;
 import com.igormaznitsa.meta.common.exceptions.AlreadyDisposedError;
 import com.igormaznitsa.meta.common.interfaces.Disposable;
 import com.igormaznitsa.meta.common.annotations.NonNull;
-import com.igormaznitsa.meta.common.global.special.GlobalErrorListeners;
+import com.igormaznitsa.meta.common.global.special.MetaErrorListeners;
 
 /**
  * Set of auxiliary methods for assertion.
@@ -45,7 +45,7 @@ public final class Assertions {
    */
   public static Error fail(@Nullable final String message){
     final AssertionError error = new AssertionError(GetUtils.ensureNonNull(message, "failed"));
-    GlobalErrorListeners.fireError("Asserion error", error);
+    MetaErrorListeners.fireError("Asserion error", error);
     if (true) throw error;
     return error;
   }
@@ -62,7 +62,7 @@ public final class Assertions {
   public static <T> T assertNull (@Nullable final T object) {
     if (object != null) {
       final AssertionError error = new AssertionError("Object must be NULL");
-      GlobalErrorListeners.fireError("Asserion error", error);
+      MetaErrorListeners.fireError("Asserion error", error);
       throw error;
     }
     return object;
@@ -80,7 +80,7 @@ public final class Assertions {
   public static <T> T assertNotNull (@NonNull final T object) {
     if (object == null) {
       final AssertionError error = new AssertionError("Object must not be NULL");
-      GlobalErrorListeners.fireError("Asserion error", error);
+      MetaErrorListeners.fireError("Asserion error", error);
       throw error;
     }
     return object;
@@ -101,7 +101,7 @@ public final class Assertions {
     for (final T obj : array) {
       if (obj == null) {
         final AssertionError error = new AssertionError("Array must not contain NULL");
-        GlobalErrorListeners.fireError("Asserion error", error);
+        MetaErrorListeners.fireError("Asserion error", error);
         throw error;
       }
     }
@@ -118,7 +118,7 @@ public final class Assertions {
   public static void assertTrue(@Nullable final String message, final boolean condition) {
     if (!condition){
       final AssertionError error = new AssertionError(GetUtils.ensureNonNull(message, "Condition must be TRUE"));
-      GlobalErrorListeners.fireError(error.getMessage(), error);
+      MetaErrorListeners.fireError(error.getMessage(), error);
       throw error;
     }
   }
@@ -133,7 +133,7 @@ public final class Assertions {
   public static void assertFalse(@Nullable final String message, final boolean condition) {
     if (condition) {
       final AssertionError error = new AssertionError(GetUtils.ensureNonNull(message, "Condition must be FALSE"));
-      GlobalErrorListeners.fireError(error.getMessage(), error);
+      MetaErrorListeners.fireError(error.getMessage(), error);
       throw error;
     }
   }
@@ -167,7 +167,7 @@ public final class Assertions {
   public static <T extends Disposable> T assertNotDisposed (@NonNull final T disposable) {
     if (disposable.isDisposed()) {
       final AlreadyDisposedError error = new AlreadyDisposedError("Object already disposed");
-      GlobalErrorListeners.fireError("Asserion error", error);
+      MetaErrorListeners.fireError("Asserion error", error);
       throw error;
     }
     return disposable;
