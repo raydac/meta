@@ -17,7 +17,7 @@ package com.igormaznitsa.meta.common.utils;
 
 import com.igormaznitsa.meta.common.exceptions.TimeViolationError;
 import com.igormaznitsa.meta.common.exceptions.UnexpectedProcessingError;
-import com.igormaznitsa.meta.common.global.special.MetaErrorListeners;
+import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,7 +25,7 @@ import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import com.igormaznitsa.meta.common.global.special.MetaErrorListener;
+import com.igormaznitsa.meta.common.exceptions.MetaErrorListener;
 
 public class TimeGuardTest {
 

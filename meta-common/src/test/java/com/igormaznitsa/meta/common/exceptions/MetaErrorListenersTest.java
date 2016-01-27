@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.meta.common.global.special;
+package com.igormaznitsa.meta.common.exceptions;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;

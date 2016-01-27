@@ -19,7 +19,7 @@ import com.igormaznitsa.meta.common.annotations.NonNull;
 import com.igormaznitsa.meta.common.annotations.Nullable;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Weight;
-import com.igormaznitsa.meta.common.global.special.MetaErrorListeners;
+import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.util.zip.DataFormatException;

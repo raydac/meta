@@ -22,7 +22,7 @@ import java.util.Collection;
 import com.igormaznitsa.meta.common.exceptions.AlreadyDisposedError;
 import com.igormaznitsa.meta.common.interfaces.Disposable;
 import com.igormaznitsa.meta.common.annotations.NonNull;
-import com.igormaznitsa.meta.common.global.special.MetaErrorListeners;
+import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
 
 /**
  * Set of auxiliary methods for assertion.

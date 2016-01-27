@@ -20,7 +20,7 @@ import com.igormaznitsa.meta.common.annotations.Nullable;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Weight;
 import com.igormaznitsa.meta.common.exceptions.TimeViolationError;
-import com.igormaznitsa.meta.common.global.special.MetaErrorListeners;
+import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -65,6 +65,17 @@ public final class TimeGuard {
     void onTimeAlert (long detectedTimeDelayInMilliseconds, @NonNull TimeData timeData);
   }
 
+  /**
+   * Some variant of "null-device" for time alerts, it does absolutely nothing.
+   * @since 1.0
+   */
+  public static final TimeAlertListener NULL_TIME_ALERT_LISTENER = new TimeAlertListener() {
+    private static final long serialVersionUID = -2291183279100986316L;
+    @Override
+    public void onTimeAlert (final long detectedTimeDelayInMilliseconds, final TimeData timeData) {
+    }
+  };
+  
   /**
    * Data container for time watching action.
    *
@@ -127,7 +138,7 @@ public final class TimeGuard {
       this.maxAllowedDelayInMilliseconds = maxAllowedDelayInMilliseconds;
       this.creationTimeInMilliseconds = System.currentTimeMillis();
       this.alertMessage = alertMessage;
-      this.alertListener = violationListener;
+      this.alertListener = GetUtils.ensureNonNull(violationListener, NULL_TIME_ALERT_LISTENER);
     }
 
     /**
@@ -136,7 +147,7 @@ public final class TimeGuard {
      * @return the provided alert listener
      * @since 1.0
      */
-    @Nullable
+    @NonNull
     public TimeAlertListener getAlertListener () {
       return this.alertListener;
     }
@@ -411,8 +422,8 @@ public final class TimeGuard {
           }
           else if (detectedDelay > timeWatchItem.getMaxAllowedDelayInMilliseconds()) {
             final TimeAlertListener processor = timeWatchItem.getAlertListener();
-            if (processor == null) {
-              MetaErrorListeners.fireError("Detected time violation without any listener", new TimeViolationError(detectedDelay, timeWatchItem));
+            if (processor == NULL_TIME_ALERT_LISTENER) {
+              MetaErrorListeners.fireError("Detected time violation without defined time alert listener", new TimeViolationError(detectedDelay, timeWatchItem));
             }
             else {
               try {

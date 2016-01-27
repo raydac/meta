@@ -18,7 +18,7 @@ package com.igormaznitsa.meta.common.templates;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Warning;
 import com.igormaznitsa.meta.common.exceptions.AlreadyDisposedError;
-import com.igormaznitsa.meta.common.global.special.MetaErrorListeners;
+import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
 import com.igormaznitsa.meta.common.interfaces.Disposable;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;

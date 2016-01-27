@@ -19,7 +19,7 @@ import com.igormaznitsa.meta.common.annotations.Immutable;
 import com.igormaznitsa.meta.common.annotations.Nullable;
 import com.igormaznitsa.meta.common.annotations.ThreadSafe;
 import com.igormaznitsa.meta.common.annotations.Weight;
-import com.igormaznitsa.meta.common.global.special.MetaErrorListeners;
+import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
 import static com.igormaznitsa.meta.common.utils.Assertions.assertNotNull;
 import java.io.Closeable;
 import java.util.ArrayList;

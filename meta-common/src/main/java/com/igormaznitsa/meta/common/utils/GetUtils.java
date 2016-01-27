@@ -79,6 +79,6 @@ public final class GetUtils {
         return obj;
       }
     }
-    throw Assertions.fail("Can't find non-null item [" + objects + ']');
+    throw Assertions.fail("Can't find non-null item in array");
   }
 }
