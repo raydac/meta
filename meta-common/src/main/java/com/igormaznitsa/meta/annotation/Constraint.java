@@ -22,11 +22,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks field or parameter by some constraint. Constraint must contain X as the value and be defined in <a href="http://commons.apache.org/proper/commons-jexl/">JEXL format</a>.
+ * It allows to mark either field or parameter by some expression. Constraint must contain X as the value and be defined in <a href="http://commons.apache.org/proper/commons-jexl/">JEXL format</a>.
  * @since 1.0
  */
 @Documented
-@Target ({ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD})
+@Target ({ElementType.PARAMETER, ElementType.FIELD})
 @Retention (RetentionPolicy.RUNTIME)
 public @interface Constraint {
   /**
