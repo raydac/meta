@@ -46,4 +46,8 @@ public enum AnnotationProcessor {
   private AnnotationProcessor(final AbstractMetaAnnotationProcessor instance){
     this.INSTANCE = instance;
   }
+
+  public String getAnnotationClassName () {
+    return this.INSTANCE.getAnnotationClass().getName();
+  }
 }

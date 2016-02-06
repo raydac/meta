@@ -15,11 +15,8 @@
  */
 package com.igormaznitsa.meta.checker;
 
-import com.igormaznitsa.meta.annotation.Risky;
-import com.igormaznitsa.meta.annotation.ToDo;
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,7 +26,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.bcel.classfile.ClassFormatException;
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.FieldOrMethod;
-import org.apache.bcel.classfile.JavaClass;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -38,6 +34,11 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.bcel.classfile.AnnotationEntry;
+import org.apache.bcel.classfile.Field;
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.classfile.Method;
+import org.apache.bcel.classfile.ParameterAnnotationEntry;
 
 @Mojo (name = "check", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class CheckerMojo extends AbstractMojo {
@@ -61,7 +62,7 @@ public class CheckerMojo extends AbstractMojo {
   private String targetDirectory;
 
   /**
-   * List of meta annotations which existing will be recognized as failure.
+   * List of meta annotations which will be recognized as failure. Names are case insensitive and if name doesn't contain dot char then only class name will be checked (without package part).
    */
   @Parameter (name = "failForAnnotations")
   private String [] failForAnnotations;
@@ -77,7 +78,7 @@ public class CheckerMojo extends AbstractMojo {
       getLog().info("................................");
     }
 
-    final Map<Class<? extends Annotation>, AtomicInteger> counters = new HashMap<Class<? extends Annotation>, AtomicInteger>();
+    final Map<String, AtomicInteger> counters = new HashMap<String, AtomicInteger>();
 
     final AtomicInteger counterWarings = new AtomicInteger();
     final AtomicInteger counterErrors = new AtomicInteger();
@@ -123,11 +124,11 @@ public class CheckerMojo extends AbstractMojo {
       }
 
       @Override
-      public void countProcessedAnnotation (final Class<? extends Annotation> annotation) {
-        AtomicInteger counter = counters.get(annotation);
+      public void countDetectedAnnotation (final String annotationClassName) {
+        AtomicInteger counter = counters.get(annotationClassName);
         if (counter == null) {
           counter = new AtomicInteger();
-          counters.put(annotation, counter);
+          counters.put(annotationClassName, counter);
         }
         counter.incrementAndGet();
       }
@@ -141,6 +142,7 @@ public class CheckerMojo extends AbstractMojo {
         getLog().debug("Processing class file : " + file.getAbsolutePath());
         try {
           final JavaClass parsed = new ClassParser(file.getAbsolutePath()).parse();
+          countAllDetectedAnnotations(context, parsed);
           for (final AnnotationProcessor p : AnnotationProcessor.values()) {
             p.getInstance().processClass(context, parsed);
           }
@@ -162,12 +164,19 @@ public class CheckerMojo extends AbstractMojo {
       
       if (this.failForAnnotations != null && this.failForAnnotations.length > 0){
         getLog().debug("Should be recognied as a failure : "+Arrays.toString(this.failForAnnotations));
-        for(final Class<? extends Annotation> detected : counters.keySet()){
+        for(final String detected : counters.keySet()){
           if (counters.get(detected).get()>0){
-            final String name = detected.getSimpleName().toLowerCase(Locale.ENGLISH);
+            final String name = detected.toLowerCase(Locale.ENGLISH);
+            final String shortName = Utils.extractShortNameOfClass(name);
             for(final String s : this.failForAnnotations){
-              if (name.equalsIgnoreCase(s)){
-                throw new MojoFailureException("Failure for detected '"+s+"' annotation");
+              if (s.indexOf('.')<0){
+                if (shortName.equalsIgnoreCase(s)){
+                  throw new MojoFailureException("Failure for detected '"+s+"' annotation");
+                }
+              }else{
+                if (name.equalsIgnoreCase(s)) {
+                  throw new MojoFailureException("Failure for detected '" + s + "' annotation");
+                }
               }
             }
           }
@@ -188,15 +197,36 @@ public class CheckerMojo extends AbstractMojo {
       else
         getLog().info(String.format("Total warnings : %d", counterErrors.get()));
       
-      getLog().info(String.format("Total To-Do : %d", extractCounter(counters, ToDo.class)));
-      getLog().info(String.format("Total risks : %d", extractCounter(counters, Risky.class)));
+      getLog().info(String.format("Total To-Do : %d", extractCounter(counters, AnnotationProcessor.TODO)));
+      getLog().info(String.format("Total risks : %d", extractCounter(counters, AnnotationProcessor.RISKY)));
       getLog().info("................................");
       getLog().info(String.format("Total time : %s", Utils.printTimeDelay(System.currentTimeMillis() - startTime)));
     }
   }
 
-  private static int extractCounter(final Map<Class<? extends Annotation>, AtomicInteger> counters,final Class<? extends Annotation> annotation){
-    final AtomicInteger result = counters.get(annotation);
+  private static void countAllDetectedAnnotations(final Context context, final JavaClass clazz) {
+    for(final AnnotationEntry ae : clazz.getAnnotationEntries()){
+      context.countDetectedAnnotation(Utils.classNameToNormalView(ae.getAnnotationType()));
+    }
+    for(final Field field : clazz.getFields()){
+      for(final AnnotationEntry ae : field.getAnnotationEntries()){
+        context.countDetectedAnnotation(Utils.classNameToNormalView(ae.getAnnotationType()));
+      }
+    }
+    for(final Method method : clazz.getMethods()){
+      for(final AnnotationEntry ae : method.getAnnotationEntries()){
+        context.countDetectedAnnotation(Utils.classNameToNormalView(ae.getAnnotationType()));
+      }
+      for(final ParameterAnnotationEntry pae : method.getParameterAnnotationEntries()){
+        for(final AnnotationEntry ae : pae.getAnnotationEntries()){
+          context.countDetectedAnnotation(Utils.classNameToNormalView(ae.getAnnotationType()));
+        }
+      }
+    }
+  }
+  
+  private static int extractCounter(final Map<String, AtomicInteger> counters,final AnnotationProcessor annotation){
+    final AtomicInteger result = counters.get(annotation.getAnnotationClassName());
     return result == null ? 0 : result.get();
   }
   

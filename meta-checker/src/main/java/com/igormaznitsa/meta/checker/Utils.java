@@ -78,6 +78,19 @@ public abstract class Utils {
     return max;
   }
 
+  public static String extractShortNameOfClass(final String className){
+    final int index = className.lastIndexOf('.');
+    return index<0 ? className : className.substring(index+1);
+  }
+  
+  public static String classNameToNormalView(final String className){
+    if (className.startsWith("L") && className.endsWith(";")){
+      return className.substring(1,className.length()-1).replace('/', '.');
+    }else{
+      return className;
+    }
+  }
+  
   public static String makeStr(final int len, final char ch) {
     final StringBuilder result = new StringBuilder(len);
     for (int i = 0; i < len; i++) {

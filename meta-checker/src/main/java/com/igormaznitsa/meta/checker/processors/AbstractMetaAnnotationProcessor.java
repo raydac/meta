@@ -30,7 +30,6 @@ import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
-import org.apache.bcel.classfile.SimpleElementValue;
 
 public abstract class AbstractMetaAnnotationProcessor {
 
@@ -154,7 +153,6 @@ public abstract class AbstractMetaAnnotationProcessor {
   }
 
   private void process (final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
-    context.countProcessedAnnotation(getAnnotationClass());
     doProcessing(context, clazz, type, pae, ae);
   }
 

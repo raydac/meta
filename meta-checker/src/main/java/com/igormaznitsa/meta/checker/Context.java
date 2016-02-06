@@ -15,7 +15,6 @@
  */
 package com.igormaznitsa.meta.checker;
 
-import java.lang.annotation.Annotation;
 import org.apache.bcel.classfile.FieldOrMethod;
 import org.apache.bcel.classfile.JavaClass;
 
@@ -27,5 +26,5 @@ public interface Context {
   void setNode(FieldOrMethod node);
   FieldOrMethod getNode();
   String nodeToString(JavaClass klazz);
-  void countProcessedAnnotation(Class<? extends Annotation> annotation);
+  void countDetectedAnnotation(final String annotationType);
 }
