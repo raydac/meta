@@ -9,6 +9,8 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <description>Maven plugin to print info about meet meta annotations, also it allows to fail build process for defined annotations.</description>
+
   <artifactId>meta-checker</artifactId>
   <packaging>maven-plugin</packaging>
 
