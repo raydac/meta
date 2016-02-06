@@ -15,16 +15,16 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
-import com.igormaznitsa.meta.common.annotations.NonNull;
-import com.igormaznitsa.meta.common.annotations.Nullable;
-import com.igormaznitsa.meta.common.annotations.ThreadSafe;
-import com.igormaznitsa.meta.common.annotations.Weight;
+import com.igormaznitsa.meta.annotation.Weight;
 import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Auxiliary methods for IO operations.
@@ -44,9 +44,9 @@ public final class IOUtils {
    * @return packed data as byte array
    * @since 1.0
    */
-  @NonNull
+  @Nonnull
   @Weight (Weight.Unit.VARIABLE)
-  public static byte[] packData (@NonNull final byte[] data) {
+  public static byte[] packData (@Nonnull final byte[] data) {
     final Deflater compressor = new Deflater(Deflater.BEST_COMPRESSION);
     compressor.setInput(Assertions.assertNotNull(data));
     compressor.finish();
@@ -70,9 +70,9 @@ public final class IOUtils {
    * @see #packData(byte[])
    * @since 1.0
    */
-  @NonNull
+  @Nonnull
   @Weight (Weight.Unit.VARIABLE)
-  public static byte[] unpackData (@NonNull final byte[] data) {
+  public static byte[] unpackData (@Nonnull final byte[] data) {
     final Inflater decompressor = new Inflater();
     decompressor.setInput(Assertions.assertNotNull(data));
     final ByteArrayOutputStream outStream = new ByteArrayOutputStream(data.length * 2);

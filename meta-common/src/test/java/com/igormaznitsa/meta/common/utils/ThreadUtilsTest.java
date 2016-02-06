@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
-import com.igormaznitsa.meta.common.annotations.Warning;
+import com.igormaznitsa.meta.annotation.Warning;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import static org.junit.Assert.*;

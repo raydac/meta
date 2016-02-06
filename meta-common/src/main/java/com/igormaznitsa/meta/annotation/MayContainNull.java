@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.meta.common.annotations;
+package com.igormaznitsa.meta.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,23 +22,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Allows to mark entities by some warning messages.
+ * Shows that marked entity can contain null among its inside values.
  * @since 1.0
  */
 @Documented
-@Target ({ElementType.TYPE,ElementType.FIELD, ElementType.METHOD, ElementType.LOCAL_VARIABLE, ElementType.PARAMETER,ElementType.CONSTRUCTOR})
+@Target ({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
 @Retention (RetentionPolicy.RUNTIME)
-public @interface Warning {
-  /**
-   * Text description of the warning.
-   * @return text description
-   * @since 1.0
-   */
-  String value();
-  /**
-   * Flag shows that the warning text should be printed into log.
-   * @return true if the warning text should be printed into log
-   * @since 1.0
-   */
-  boolean alert() default false;
+public @interface MayContainNull {
+  
 }

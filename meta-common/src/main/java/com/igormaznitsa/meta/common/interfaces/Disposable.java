@@ -15,14 +15,15 @@
  */
 package com.igormaznitsa.meta.common.interfaces;
 
-import com.igormaznitsa.meta.common.annotations.ThreadSafe;
-import com.igormaznitsa.meta.common.annotations.Weight;
+import com.igormaznitsa.meta.annotation.Weight;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Auxiliary interface describing disposable object.
  *
  * @since 1.0
  */
+@ThreadSafe
 @Weight (Weight.Unit.VARIABLE)
 public interface Disposable {
   
@@ -31,14 +32,12 @@ public interface Disposable {
    * @return true if the object is disposed
    * @since 1.0
    */
-  @ThreadSafe
   boolean isDisposed ();
 
   /**
    * Dispose object.
    * @since 1.0
    */
-  @ThreadSafe
   void dispose ();
 
 }

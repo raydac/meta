@@ -13,7 +13,7 @@
   <packaging>jar</packaging>
 
   <name>meta-common</name>
-  <description>Set of useful annotations to mark code and some auxuliary classes to make measurement and analyzing in runtime</description>
+  <description>Set of useful annotations to mark code and some auxuliary classes to make measurement and analyzing in runtime. It contains shaded findbugs jsr-305 annotations.</description>
 
   <profiles>
     <profile>
@@ -116,8 +116,30 @@
     </profile>
   </profiles>
 
+  <dependencies>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <version>${findbugs.version}</version>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.4.3</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>

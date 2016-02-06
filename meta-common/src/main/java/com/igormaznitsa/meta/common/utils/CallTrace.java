@@ -15,12 +15,12 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
-import com.igormaznitsa.meta.common.annotations.Immutable;
-import com.igormaznitsa.meta.common.annotations.NonNull;
-import com.igormaznitsa.meta.common.annotations.ThreadSafe;
-import com.igormaznitsa.meta.common.annotations.Weight;
+import com.igormaznitsa.meta.annotation.Weight;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * The Class allows to save stack trace history (it is possible to keep it in packed format) and restore it to text representation for request.
@@ -71,7 +71,7 @@ public class CallTrace implements Serializable {
    * @see #EOL_WINDOWS
    */
   @Weight(value = Weight.Unit.VARIABLE, comment = "Depends on the call stack depth")
-  public CallTrace (final int numberOfFirstIgnoredStackItems, final boolean pack, @NonNull final String eol) {
+  public CallTrace (final int numberOfFirstIgnoredStackItems, final boolean pack, @Nonnull final String eol) {
     final StackTraceElement[] allElements = Thread.currentThread().getStackTrace();
     final StringBuilder buffer = new StringBuilder((allElements.length - numberOfFirstIgnoredStackItems) * 32);
     for (int i = numberOfFirstIgnoredStackItems; i < allElements.length; i++) {
@@ -93,7 +93,7 @@ public class CallTrace implements Serializable {
    * Restore stack trace as a string from inside data representation.
    * @return the stack trace as String
    */
-  @NonNull
+  @Nonnull
   public String restoreStackTrace () {
     return new String(this.packed ? IOUtils.unpackData(this.stacktrace) : this.stacktrace, UTF8);
   }

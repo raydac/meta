@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.meta.common.annotations;
+package com.igormaznitsa.meta.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,11 +22,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Shows that marked entity can contain null as its value.
+ * Allows mark methods as impacting on something without any chance for rollback.
  * @since 1.0
  */
 @Documented
-@Target({ElementType.FIELD,ElementType.METHOD,ElementType.LOCAL_VARIABLE,ElementType.PARAMETER})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Nullable {
+@Target ({ElementType.METHOD,ElementType.TYPE})
+@Retention (RetentionPolicy.RUNTIME)
+public @interface OneWayChange {
+  /**
+   * Allows to drop some comments about object of the impact.
+   * @return comment as String
+   * @since 1.0
+   */
+  String value() default "";
 }

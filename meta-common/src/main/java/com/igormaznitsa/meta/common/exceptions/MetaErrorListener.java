@@ -15,10 +15,10 @@
  */
 package com.igormaznitsa.meta.common.exceptions;
 
-import com.igormaznitsa.meta.common.annotations.NonNull;
-import com.igormaznitsa.meta.common.annotations.Nullable;
-import com.igormaznitsa.meta.common.annotations.ThreadSafe;
-import com.igormaznitsa.meta.common.annotations.Weight;
+import com.igormaznitsa.meta.annotation.Weight;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Interface for a meta error processor catching errors detected by the common module methods.
@@ -36,5 +36,5 @@ public interface MetaErrorListener {
    * @since 1.0
    */
   @Weight (Weight.Unit.LIGHT)
-  void onDetectedError (@Nullable String text, @NonNull Throwable error);
+  void onDetectedError (@Nullable String text, @Nonnull Throwable error);
 }

@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.meta.common.exceptions;
 
-import com.igormaznitsa.meta.common.annotations.Nullable;
+import javax.annotation.Nullable;
 
 /**
  * Error if detected attempt to dispose already disposed object.

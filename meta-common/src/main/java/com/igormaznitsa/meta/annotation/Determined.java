@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.meta.common.annotations;
+package com.igormaznitsa.meta.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,12 +22,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Shows that marked entity can contain null among its inside values.
+ * Shows that <a href="https://en.wikipedia.org/wiki/Deterministic_algorithm">behavior of the entity is determined.</a>
  * @since 1.0
  */
 @Documented
-@Target ({ElementType.FIELD, ElementType.METHOD, ElementType.LOCAL_VARIABLE, ElementType.PARAMETER})
+@Target ({ElementType.METHOD,ElementType.TYPE})
 @Retention (RetentionPolicy.RUNTIME)
-public @interface MayContainNull {
+public @interface Determined {
   
 }

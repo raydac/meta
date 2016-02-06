@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.meta.common.annotations;
+package com.igormaznitsa.meta.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,12 +22,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Shows that marked entity is tread safe one and can be called in multi-thread environment without extra synchronization.
+ * Marks field or parameter by some constraint. Constraint must contain X as the value and be defined in <a href="http://commons.apache.org/proper/commons-jexl/">JEXL format</a>.
  * @since 1.0
  */
 @Documented
-@Target ({ElementType.METHOD,ElementType.TYPE,ElementType.CONSTRUCTOR})
+@Target ({ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD})
 @Retention (RetentionPolicy.RUNTIME)
-public @interface ThreadSafe {
-  
+public @interface Constraint {
+  /**
+   * Constraint.
+   * @return text represents constraint condition
+   * @since 1.0
+   */
+  String value ();
 }

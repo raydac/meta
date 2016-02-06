@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.meta.common.annotations;
+package com.igormaznitsa.meta.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,12 +22,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Shows that <a href="https://en.wikipedia.org/wiki/Nondeterministic_algorithm">behavior of the entity is non-determined.</a>
+ * Marks entity as risky one. Anyone should use its for its own risk.
  * @since 1.0
  */
 @Documented
-@Target ({ElementType.METHOD,ElementType.TYPE})
+@Target ({ElementType.METHOD,ElementType.TYPE,ElementType.CONSTRUCTOR})
 @Retention (RetentionPolicy.RUNTIME)
-public @interface NonDetermined {
-  
+public @interface Risky {
+  /**
+   * Some optional text description.
+   * @return optional text description
+   */
+  String value () default "";
 }

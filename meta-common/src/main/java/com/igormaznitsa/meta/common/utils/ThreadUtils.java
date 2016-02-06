@@ -15,10 +15,10 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
-import com.igormaznitsa.meta.common.annotations.Constraint;
-import com.igormaznitsa.meta.common.annotations.ThreadSafe;
-import com.igormaznitsa.meta.common.annotations.Weight;
-import com.igormaznitsa.meta.common.annotations.NonNull;
+import com.igormaznitsa.meta.annotation.Constraint;
+import com.igormaznitsa.meta.annotation.Weight;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Auxiliary methods for thread processing.
@@ -54,7 +54,7 @@ public final class ThreadUtils {
    * @since 1.0
    */
   @Weight (Weight.Unit.VARIABLE)
-  @NonNull
+  @Nonnull
   public static StackTraceElement stackElement () {
     final StackTraceElement[] allElements = Thread.currentThread().getStackTrace();
     return allElements[2];

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Igor Maznitsa.
+ * Copyright 2015 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.meta.common.annotations;
+package com.igormaznitsa.meta.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,17 +22,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Allows provide some link in text form for an entity. It can be url or something else. It is provided just for information.
+ * Shows that marked entity is <a href="https://en.wikipedia.org/wiki/Lazy_initialization">lazy inited one</a>
  * @since 1.0
  */
 @Documented
-@Target ({ElementType.FIELD, ElementType.METHOD, ElementType.LOCAL_VARIABLE, ElementType.PARAMETER, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
-@Retention (RetentionPolicy.RUNTIME)
-public @interface Link {
-  /**
-   * Link to some resource in String format.
-   * @return String value
-   * @since 1.0
-   */
-  String value();
+@Target({ElementType.FIELD,ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface LazyInited {
 }

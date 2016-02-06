@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.meta.common.annotations;
+package com.igormaznitsa.meta.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,12 +22,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Shows that marked entity is not tread safe and can't play role in multi-thread calls without external synchronization.
+ * Signal that marked entity needs refactoring.
  * @since 1.0
  */
 @Documented
-@Target ({ElementType.METHOD,ElementType.TYPE,ElementType.CONSTRUCTOR})
+@Target ({ElementType.METHOD, ElementType.TYPE, ElementType.CONSTRUCTOR})
 @Retention (RetentionPolicy.RUNTIME)
-public @interface NonThreadSafe {
-  
+public @interface NeedsRefactoring {
+  /**
+   * Optional text
+   * @return optional text
+   */
+  String value() default "";
 }

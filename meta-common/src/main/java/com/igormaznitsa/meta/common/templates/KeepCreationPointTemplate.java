@@ -15,14 +15,14 @@
  */
 package com.igormaznitsa.meta.common.templates;
 
-import com.igormaznitsa.meta.common.annotations.NonNull;
-import com.igormaznitsa.meta.common.annotations.ThreadSafe;
-import com.igormaznitsa.meta.common.annotations.Warning;
+import com.igormaznitsa.meta.annotation.Warning;
 import com.igormaznitsa.meta.common.utils.CallTrace;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Allows to keep information about point where instance of the class was created.
@@ -30,6 +30,7 @@ import java.util.WeakHashMap;
  * @since 1.0
  * @see CallTrace
  */
+@ThreadSafe
 public abstract class KeepCreationPointTemplate implements Serializable {
   
   private static final long serialVersionUID = 2779254573622012575L;
@@ -48,8 +49,7 @@ public abstract class KeepCreationPointTemplate implements Serializable {
    * Get the creation point stack trace for the instance.
    * @return the creation point stack trace
    */
-  @NonNull
-  @ThreadSafe
+  @Nonnull
   public final CallTrace getCreationPoint(){
     return REGISTRY.get(this);
   }

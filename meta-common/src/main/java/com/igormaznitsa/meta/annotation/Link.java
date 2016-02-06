@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Igor Maznitsa.
+ * Copyright 2016 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.meta.common.annotations;
+package com.igormaznitsa.meta.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,21 +22,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Signal that marked entity needs refactoring.
+ * Allows provide some link in text form for an entity. It can be url or something else. It is provided just for information.
  * @since 1.0
  */
 @Documented
-@Target ({ElementType.METHOD, ElementType.TYPE, ElementType.CONSTRUCTOR})
+@Target ({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Retention (RetentionPolicy.RUNTIME)
-public @interface NeedsRefactoring {
+public @interface Link {
   /**
-   * Optional text
-   * @return optional text
+   * Link to some resource in String format.
+   * @return String value
+   * @since 1.0
    */
-  String text() default "";
-  /**
-   * Flag to output the alert into log if possible
-   * @return true if should be printed into log
-   */
-  boolean alert () default false;
+  String value();
 }

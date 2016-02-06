@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.meta.common.annotations;
+package com.igormaznitsa.meta.checker;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.Annotation;
+import org.apache.bcel.classfile.FieldOrMethod;
+import org.apache.bcel.classfile.JavaClass;
 
-/**
- * Allows mark method result if the method returns link to the original object and you want notify a method user that it should be changed carefully.
- * @since 1.0
- */
-@Documented
-@Target ({ElementType.METHOD})
-@Retention (RetentionPolicy.RUNTIME)
-public @interface ReturnsOriginal {
+public interface Context {
+  void info(String info);
+  void warning(String warning);
+  void error(String error);
+  void abort(String error);
+  void setNode(FieldOrMethod node);
+  FieldOrMethod getNode();
+  String nodeToString(JavaClass klazz);
+  void countProcessedAnnotation(Class<? extends Annotation> annotation);
 }

@@ -15,14 +15,14 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
-import com.igormaznitsa.meta.common.annotations.Nullable;
-import com.igormaznitsa.meta.common.annotations.ThreadSafe;
-import com.igormaznitsa.meta.common.annotations.Weight;
+import com.igormaznitsa.meta.annotation.Weight;
 import java.util.Collection;
 import com.igormaznitsa.meta.common.exceptions.AlreadyDisposedError;
 import com.igormaznitsa.meta.common.interfaces.Disposable;
-import com.igormaznitsa.meta.common.annotations.NonNull;
 import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Set of auxiliary methods for assertion.
@@ -77,7 +77,7 @@ public final class Assertions {
    * @throws AssertionError it will be thrown if the value is null
    * @since 1.0
    */
-  public static <T> T assertNotNull (@NonNull final T object) {
+  public static <T> T assertNotNull (@Nonnull final T object) {
     if (object == null) {
       final AssertionError error = new AssertionError("Object must not be NULL");
       MetaErrorListeners.fireError("Asserion error", error);
@@ -96,7 +96,7 @@ public final class Assertions {
    * contains null
    * @since 1.0
    */
-  public static <T> T[] assertDoesntContainNull (@NonNull final T[] array) {
+  public static <T> T[] assertDoesntContainNull (@Nonnull final T[] array) {
     assertNotNull(array);
     for (final T obj : array) {
       if (obj == null) {
@@ -148,7 +148,7 @@ public final class Assertions {
    * contains null
    * @since 1.0
    */
-  public static <T extends Collection<?>> T assertDoesntContainNull (@NonNull final T collection) {
+  public static <T extends Collection<?>> T assertDoesntContainNull (@Nonnull final T collection) {
     assertNotNull(collection);
     for (final Object obj : collection) {
       assertNotNull(obj);
@@ -164,7 +164,7 @@ public final class Assertions {
    * @throws AlreadyDisposedError it will be thrown if the object is already disposed;
    * @since 1.0
    */
-  public static <T extends Disposable> T assertNotDisposed (@NonNull final T disposable) {
+  public static <T extends Disposable> T assertNotDisposed (@Nonnull final T disposable) {
     if (disposable.isDisposed()) {
       final AlreadyDisposedError error = new AlreadyDisposedError("Object already disposed");
       MetaErrorListeners.fireError("Asserion error", error);

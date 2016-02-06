@@ -15,22 +15,22 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
-import com.igormaznitsa.meta.common.annotations.Immutable;
-import com.igormaznitsa.meta.common.annotations.Nullable;
-import com.igormaznitsa.meta.common.annotations.ThreadSafe;
-import com.igormaznitsa.meta.common.annotations.Weight;
+import com.igormaznitsa.meta.annotation.Weight;
 import com.igormaznitsa.meta.common.exceptions.TimeViolationError;
 import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import com.igormaznitsa.meta.common.annotations.MustNotContainNull;
-import com.igormaznitsa.meta.common.annotations.NonNull;
+import com.igormaznitsa.meta.annotation.MustNotContainNull;
 import com.igormaznitsa.meta.common.exceptions.UnexpectedProcessingError;
 import static com.igormaznitsa.meta.common.utils.Assertions.assertNotNull;
-import com.igormaznitsa.meta.common.annotations.Constraint;
-import com.igormaznitsa.meta.common.annotations.Warning;
+import com.igormaznitsa.meta.annotation.Constraint;
+import com.igormaznitsa.meta.annotation.Warning;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Allows to detect violations of execution time for code blocks or just measure time for them. It works separately
@@ -62,7 +62,7 @@ public final class TimeGuard {
      * @param timeData data container contains initial parameters.
      * @since 1.0
      */
-    void onTimeAlert (long detectedTimeDelayInMilliseconds, @NonNull TimeData timeData);
+    void onTimeAlert (long detectedTimeDelayInMilliseconds, @Nonnull TimeData timeData);
   }
 
   /**
@@ -133,7 +133,7 @@ public final class TimeGuard {
      * @since 1.0
      */
     @Weight (Weight.Unit.LIGHT)
-    public TimeData (@Constraint(">1")final int stackDepth, @NonNull final String alertMessage, final long maxAllowedDelayInMilliseconds, @Nullable final TimeAlertListener violationListener) {
+    public TimeData (@Constraint(">1")final int stackDepth, @Nonnull final String alertMessage, final long maxAllowedDelayInMilliseconds, @Nullable final TimeAlertListener violationListener) {
       this.stackDepth = stackDepth;
       this.maxAllowedDelayInMilliseconds = maxAllowedDelayInMilliseconds;
       this.creationTimeInMilliseconds = System.currentTimeMillis();
@@ -147,7 +147,7 @@ public final class TimeGuard {
      * @return the provided alert listener
      * @since 1.0
      */
-    @NonNull
+    @Nonnull
     public TimeAlertListener getAlertListener () {
       return this.alertListener;
     }
@@ -245,7 +245,7 @@ public final class TimeGuard {
    */
   @Weight (value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
   @Warning ("Don't use for another similar methods")
-  public static void addPoint (@NonNull final String timePointName, @NonNull final TimeAlertListener listener) {
+  public static void addPoint (@Nonnull final String timePointName, @Nonnull final TimeAlertListener listener) {
     final List<TimeData> list = REGISTRY.get();
     list.add(new TimeData(ThreadUtils.stackDepth(),timePointName, -1L, assertNotNull(listener)));
   }
@@ -257,7 +257,7 @@ public final class TimeGuard {
    * @since 1.0
    */
   @Weight (value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
-  public static void checkPoint (@NonNull final String timePointName) {
+  public static void checkPoint (@Nonnull final String timePointName) {
     final long time = System.currentTimeMillis();
     final int stackDepth = ThreadUtils.stackDepth();
 

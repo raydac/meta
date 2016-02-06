@@ -16,7 +16,7 @@
 package com.igormaznitsa.meta.common.exceptions;
 
 import com.igormaznitsa.meta.common.utils.TimeGuard;
-import com.igormaznitsa.meta.common.annotations.NonNull;
+import javax.annotation.Nonnull;
 
 /**
  * The Error shows that some time bounds violation detected during execution.
@@ -37,7 +37,7 @@ public class TimeViolationError extends AssertionError {
    * @param item the data container contains registration data for time watcher
    * @since 1.0
    */
-  public TimeViolationError(final long detectedTimeInMilliseconds, @NonNull final TimeGuard.TimeData item){
+  public TimeViolationError(final long detectedTimeInMilliseconds, @Nonnull final TimeGuard.TimeData item){
     super(item.getAlertMessage());
     this.detectedTimeInMilliseconds = detectedTimeInMilliseconds;
     this.item = item;
@@ -65,7 +65,7 @@ public class TimeViolationError extends AssertionError {
    * Get the data container which was created during time watcher registration.
    * @return the data container contains data for time watcher
    */
-  @NonNull
+  @Nonnull
   public TimeGuard.TimeData getData(){
     return this.item;
   }

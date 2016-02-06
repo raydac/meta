@@ -15,22 +15,22 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
-import com.igormaznitsa.meta.common.annotations.Immutable;
-import com.igormaznitsa.meta.common.annotations.Nullable;
-import com.igormaznitsa.meta.common.annotations.ThreadSafe;
-import com.igormaznitsa.meta.common.annotations.Weight;
+import com.igormaznitsa.meta.annotation.Weight;
 import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
 import static com.igormaznitsa.meta.common.utils.Assertions.assertNotNull;
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import com.igormaznitsa.meta.common.annotations.MustNotContainNull;
+import com.igormaznitsa.meta.annotation.MustNotContainNull;
 import com.igormaznitsa.meta.common.interfaces.Disposable;
-import com.igormaznitsa.meta.common.annotations.NonNull;
-import com.igormaznitsa.meta.common.annotations.Warning;
+import com.igormaznitsa.meta.annotation.Warning;
 import com.igormaznitsa.meta.common.exceptions.UnexpectedProcessingError;
 import java.io.Serializable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Auxiliary tool to defer some actions and process them in some point
@@ -52,7 +52,6 @@ public final class Deferrers {
    *
    * @since 1.0
    */
-  @ThreadSafe
   @Immutable
   @Weight (Weight.Unit.VARIABLE)
   public abstract static class Deferred implements Serializable {
@@ -106,7 +105,7 @@ public final class Deferrers {
    * @since 1.0
    */
   @Weight (Weight.Unit.NORMAL)
-  public static void defer (@NonNull final Deferred deferred) {
+  public static void defer (@Nonnull final Deferred deferred) {
     REGISTRY.get().add(assertNotNull(deferred));
   }
 
@@ -162,7 +161,7 @@ public final class Deferrers {
    * @throws AssertionError if the runnable object is null
    */
   @Weight (Weight.Unit.NORMAL)
-  public static void defer (@NonNull final Runnable runnable) {
+  public static void defer (@Nonnull final Runnable runnable) {
     assertNotNull(runnable);
     defer(new Deferred() {
       private static final long serialVersionUID = 2061489024868070733L;
@@ -184,7 +183,7 @@ public final class Deferrers {
    * @see Disposable
    */
   @Weight (Weight.Unit.NORMAL)
-  public static void defer (@NonNull final Disposable disposable) {
+  public static void defer (@Nonnull final Disposable disposable) {
     assertNotNull(disposable);
     defer(new Deferred() {
       private static final long serialVersionUID = 7940162959962038010L;

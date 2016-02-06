@@ -15,10 +15,10 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
-import com.igormaznitsa.meta.common.annotations.Nullable;
-import com.igormaznitsa.meta.common.annotations.ThreadSafe;
-import com.igormaznitsa.meta.common.annotations.Weight;
-import com.igormaznitsa.meta.common.annotations.NonNull;
+import com.igormaznitsa.meta.annotation.Weight;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Auxiliary methods to get values.
@@ -41,9 +41,9 @@ public final class GetUtils {
    * @throws AssertionError if both the value and the default value are null
    * @since 1.0
    */
-  @NonNull
+  @Nonnull
   @Weight (Weight.Unit.LIGHT)
-  public static <T> T ensureNonNull (@Nullable final T value, @NonNull final T defaultValue) {
+  public static <T> T ensureNonNull (@Nullable final T value, @Nonnull final T defaultValue) {
     return value == null ? Assertions.assertNotNull(defaultValue) : value;
   }
 
@@ -56,9 +56,9 @@ public final class GetUtils {
    * @throws AssertionError if the value is null
    * @since 1.0
    */
-  @NonNull
+  @Nonnull
   @Weight (Weight.Unit.LIGHT)
-  public static <T> T ensureNonNull (@NonNull final T value) {
+  public static <T> T ensureNonNull (@Nonnull final T value) {
     return Assertions.assertNotNull(value);
   }
 
@@ -72,8 +72,8 @@ public final class GetUtils {
    * @return the first non-null value from the array
    * @since 1.0
    */
-  @NonNull
-  public static <T> T findFirstNonNull (@NonNull final T... objects) {
+  @Nonnull
+  public static <T> T findFirstNonNull (@Nonnull final T... objects) {
     for (final T obj : ensureNonNull(objects)) {
       if (obj != null) {
         return obj;

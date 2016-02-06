@@ -15,7 +15,8 @@
  */
 package com.igormaznitsa.meta.common.exceptions;
 
-import com.igormaznitsa.meta.common.annotations.Nullable;
+import javax.annotation.Nullable;
+
 
 /**
  * Thrown if detected unexpected exception during processing.

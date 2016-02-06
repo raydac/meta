@@ -15,12 +15,12 @@
  */
 package com.igormaznitsa.meta.common.exceptions;
 
-import com.igormaznitsa.meta.common.annotations.ThreadSafe;
-import com.igormaznitsa.meta.common.annotations.Weight;
-import com.igormaznitsa.meta.common.annotations.NonNull;
+import com.igormaznitsa.meta.annotation.Weight;
 import com.igormaznitsa.meta.common.utils.Assertions;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Service containing all error listeners for the common module methods and providing their notifications.
@@ -49,7 +49,7 @@ public final class MetaErrorListeners {
    * @param value listener to be added
    * @since 1.0
    */
-  public static void addErrorListener (@NonNull final MetaErrorListener value) {
+  public static void addErrorListener (@Nonnull final MetaErrorListener value) {
     ERROR_LISTENERS.add(Assertions.assertNotNull(value));
   }
 
@@ -58,7 +58,7 @@ public final class MetaErrorListeners {
    * @param value listener to be removed
    * @since 1.0
    */
-  public static void removeErrorListener (@NonNull final MetaErrorListener value) {
+  public static void removeErrorListener (@Nonnull final MetaErrorListener value) {
     ERROR_LISTENERS.remove(Assertions.assertNotNull(value));
   }
 
@@ -78,7 +78,7 @@ public final class MetaErrorListeners {
    * @since 1.0
    */
   @Weight(Weight.Unit.VARIABLE)
-  public static void fireError (@NonNull final String text, @NonNull final Throwable error) {
+  public static void fireError (@Nonnull final String text, @Nonnull final Throwable error) {
     for(final MetaErrorListener p : ERROR_LISTENERS){
       p.onDetectedError(text, error);
     }

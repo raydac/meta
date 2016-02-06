@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.meta.common.annotations;
+package com.igormaznitsa.meta.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,17 +22,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Allows mark methods as impacting on something without any chance for rollback.
+ * Allows to mark entities for future works.
  * @since 1.0
  */
 @Documented
-@Target ({ElementType.METHOD,ElementType.TYPE})
+@Target ({ElementType.TYPE,ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER,ElementType.CONSTRUCTOR})
 @Retention (RetentionPolicy.RUNTIME)
-public @interface OneWayChange {
+public @interface ToDo {
   /**
-   * Allows to drop some comments about object of the impact.
-   * @return comment as String
+   * Text note.
+   * @return text description
    * @since 1.0
    */
-  String comment() default "";
+  String value() default "";
 }

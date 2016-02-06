@@ -15,11 +15,11 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
-import com.igormaznitsa.meta.common.annotations.ThreadSafe;
-import com.igormaznitsa.meta.common.annotations.Weight;
+import com.igormaznitsa.meta.annotation.Weight;
 import java.lang.reflect.Array;
-import com.igormaznitsa.meta.common.annotations.MayContainNull;
-import com.igormaznitsa.meta.common.annotations.NonNull;
+import com.igormaznitsa.meta.annotation.MayContainNull;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Set of auxiliary methods to process arrays.
@@ -39,7 +39,7 @@ public final class ArrayUtils {
      * @return all joined arrays as single array
      * @since 1.0
      */
-    @NonNull
+    @Nonnull
     @MayContainNull
     @Weight (Weight.Unit.NORMAL)
     public static <T> T[] joinArrays(@MayContainNull final T[] ... arrays){
