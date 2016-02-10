@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
       
@@ -13,7 +13,7 @@
   <packaging>jar</packaging>
 
   <name>meta-common</name>
-  <description>Set of useful annotations to mark code and some auxuliary classes to make measurement and analyzing in runtime. It contains shaded findbugs jsr-305 annotations.</description>
+  <description>Set of annotations and auxuliary classes to mark code and make measurement and analyzing in runtime. It contains shaded FindBugs jsr-305 annotations.</description>
 
   <profiles>
     <profile>
@@ -50,7 +50,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
-            <version>2.4</version>
+            <version>2.6</version>
             <executions>
               <execution>
                 <id>make-distributive</id>
@@ -80,11 +80,24 @@
               </execution>
             </executions>
           </plugin>
-          
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>2.4</version>
+            <executions>
+              <execution>
+                <id>generate-sources</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.9</version>
+            <version>2.10.3</version>
             <executions>
               <execution>
                 <id>generate-javadoc</id>
@@ -143,7 +156,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.3</version>
+        <version>3.5</version>
         <configuration>
           <compilerArgument>-Xlint:all</compilerArgument>
           <verbose>true</verbose>
