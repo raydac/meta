@@ -15,6 +15,8 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
+import com.igormaznitsa.meta.common.exceptions.AlreadyDisposedError;
+import com.igormaznitsa.meta.common.interfaces.Disposable;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -87,6 +89,44 @@ public class AssertionsTest {
       Assertions.assertFalse("test", true);
       fail("Must throw exception");
     }catch(AssertionError exx){
+      
+    }
+  }
+
+  @Test
+  public void testAssertNotDisposed_NotDisposed() {
+    final Disposable obj = new Disposable() {
+      @Override
+      public boolean isDisposed () {
+        return false;
+      }
+
+      @Override
+      public void dispose () {
+        fail();
+      }
+    };
+    
+    Assertions.assertNotDisposed(obj);
+  }
+  
+  @Test
+  public void testAssertNotDisposed_Disposed() {
+    final Disposable obj = new Disposable() {
+      @Override
+      public boolean isDisposed () {
+        return true;
+      }
+
+      @Override
+      public void dispose () {
+        fail();
+      }
+    };
+    try{
+      Assertions.assertNotDisposed(obj);
+      fail();
+    }catch(AlreadyDisposedError ex){
       
     }
   }

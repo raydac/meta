@@ -118,7 +118,7 @@ public final class Deferrers {
    */
   @Warning("Using reflection")
   @Weight (Weight.Unit.NORMAL)
-  public static void deferredClosing (@Nullable final Object closeable) {
+  public static void deferredClose (@Nullable final Object closeable) {
     if (closeable != null) {
       defer(new Deferred() {
         private static final long serialVersionUID = 2265124256013043847L;
