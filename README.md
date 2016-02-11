@@ -1,5 +1,5 @@
 [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Java 6.0+](https://img.shields.io/badge/java-5.0%2b-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+[![Java 6.0+](https://img.shields.io/badge/java-6.0%2b-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 [![PayPal donation](https://img.shields.io/badge/donation-PayPal-red.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AHWJHJFBAWGL2)
 
 It is a small general-purpose library includes:
@@ -8,6 +8,7 @@ It is a small general-purpose library includes:
 * maven plugin to print info about the annotations into log
 
 #Annotations
+It contains number annotations to mark code, plus JSR-305 annotations provided by the shaded findbugs annotation library.
 * Constraint
 * Determined
 * NonDetermined
