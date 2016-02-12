@@ -11,9 +11,9 @@ It is a small general-purpose library includes:
 
 #Change log
 __1.0.1 (12-feb-2016)__
-* Bug fixing
+* Bug fixing   
 __1.0 (10-feb-2016)__
-* Initial version
+* Initial version   
 
 #Annotations
 It contains number annotations to mark code, plus JSR-305 annotations provided by the shaded findbugs annotation library.
