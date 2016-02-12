@@ -9,11 +9,11 @@ It is a small general-purpose library includes:
 * shaded com.google.code.findbugs:jsr305 annotation library
 * maven plugin to print info about the annotations into log
 
-#Change log
-__1.0.1 (12-feb-2016)__
-* Bug fixing   
-__1.0 (10-feb-2016)__
-* Initial version   
+# Change log
+* __1.0.1 (12-feb-2016)__
+ * Bug fixing
+* __1.0 (10-feb-2016)__
+ * Initial version
 
 #Annotations
 It contains number annotations to mark code, plus JSR-305 annotations provided by the shaded findbugs annotation library.
