@@ -196,9 +196,9 @@ public class CheckerMojo extends AbstractMojo {
         getLog().info(String.format("Total errors : %d", counterErrors.get()));
       
       if (counterWarings.get() > 0)
-        getLog().warn(String.format("Total warnings : %d",counterErrors.get()));
+        getLog().warn(String.format("Total warnings : %d", counterWarings.get()));
       else
-        getLog().info(String.format("Total warnings : %d", counterErrors.get()));
+        getLog().info(String.format("Total warnings : %d", counterWarings.get()));
       
       getLog().info("................................");
       getLog().info(String.format("Total time : %s", Utils.printTimeDelay(System.currentTimeMillis() - startTime)));
