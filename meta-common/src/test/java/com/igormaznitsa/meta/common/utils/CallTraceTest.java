@@ -24,7 +24,14 @@ public class CallTraceTest {
   public void testConstructor () {
     final CallTrace callTrace = new CallTrace();
     final String[] lines = callTrace.toString().split("\n");
-    assertTrue(lines[0].contains("testConstructor") && lines[0].contains("CallTraceTest") && lines[0].contains(":25"));
+    assertTrue(lines[0].contains("THREAD_ID : "));
+    assertTrue(lines[1].contains("testConstructor") && lines[1].contains("CallTraceTest") && lines[1].contains(":25"));
+  }
+
+  @Test
+  public void testThreadDescriptor() {
+    final CallTrace callTrace = new CallTrace();
+    assertTrue(callTrace.getThreadDescriptor().equals(Thread.currentThread().toString()));
   }
 
 }

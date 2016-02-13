@@ -30,7 +30,7 @@ public class KeepCreationPointTemplateTest {
   public void testCreateInstance() {
     final KCPTest t = new KCPTest();
     final String [] parsed = t.getCreationPoint().toString().split("\n");
-    assertTrue(parsed[0].contains("KeepCreationPointTemplateTest") && parsed[0].contains("testCreateInstance") && parsed[0].contains(":31"));
+    assertTrue(parsed[1].contains("KeepCreationPointTemplateTest") && parsed[1].contains("testCreateInstance") && parsed[1].contains(":31"));
   }
 
   private static KCPTest _make() {
@@ -41,7 +41,7 @@ public class KeepCreationPointTemplateTest {
   public void testCreateInstance_2() {
     final KCPTest t = _make();
     final String[] parsed = t.getCreationPoint().toString().split("\n");
-    assertTrue(parsed[0].contains("KeepCreationPointTemplateTest") && parsed[0].contains("_make") && parsed[0].contains(":37"));
+    assertTrue(parsed[1].contains("KeepCreationPointTemplateTest") && parsed[1].contains("_make") && parsed[1].contains(":37"));
   }
 
 }

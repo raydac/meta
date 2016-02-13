@@ -50,6 +50,8 @@ public class CallTrace implements Serializable {
 
   private final boolean packed;
   private final byte[] stacktrace;
+  private final String threadDescriptor;
+  private final String eol;
 
   /**
    * The Constructor allows to create call trace history point for the called method.
@@ -72,6 +74,9 @@ public class CallTrace implements Serializable {
    */
   @Weight(value = Weight.Unit.VARIABLE, comment = "Depends on the call stack depth")
   public CallTrace(final boolean skipConstructors, final boolean pack, @Nonnull final String eol) {
+    this.eol = eol;
+    this.threadDescriptor = Thread.currentThread().toString();
+
     final StackTraceElement[] allElements = Thread.currentThread().getStackTrace();
 
     int index = 1;
@@ -101,12 +106,24 @@ public class CallTrace implements Serializable {
   }
 
   /**
+   * Get the descriptor of the thread where the object instance was created.
+   *
+   * @return the descriptor as String
+   * @see Thread#toString()
+   * @since 1.0.2
+   */
+  @Nonnull
+  public String getThreadDescriptor() {
+    return this.threadDescriptor;
+  }
+
+  /**
    * Restore stack trace as a string from inside data representation.
    * @return the stack trace as String
    */
   @Nonnull
   public String restoreStackTrace () {
-    return new String(this.packed ? IOUtils.unpackData(this.stacktrace) : this.stacktrace, UTF8);
+    return "THREAD_ID : " + this.threadDescriptor + this.eol + new String(this.packed ? IOUtils.unpackData(this.stacktrace) : this.stacktrace, UTF8);
   }
 
   @Override
