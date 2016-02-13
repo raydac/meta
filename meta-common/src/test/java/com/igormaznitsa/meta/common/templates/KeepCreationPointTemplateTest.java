@@ -18,7 +18,7 @@ package com.igormaznitsa.meta.common.templates;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class KeepCreationHistoryTemplateTest {
+public class KeepCreationPointTemplateTest {
   
   private static class KCPTest extends KeepCreationPointTemplate {
 
@@ -27,10 +27,21 @@ public class KeepCreationHistoryTemplateTest {
   }
   
   @Test
-  public void testCreateInstance () {
+  public void testCreateInstance() {
     final KCPTest t = new KCPTest();
     final String [] parsed = t.getCreationPoint().toString().split("\n");
-    assertTrue(parsed[0].contains("KeepCreationHistoryTemplateTest") && parsed[0].contains("testCreateInstance") && parsed[0].contains(":31"));
+    assertTrue(parsed[0].contains("KeepCreationPointTemplateTest") && parsed[0].contains("testCreateInstance") && parsed[0].contains(":31"));
   }
-  
+
+  private static KCPTest _make() {
+    return new KCPTest();
+  }
+
+  @Test
+  public void testCreateInstance_2() {
+    final KCPTest t = _make();
+    final String[] parsed = t.getCreationPoint().toString().split("\n");
+    assertTrue(parsed[0].contains("KeepCreationPointTemplateTest") && parsed[0].contains("_make") && parsed[0].contains(":37"));
+  }
+
 }

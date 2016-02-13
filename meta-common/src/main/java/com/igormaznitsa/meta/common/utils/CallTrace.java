@@ -57,29 +57,40 @@ public class CallTrace implements Serializable {
    * @see #EOL_LINUX
    */
   public CallTrace () {
-    this(3, true, EOL_LINUX);
+    this(true, true, EOL_LINUX);
   }
 
   /**
    * The Constructor allows to create call trace history with defined end-of-line symbol and since needed stack item position.
-   * @param numberOfFirstIgnoredStackItems number of ignorable first stack trace items to avoid saving of internal calls.
+   * @param skipConstructors flag to skip first calls from constructors in the stack.
    * @param pack flag shows that string data must be packed, false if should not be packed
    * @param eol string shows which end-of-line should be used
    * 
-   * @since 1.0
+   * @since 1.0.2
    * @see #EOL_LINUX
    * @see #EOL_WINDOWS
    */
   @Weight(value = Weight.Unit.VARIABLE, comment = "Depends on the call stack depth")
-  public CallTrace (final int numberOfFirstIgnoredStackItems, final boolean pack, @Nonnull final String eol) {
+  public CallTrace(final boolean skipConstructors, final boolean pack, @Nonnull final String eol) {
     final StackTraceElement[] allElements = Thread.currentThread().getStackTrace();
-    final StringBuilder buffer = new StringBuilder((allElements.length - numberOfFirstIgnoredStackItems) * 32);
-    for (int i = numberOfFirstIgnoredStackItems; i < allElements.length; i++) {
+
+    int index = 1;
+
+    if (skipConstructors) {
+      for (; index < allElements.length; index++) {
+        if (!allElements[index].getMethodName().equals("<init>")) {
+          break;
+        }
+      }
+    }
+    final StringBuilder buffer = new StringBuilder((allElements.length - index) * 32);
+    for (; index < allElements.length; index++) {
       if (buffer.length() > 0) {
         buffer.append(eol);
       }
-      buffer.append(allElements[i].toString());
+      buffer.append(allElements[index].toString());
     }
+
     this.packed = pack;
     if (pack) {
       this.stacktrace = IOUtils.packData(buffer.toString().getBytes(UTF8));
