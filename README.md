@@ -10,6 +10,8 @@ It is a small general-purpose library includes:
 * maven plugin to print info about the annotations into log
 
 # Change log
+* __1.0.2-SNAPSHOT__
+ * Fixed KeepCreationPointTemplate, also added thread id info
 * __1.0.1 (12-feb-2016)__
  * Bug fixing
 * __1.0 (10-feb-2016)__
