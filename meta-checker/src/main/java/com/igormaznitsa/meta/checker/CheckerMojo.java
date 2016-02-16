@@ -15,6 +15,9 @@
  */
 package com.igormaznitsa.meta.checker;
 
+import com.igormaznitsa.meta.checker.jversion.LongComparator;
+import com.igormaznitsa.meta.checker.jversion.JavaVersion;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,6 +26,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.bcel.classfile.ClassFormatException;
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.FieldOrMethod;
@@ -62,11 +66,23 @@ public class CheckerMojo extends AbstractMojo {
   private String targetDirectory;
 
   /**
+   * Restrict compiled class format version. Also '=','&lt;=','&gt;=','&lt;','&gt;' can be used. Java version can be
+   * '1.1','1.2','1.3','1.4','5','6','7','8','5.0','6.0','7.0','8.0'.
+   *
+   * @since 1.0.2
+   */
+  @Parameter(defaultValue = "null", name = "restrictClassFormat")
+  private String restrictClassFormat;
+
+  /**
    * List of meta annotations which will be recognized as failure. Names are case insensitive and if name doesn't contain dot char then only class name will be checked (without package part).
    */
   @Parameter (name = "failForAnnotations")
   private String [] failForAnnotations;
-  
+
+  private LongComparator comparatorForJavaVersion;
+  private JavaVersion decodedJavaVersion;
+
   @Override
   public void execute () throws MojoExecutionException, MojoFailureException {
     final File targetDirectoryFile = new File(this.targetDirectory);
@@ -76,6 +92,23 @@ public class CheckerMojo extends AbstractMojo {
     else {
       getLog().info("Folder to find classes : " + targetDirectoryFile.getAbsolutePath());
       getLog().info("................................");
+    }
+
+    if (this.restrictClassFormat != null) {
+      String javaClassVersion = this.restrictClassFormat.trim();
+      if (javaClassVersion.isEmpty()) {
+        throw new IllegalArgumentException("Detected empty value for 'restrictClassFormat'");
+      }
+      this.comparatorForJavaVersion = LongComparator.find(javaClassVersion);
+      if (this.comparatorForJavaVersion == null && Character.isDigit(javaClassVersion.charAt(0))) {
+        this.comparatorForJavaVersion = LongComparator.EQU;
+      }
+      else {
+        javaClassVersion = javaClassVersion.substring(this.comparatorForJavaVersion.getText().length()).trim();
+      }
+      this.decodedJavaVersion = JavaVersion.decode(javaClassVersion);
+      if (this.decodedJavaVersion == null)
+        throw new IllegalArgumentException("Illegal java version or expression in 'restrictClassFormat': " + this.restrictClassFormat);
     }
 
     final Map<String, AtomicInteger> counters = new HashMap<String, AtomicInteger>();
@@ -142,6 +175,11 @@ public class CheckerMojo extends AbstractMojo {
         getLog().debug("Processing class file : " + file.getAbsolutePath());
         try {
           final JavaClass parsed = new ClassParser(file.getAbsolutePath()).parse();
+          if (!isClassVersionAllowed(parsed)) {
+            getLog().error("Detected illegal class format '" + JavaVersion.decode(parsed.getMajor()) + "'for " + file.getAbsolutePath());
+            counterErrors.incrementAndGet();
+            break;
+          }
           countAllDetectedAnnotations(context, parsed);
           for (final AnnotationProcessor p : AnnotationProcessor.values()) {
             p.getInstance().processClass(context, parsed);
@@ -203,6 +241,13 @@ public class CheckerMojo extends AbstractMojo {
       getLog().info("................................");
       getLog().info(String.format("Total time : %s", Utils.printTimeDelay(System.currentTimeMillis() - startTime)));
     }
+  }
+
+  private boolean isClassVersionAllowed(final JavaClass klazz) {
+    if (this.comparatorForJavaVersion == null) {
+      return true;
+    }
+    return this.comparatorForJavaVersion.compare(klazz.getMajor(), this.decodedJavaVersion.getValue());
   }
 
   private static void countAllDetectedAnnotations(final Context context, final JavaClass clazz) {

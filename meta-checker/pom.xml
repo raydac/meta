@@ -65,11 +65,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.4</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.maven.plugin-testing</groupId>
       <artifactId>maven-plugin-testing-harness</artifactId>
       <version>2.1</version>
@@ -226,6 +221,7 @@
             <goals>
               <goal>helpmojo</goal>
             </goals>
+            <phase>process-classes</phase>
           </execution>
         </executions>
       </plugin>
