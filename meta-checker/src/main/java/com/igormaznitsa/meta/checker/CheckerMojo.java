@@ -69,6 +69,10 @@ public class CheckerMojo extends AbstractMojo {
    * Restrict compiled class format version. Also '=','&lt;=','&gt;=','&lt;','&gt;' can be used. Java version can be
    * '1.1','1.2','1.3','1.4','5','6','7','8','5.0','6.0','7.0','8.0'.
    *
+   * <code>
+   * &lt;restrictClassFormat&gt;&lt;![CDATA[&lt;8]]&gt;&lt;/restrictClassFormat&gt;
+   * </code>
+   *
    * @since 1.0.2
    */
   @Parameter(defaultValue = "null", name = "restrictClassFormat")
