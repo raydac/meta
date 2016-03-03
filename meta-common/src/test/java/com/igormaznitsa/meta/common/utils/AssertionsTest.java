@@ -130,5 +130,29 @@ public class AssertionsTest {
       
     }
   }
-  
+
+  @Test(expected = AssertionError.class)
+  public void testAssertAmong_Null_NotPresented() {
+    Assertions.assertAmong(null, 1, 2, 3, 4, 5);
+  }
+
+  @Test
+  public void testAssertAmong_Null_Presented() {
+    assertNull(Assertions.assertAmong(null, 1, 2, null, 3, 4, 5));
+  }
+
+  @Test(expected = AssertionError.class)
+  public void testAssertAmong_Obj_NotPresented() {
+    Assertions.assertAmong("Hello", 1, 2, null, "Yu", 3, 4, 5);
+  }
+
+  @Test
+  public void testAssertAmong_Obj_Presented() {
+    final String test = "Hello";
+    final String newStr = new String("Hello");
+    final String text = Assertions.assertAmong(test, "h", "kjf", null, newStr, "fsfds", "dfd4", "5");
+    assertNotSame(test, text);
+    assertSame(text, newStr);
+  }
+
 }
