@@ -19,12 +19,18 @@ import org.apache.bcel.classfile.FieldOrMethod;
 import org.apache.bcel.classfile.JavaClass;
 
 public interface Context {
-  void info(String info);
-  void warning(String warning);
-  void error(String error);
-  void abort(String error);
-  void setNode(FieldOrMethod node);
+
+  void info(String info, boolean showProcessingItem);
+
+  void warning(String warning, boolean showProcessingItem);
+
+  void error(String error, boolean showProcessingItem);
+
+  void abort(String error, boolean showProcessingItem);
+
+  void setProcessingItem(JavaClass klazz, FieldOrMethod node);
+
   FieldOrMethod getNode();
-  String nodeToString(JavaClass klazz);
+
   void countDetectedAnnotation(final String annotationType);
 }

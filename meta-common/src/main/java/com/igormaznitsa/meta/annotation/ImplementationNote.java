@@ -22,14 +22,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Allows to mark entities by some implementation specific information as text.
+ * Allows to define some implementation note about marked entity. Like how to use that or sequence of calls.
  *
  * @since 1.0.2
  */
 @Documented
 @Target ({ElementType.TYPE,ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER,ElementType.CONSTRUCTOR})
 @Retention (RetentionPolicy.RUNTIME)
-public @interface ImplementationSpecific {
+public @interface ImplementationNote {
   /**
    * Text description of the warning.
    * @return text description

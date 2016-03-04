@@ -22,7 +22,7 @@ import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-@SuppressWarnings ("rawtypes")
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class AssertionsTest {
 
   @Test

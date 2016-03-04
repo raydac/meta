@@ -15,7 +15,17 @@
  */
 package com.igormaznitsa.meta.checker;
 
-import java.util.*;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.bcel.classfile.Field;
+import org.apache.bcel.classfile.FieldOrMethod;
+import org.apache.bcel.classfile.LineNumberTable;
+import org.apache.bcel.classfile.LocalVariableTable;
+import org.apache.bcel.classfile.Method;
+import org.apache.bcel.classfile.Utility;
 import org.apache.commons.io.FilenameUtils;
 import org.joda.time.Duration;
 import org.joda.time.Period;
@@ -97,6 +107,72 @@ public abstract class Utils {
       result.append(ch);
     }
     return result.toString();
+  }
+
+  public static String normalizeClassName(final String canonicalClassName) {
+    String result = canonicalClassName.replace('.', '/');
+    final int index = result.lastIndexOf('$');
+    result = index >= 0 ? result.substring(0, index) : result;
+    return result;
+  }
+
+  public static String asString(final FieldOrMethod item) {
+    final StringBuilder result = new StringBuilder();
+    if (item != null) {
+      if (item instanceof Field) {
+        final Field field = (Field) item;
+        final String type = Utility.signatureToString(field.getSignature());
+        final String name = field.getName();
+        result.append(type).append(' ').append(name);
+      }
+      else {
+        final Method method = (Method) item;
+        final String type = Utility.methodSignatureReturnType(method.getSignature());
+        final String name = method.getName();
+        final String args[] = Utility.methodSignatureArgumentTypes(method.getSignature());
+        final LocalVariableTable locVars = method.getLocalVariableTable();
+
+        result.append(type).append(' ').append(name).append('(');
+        final int locVarOffset = method.isStatic() ? 0 : 1;
+        int index = 0;
+        for (final String a : args) {
+          if (index > 0) {
+            result.append(',');
+          }
+          result.append(a);
+          final int argIndex = locVarOffset + index;
+          if (locVars != null && argIndex < locVars.getTableLength()) {
+            final String argName = locVars.getLocalVariable(argIndex, 0).getName();
+            if (argName != null) {
+              result.append(' ').append(argName);
+            }
+          }
+          index++;
+        }
+        result.append(')');
+      }
+    }
+    return result.toString();
+  }
+
+  public static int findLineNumber(final FieldOrMethod fieldOrMethod) {
+    int result = -1;
+    if (fieldOrMethod != null) {
+      if (fieldOrMethod instanceof Method) {
+        final Method method = (Method) fieldOrMethod;
+        final LineNumberTable lineTable = method.getLineNumberTable();
+        if (lineTable != null && lineTable.getTableLength() > 0) {
+          result = lineTable.getLineNumberTable()[0].getLineNumber();
+          if (result > 1) {
+            result--;
+          }
+        }
+      }
+      else {
+        final Field field = (Field) fieldOrMethod;
+      }
+    }
+    return result;
   }
 
   public static List<String> splitToLines(final String str) {

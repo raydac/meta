@@ -40,9 +40,9 @@ public final class Constraint extends AbstractMetaAnnotationProcessor {
       final Expression expression = JEXL.createExpression(text);
       final String dumped = expression.dump().toUpperCase(Locale.ENGLISH);
       if (!(dumped.contains("X ") || dumped.contains(" X ") || dumped.contains(" X;")))
-        context.error(String.format("Can't detect 'X' at constraint expression '%s' at %s", text, context.nodeToString(clazz)));
+        context.error(String.format("can't detect 'X' at constraint expression '%s'", text), true);
     }catch(Throwable thr){
-      context.error(String.format("Wrong constraint expression '%s' at %s", text, context.nodeToString(clazz)));
+      context.error(String.format("wrong constraint expression '%s'", text), true);
     }
   }
 

@@ -10,7 +10,7 @@
   </parent>
 
   <name>meta-checker</name>
-  <description>Maven plugin to print info about meta annotations, also it allows to generate failiure during build process for custom annotations.</description>
+  <description>Maven plugin to check some of meta annotations from the meta-common package (it doesn't check jr-305 annotations, use FindBugs plugin!), also can check version of java classes and generate failures if version is not compatible with defined one.</description>
 
   <artifactId>meta-checker</artifactId>
   <packaging>maven-plugin</packaging>

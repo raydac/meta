@@ -33,12 +33,15 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface Weight {
   /**
-   * Contains units. They are very subjective ones but allow to describe weight of a method in subjective units.
+   * Contains allowed units for execution weight. They are very subjective ones but allow to describe weight of a method in subjective units.
+   * <b>NB! Keep in mind that the units are very subjective ones!</b>
+   *
    * @since 1.0
    */
   enum Unit {
     /**
-     * Variable weight, can be changed in wide interval. Mainly the same like undefined.
+     * Variable weight, can be changed in wide interval. Synonym of undefined.
+     *
      * @since 1.0
      */
     VARIABLE,

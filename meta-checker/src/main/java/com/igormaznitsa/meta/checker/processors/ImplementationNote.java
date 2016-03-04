@@ -22,17 +22,15 @@ import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
 
-public class ImplementationSpecific extends AbstractMetaAnnotationProcessor {
+public class ImplementationNote extends AbstractMetaAnnotationProcessor {
 
   @Override
   protected void doProcessing (final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
-//    final String text = extractStrValue("value", ae, "");
-//    context.warning(text + " at " + context.nodeToString(clazz));
   }
 
   @Override
   public Class<? extends Annotation> getAnnotationClass () {
-    return com.igormaznitsa.meta.annotation.ImplementationSpecific.class;
+    return com.igormaznitsa.meta.annotation.ImplementationNote.class;
   }
   
 }

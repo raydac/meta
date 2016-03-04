@@ -27,7 +27,7 @@ public class NeedsRefactoring extends AbstractMetaAnnotationProcessor {
   @Override
   protected void doProcessing (final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
     final String text = extractStrValue("value", ae, "");
-    context.warning("Needs refactoring : "+ text+" at "+context.nodeToString(clazz));
+    context.warning("is marked for refactoring : " + text, true);
   }
 
   @Override

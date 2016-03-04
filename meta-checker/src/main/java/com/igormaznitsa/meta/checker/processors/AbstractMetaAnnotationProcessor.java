@@ -79,7 +79,7 @@ public abstract class AbstractMetaAnnotationProcessor {
       processMethods(context, clazz, clazz.getMethods());
     }
     
-    context.setNode(null);
+    context.setProcessingItem(clazz, null);
   }
 
   private void processType (final Context context, final JavaClass clazz, final AnnotationEntry[] annotations) {
@@ -92,7 +92,7 @@ public abstract class AbstractMetaAnnotationProcessor {
 
   private void processFields (final Context context, final JavaClass clazz, final Field[] fields) {
     for (final Field f : fields) {
-      context.setNode(f);
+      context.setProcessingItem(clazz, f);
       for (final AnnotationEntry ae : f.getAnnotationEntries()) {
         if (ANNOTATION_TYPE.equals(ae.getAnnotationType())) {
           process(context, clazz, ElementType.FIELD, null, ae);
@@ -103,7 +103,7 @@ public abstract class AbstractMetaAnnotationProcessor {
 
   private void processMethods (final Context context, final JavaClass clazz, final Method[] methods) {
     for (final Method m : methods) {
-      context.setNode(m);
+      context.setProcessingItem(clazz, m);
       if (isElementTypeAllowed(ElementType.METHOD)) {
         for (final AnnotationEntry ae : m.getAnnotationEntries()) {
           if (ANNOTATION_TYPE.equals(ae.getAnnotationType())) {
@@ -133,7 +133,7 @@ public abstract class AbstractMetaAnnotationProcessor {
 //    return value == null ? dflt : value.getValueBoolean();
 //  }
   
-  private static ElementValue extractValue(final String field, final AnnotationEntry entry) {
+  protected static ElementValue extractValue(final String field, final AnnotationEntry entry) {
     ElementValue result = null;
     for (final ElementValuePair p : entry.getElementValuePairs()) {
       if (field.equals(p.getNameString())){

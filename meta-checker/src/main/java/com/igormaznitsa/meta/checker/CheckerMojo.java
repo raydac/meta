@@ -44,25 +44,24 @@ import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
 
-@Mojo (name = "check", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = "check", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class CheckerMojo extends AbstractMojo {
 
   private static class AbortException extends RuntimeException {
 
     private static final long serialVersionUID = -1153122159632822978L;
 
-    public AbortException (String message) {
+    public AbortException(String message) {
       super(message);
     }
   }
 
 //  @Parameter (defaultValue = "${project}", readonly = true, required = true)
 //  private MavenProject project;
-
   /**
    * The Directory contains compiled classes of the project.
    */
-  @Parameter (defaultValue = "${project.build.outputDirectory}", name = "targetDirectory")
+  @Parameter(defaultValue = "${project.build.outputDirectory}", name = "targetDirectory")
   private String targetDirectory;
 
   /**
@@ -79,16 +78,17 @@ public class CheckerMojo extends AbstractMojo {
   private String restrictClassFormat;
 
   /**
-   * List of meta annotations which will be recognized as failure. Names are case insensitive and if name doesn't contain dot char then only class name will be checked (without package part).
+   * List of meta annotations which will be recognized as failure. Names are case insensitive and if name doesn't contain dot char then only class name will be checked (without
+   * package part).
    */
-  @Parameter (name = "failForAnnotations")
-  private String [] failForAnnotations;
+  @Parameter(name = "failForAnnotations")
+  private String[] failForAnnotations;
 
   private LongComparator comparatorForJavaVersion;
   private JavaVersion decodedJavaVersion;
 
   @Override
-  public void execute () throws MojoExecutionException, MojoFailureException {
+  public void execute() throws MojoExecutionException, MojoFailureException {
     final File targetDirectoryFile = new File(this.targetDirectory);
     if (!targetDirectoryFile.isDirectory()) {
       throw new MojoExecutionException("Can't find the build output directory [" + this.targetDirectory + ']');
@@ -111,8 +111,9 @@ public class CheckerMojo extends AbstractMojo {
         javaClassVersion = javaClassVersion.substring(this.comparatorForJavaVersion.getText().length()).trim();
       }
       this.decodedJavaVersion = JavaVersion.decode(javaClassVersion);
-      if (this.decodedJavaVersion == null)
+      if (this.decodedJavaVersion == null) {
         throw new IllegalArgumentException("Illegal java version or expression in 'restrictClassFormat': " + this.restrictClassFormat);
+      }
     }
 
     final Map<String, AtomicInteger> counters = new HashMap<String, AtomicInteger>();
@@ -122,46 +123,68 @@ public class CheckerMojo extends AbstractMojo {
 
     final Context context = new Context() {
       FieldOrMethod node;
+      JavaClass klazz;
 
-      @Override
-      public String nodeToString (final JavaClass klazz) {
-        return (klazz == null ? "<null>" : klazz.getClassName()) + " "+ this.node.toString();
+      public String currentProcessingItemAsString() {
+        final StringBuilder builder = new StringBuilder();
+
+        final int line = Utils.findLineNumber(this.node);
+        String klazzName = Utils.normalizeClassName(this.klazz.getClassName());
+        final String nodeName = Utils.asString(this.node);
+
+        builder.append(klazzName).append(".java").append(":[");
+        if (line < 0) {
+          builder.append("-,-]");
+        }
+        else {
+          builder.append(line).append(',').append(1).append(']');
+        }
+        builder.append(' ');
+        if (this.node != null) {
+          builder.append(this.node instanceof Field ? "field" : "method").append(' ').append(nodeName);
+        }
+        else {
+          builder.append("whole class");
+        }
+
+        return builder.toString();
       }
 
       @Override
-      public void setNode (final FieldOrMethod node) {
+      public void setProcessingItem(final JavaClass klazz, final FieldOrMethod node) {
+        this.klazz = klazz;
         this.node = node;
       }
 
       @Override
-      public FieldOrMethod getNode () {
+      public FieldOrMethod getNode() {
         return this.node;
       }
 
       @Override
-      public void info (final String info) {
-        getLog().info(info);
+      public void info(final String info, final boolean showProcessingItem) {
+        getLog().info((showProcessingItem ? currentProcessingItemAsString() + ' ' : "") + info);
       }
 
       @Override
-      public void warning (final String warning) {
+      public void warning(final String warning, final boolean showProcessingItem) {
         counterWarings.incrementAndGet();
-        getLog().warn(warning);
+        getLog().warn((showProcessingItem ? currentProcessingItemAsString() + ' ' : "") + warning);
       }
 
       @Override
-      public void error (final String error) {
+      public void error(final String error, final boolean showProcessingItem) {
         counterErrors.incrementAndGet();
-        getLog().error(error);
+        getLog().error((showProcessingItem ? currentProcessingItemAsString() + ' ' : "") + error);
       }
 
       @Override
-      public void abort (final String error) {
-        throw new AbortException(error);
+      public void abort(final String error, final boolean showProcessingItem) {
+        throw new AbortException((showProcessingItem ? currentProcessingItemAsString() + ' ' : "") + error);
       }
 
       @Override
-      public void countDetectedAnnotation (final String annotationClassName) {
+      public void countDetectedAnnotation(final String annotationClassName) {
         AtomicInteger counter = counters.get(annotationClassName);
         if (counter == null) {
           counter = new AtomicInteger();
@@ -203,27 +226,27 @@ public class CheckerMojo extends AbstractMojo {
       if (counterErrors.get() > 0) {
         throw new MojoFailureException(String.format("Detected %d error(s)", counterErrors.get()));
       }
-      
-      if (this.failForAnnotations != null && this.failForAnnotations.length > 0){
-        getLog().debug("Should be recognied as a failure : "+Arrays.toString(this.failForAnnotations));
-        for(final String detected : counters.keySet()){
-          if (counters.get(detected).get()>0){
+
+      if (this.failForAnnotations != null && this.failForAnnotations.length > 0) {
+        getLog().debug("Should be recognized as failure : " + Arrays.toString(this.failForAnnotations));
+        for (final String detected : counters.keySet()) {
+          if (counters.get(detected).get() > 0) {
             final String name = detected.toLowerCase(Locale.ENGLISH);
             final String shortName = Utils.extractShortNameOfClass(name);
-            for(final String s : this.failForAnnotations){
-              if (s.indexOf('.')<0){
-                if (shortName.equalsIgnoreCase(s)){
-                  throw new MojoFailureException("Failure for detected '"+s+"' annotation");
-                }
-              }else{
-                if (name.equalsIgnoreCase(s)) {
+            for (final String s : this.failForAnnotations) {
+              if (s.indexOf('.') < 0) {
+                if (shortName.equalsIgnoreCase(s)) {
                   throw new MojoFailureException("Failure for detected '" + s + "' annotation");
                 }
+              }
+              else if (name.equalsIgnoreCase(s)) {
+                throw new MojoFailureException("Failure for detected '" + s + "' annotation");
               }
             }
           }
         }
-      }else{
+      }
+      else {
         getLog().debug("there is not any detected annotation in config to be recognized as failure");
       }
     }
@@ -232,16 +255,20 @@ public class CheckerMojo extends AbstractMojo {
       getLog().info(String.format("Total To-Do : %d", extractCounter(counters, AnnotationProcessor.TODO)));
       getLog().info(String.format("Total risks : %d", extractCounter(counters, AnnotationProcessor.RISKY)));
 
-      if (counterErrors.get()>0)
-        getLog().error(String.format("Total errors : %d",counterErrors.get()));
-      else
+      if (counterErrors.get() > 0) {
+        getLog().error(String.format("Total errors : %d", counterErrors.get()));
+      }
+      else {
         getLog().info(String.format("Total errors : %d", counterErrors.get()));
-      
-      if (counterWarings.get() > 0)
+      }
+
+      if (counterWarings.get() > 0) {
         getLog().warn(String.format("Total warnings : %d", counterWarings.get()));
-      else
+      }
+      else {
         getLog().info(String.format("Total warnings : %d", counterWarings.get()));
-      
+      }
+
       getLog().info("................................");
       getLog().info(String.format("Total time : %s", Utils.printTimeDelay(System.currentTimeMillis() - startTime)));
     }
@@ -255,29 +282,29 @@ public class CheckerMojo extends AbstractMojo {
   }
 
   private static void countAllDetectedAnnotations(final Context context, final JavaClass clazz) {
-    for(final AnnotationEntry ae : clazz.getAnnotationEntries()){
+    for (final AnnotationEntry ae : clazz.getAnnotationEntries()) {
       context.countDetectedAnnotation(Utils.classNameToNormalView(ae.getAnnotationType()));
     }
-    for(final Field field : clazz.getFields()){
-      for(final AnnotationEntry ae : field.getAnnotationEntries()){
+    for (final Field field : clazz.getFields()) {
+      for (final AnnotationEntry ae : field.getAnnotationEntries()) {
         context.countDetectedAnnotation(Utils.classNameToNormalView(ae.getAnnotationType()));
       }
     }
-    for(final Method method : clazz.getMethods()){
-      for(final AnnotationEntry ae : method.getAnnotationEntries()){
+    for (final Method method : clazz.getMethods()) {
+      for (final AnnotationEntry ae : method.getAnnotationEntries()) {
         context.countDetectedAnnotation(Utils.classNameToNormalView(ae.getAnnotationType()));
       }
-      for(final ParameterAnnotationEntry pae : method.getParameterAnnotationEntries()){
-        for(final AnnotationEntry ae : pae.getAnnotationEntries()){
+      for (final ParameterAnnotationEntry pae : method.getParameterAnnotationEntries()) {
+        for (final AnnotationEntry ae : pae.getAnnotationEntries()) {
           context.countDetectedAnnotation(Utils.classNameToNormalView(ae.getAnnotationType()));
         }
       }
     }
   }
-  
-  private static int extractCounter(final Map<String, AtomicInteger> counters,final AnnotationProcessor annotation){
+
+  private static int extractCounter(final Map<String, AtomicInteger> counters, final AnnotationProcessor annotation) {
     final AtomicInteger result = counters.get(annotation.getAnnotationClassName());
     return result == null ? 0 : result.get();
   }
-  
+
 }

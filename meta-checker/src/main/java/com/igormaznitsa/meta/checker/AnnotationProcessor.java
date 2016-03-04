@@ -35,7 +35,7 @@ public enum AnnotationProcessor {
   RISKY(new Risky()),
   TODO(new ToDo()),
   WARNING(new Warning()),
-  IMPLSPECIFIC(new ImplementationSpecific()),
+  IMPLSPECIFIC(new ImplementationNote()),
   WEIGHT(new Weight());
   
   private final AbstractMetaAnnotationProcessor INSTANCE;

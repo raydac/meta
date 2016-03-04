@@ -11,8 +11,9 @@ It is a small general-purpose library includes:
 
 # Change log
 * __1.0.2-SNAPSHOT__
+ * Improved logging for meta-checker plugin
  * Fixed KeepCreationPointTemplate, also added thread id info
- * Added ImplementationSpecific annotation
+ * Added ImplementationNote annotation
  * Improved the meta-check plugin, added support to check java class versions
 * __1.0.1 (12-feb-2016)__
  * Bug fixing
