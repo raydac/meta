@@ -205,6 +205,7 @@ public final class Assertions {
       }
     }
     final AssertionError error = new AssertionError("Object is not found among elements");
+    MetaErrorListeners.fireError("Asserion error", error);
     throw error;
   }
 
