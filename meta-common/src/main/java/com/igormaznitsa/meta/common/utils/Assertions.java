@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 import com.igormaznitsa.meta.annotation.MayContainNull;
+import com.igormaznitsa.meta.common.exceptions.InvalidObjectError;
 
 /**
  * Set of auxiliary methods for assertion.
@@ -49,6 +50,7 @@ public final class Assertions {
    * @throws AssertionError will be thrown
    * @since 1.0
    */
+  @Nonnull
   public static Error fail(@Nullable final String message) {
     final AssertionError error = new AssertionError(GetUtils.ensureNonNull(message, "failed"));
     MetaErrorListeners.fireError("Asserion error", error);
@@ -67,6 +69,7 @@ public final class Assertions {
    * @throws AssertionError it will be thrown if the value is not null
    * @since 1.0
    */
+  @Nullable
   public static <T> T assertNull(@Nullable final T object) {
     if (object != null) {
       final AssertionError error = new AssertionError("Object must be NULL");
@@ -85,6 +88,7 @@ public final class Assertions {
    * @throws AssertionError it will be thrown if the value is null
    * @since 1.0
    */
+  @Nonnull
   public static <T> T assertNotNull(@Nonnull final T object) {
     if (object == null) {
       final AssertionError error = new AssertionError("Object must not be NULL");
@@ -103,6 +107,7 @@ public final class Assertions {
    * @throws AssertionError it will be thrown if either array is null or it contains null
    * @since 1.0
    */
+  @Nonnull
   public static <T> T[] assertDoesntContainNull(@Nonnull final T[] array) {
     assertNotNull(array);
     for (final T obj : array) {
@@ -120,6 +125,7 @@ public final class Assertions {
    *
    * @param message message describing situation
    * @param condition condition which must be true
+   * @throws AssertionError if the condition is not true
    * @since 1.0
    */
   public static void assertTrue(@Nullable final String message, final boolean condition) {
@@ -135,6 +141,7 @@ public final class Assertions {
    *
    * @param message message describing situation
    * @param condition condition which must be false
+   * @throws AssertionError if the condition is true
    * @since 1.0
    */
   public static void assertFalse(@Nullable final String message, final boolean condition) {
@@ -154,6 +161,7 @@ public final class Assertions {
    * @throws AssertionError it will be thrown if either collection is null or it contains null
    * @since 1.0
    */
+  @Nonnull
   public static <T extends Collection<?>> T assertDoesntContainNull(@Nonnull final T collection) {
     assertNotNull(collection);
     for (final Object obj : collection) {
@@ -171,6 +179,7 @@ public final class Assertions {
    * @throws AlreadyDisposedError it will be thrown if the object is already disposed;
    * @since 1.0
    */
+  @Nonnull
   public static <T extends Disposable> T assertNotDisposed(@Nonnull final T disposable) {
     if (disposable.isDisposed()) {
       final AlreadyDisposedError error = new AlreadyDisposedError("Object already disposed");
@@ -187,8 +196,10 @@ public final class Assertions {
    * @param obj object to be checked
    * @param list list of elements for checking
    * @return equal element provided in the list
+   * @throws AssertionError if object is not found among defined ones
    * @since 1.0.2
    */
+  @Nullable
   public static <T> T assertAmong(@Nullable T obj, @MayContainNull @Nonnull final T... list) {
     if (obj == null) {
       for (final T i : assertNotNull(list)) {
@@ -207,6 +218,28 @@ public final class Assertions {
     final AssertionError error = new AssertionError("Object is not found among elements");
     MetaErrorListeners.fireError("Asserion error", error);
     throw error;
+  }
+
+  /**
+   * Check an object by a validator.
+   *
+   * @param <T> object type
+   * @param obj object to be checked
+   * @param validator validator for the operation
+   * @return the object if it is valid
+   * @throws InvalidObjectError will be thrown if the object is invalid
+   * @since 1.0.2
+   */
+  @Nullable
+  public static <T> T assertIsValid(@Nullable T obj, @Nonnull Validator<T> validator) {
+    if (assertNotNull(validator).isValid(obj)) {
+      return obj;
+    }
+    else {
+      final InvalidObjectError error = new InvalidObjectError("Detected invalid object", obj);
+      MetaErrorListeners.fireError("Invalid object", error);
+      throw error;
+    }
   }
 
 }

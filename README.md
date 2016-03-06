@@ -7,21 +7,26 @@ It is a small general-purpose library includes:
 * set of run-time annotations to mark code
 * set of utility classes
 * shaded com.google.code.findbugs:jsr305 annotation library
-* maven plugin to print info about the annotations into log
+* maven plugin to log info about some annotations and check java class version
 
 # Change log
-* __1.0.2-SNAPSHOT__
- * Improved logging for meta-checker plugin
- * Fixed KeepCreationPointTemplate, also added thread id info
- * Added ImplementationNote annotation
- * Improved the meta-check plugin, added support to check java class versions
+* __1.0.2 (06-mar-2016)__
+ * added Assertions.assertIsValid method
+ * improved logging in meta-checker plugin
+ * added empty arrays for primitives into Arrays class
+ * fixed KeepCreationPointTemplate, also added thread id info
+ * added ImplementationNote annotation
+ * improved the meta-check plugin, added support to check java class version 
+
 * __1.0.1 (12-feb-2016)__
  * Bug fixing
+
 * __1.0 (10-feb-2016)__
  * Initial version
 
 #Annotations
 It contains number annotations to mark code, plus JSR-305 annotations provided by the shaded findbugs annotation library.
+* ImplementationNote
 * Constraint
 * Determined
 * NonDetermined
@@ -43,7 +48,7 @@ To use annotations just add dependency to the library
 <dependency>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta-common</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 

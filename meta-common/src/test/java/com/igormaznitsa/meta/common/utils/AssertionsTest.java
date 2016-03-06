@@ -17,10 +17,17 @@ package com.igormaznitsa.meta.common.utils;
 
 import com.igormaznitsa.meta.common.exceptions.AlreadyDisposedError;
 import com.igormaznitsa.meta.common.interfaces.Disposable;
+
 import java.util.Arrays;
 import java.util.List;
+
 import org.junit.Test;
+
 import static org.junit.Assert.*;
+
+import javax.annotation.Nullable;
+
+import com.igormaznitsa.meta.common.exceptions.InvalidObjectError;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class AssertionsTest {
@@ -153,6 +160,30 @@ public class AssertionsTest {
     final String text = Assertions.assertAmong(test, "h", "kjf", null, newStr, "fsfds", "dfd4", "5");
     assertNotSame(test, text);
     assertSame(text, newStr);
+  }
+
+  @Test
+  public void testAssertIsValid_Valid() {
+    final Validator testValidator = new Validator<Integer>() {
+      @Override
+      public boolean isValid(@Nullable final Integer object) {
+        return object > 300;
+      }
+    };
+
+    Assertions.assertIsValid(4887, testValidator);
+  }
+
+  @Test(expected = InvalidObjectError.class)
+  public void testAssertIsValid_Invalid() {
+    final Validator testValidator = new Validator<Integer>() {
+      @Override
+      public boolean isValid(@Nullable final Integer object) {
+        return object > 300;
+      }
+    };
+
+    Assertions.assertIsValid(100, testValidator);
   }
 
 }
