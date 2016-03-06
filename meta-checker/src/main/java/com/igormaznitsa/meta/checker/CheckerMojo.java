@@ -203,7 +203,7 @@ public class CheckerMojo extends AbstractMojo {
         try {
           final JavaClass parsed = new ClassParser(file.getAbsolutePath()).parse();
           if (!isClassVersionAllowed(parsed)) {
-            getLog().error("Detected illegal class format '" + JavaVersion.decode(parsed.getMajor()) + "'for " + file.getAbsolutePath());
+            getLog().error("Detected illegal class format '" + JavaVersion.decode(parsed.getMajor()) + "' at class file " + file.getAbsolutePath());
             counterErrors.incrementAndGet();
             break;
           }
