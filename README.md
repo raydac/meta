@@ -10,6 +10,8 @@ It is a small general-purpose library includes:
 * maven plugin to log info about some annotations and check java class version
 
 # Change log
+* __1.0.3-SNAPSHOT__
+
 * __1.0.2 (06-mar-2016)__
  * added Assertions.assertIsValid method
  * improved logging in meta-checker plugin
@@ -92,8 +94,9 @@ Just add the lines below into build section.
 <plugin>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta-checker</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <configuration>
+        <restrictClassFormat>7</restrictClassFormat>
         <failForAnnotations>
             <param>risky</param>
         </failForAnnotations>

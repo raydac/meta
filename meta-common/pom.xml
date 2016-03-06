@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
       
@@ -50,7 +50,7 @@
           <plugin>
             <groupId>com.igormaznitsa</groupId>
             <artifactId>meta-checker</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
             <configuration>
               <failForAnnotations>
                 <param>risky</param>
