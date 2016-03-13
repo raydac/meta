@@ -12,6 +12,10 @@ It is a small general-purpose library includes:
 
 # Change log
 * __1.0.3-SNAPSHOT__
+ * improved utility methods and assertions
+ * added annotations @Experimental, @ThrowsRuntimeException, @ThrowsRuntimeExceptions
+ * added extra check of marked method parameters into the maven plugin
+ * fixed NPE in the maven plugin for missing class format option
 
 * __1.0.2 (06-mar-2016)__
  * added Assertions.assertIsValid method

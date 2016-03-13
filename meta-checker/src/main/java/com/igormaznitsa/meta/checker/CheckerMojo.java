@@ -341,6 +341,26 @@ public class CheckerMojo extends AbstractMojo {
     }
   }
 
+  public String getRestrictClassFormat(){
+    return this.restrictClassFormat;
+  }
+  
+  public boolean isFailForNonMarkedParams () {
+    return this.failForNonMarkedParams;
+  }
+  
+  public String [] getIgnoreClasses(){
+    return this.ignoreClasses;
+  }
+  
+  public String getTargetDirectory(){
+    return this.targetDirectory;
+  }
+  
+  public String [] getFailForAnnotations(){
+    return this.failForAnnotations;
+  }
+  
   private void prepareIgnoreClassPatterns() {
     this.ignoreClassesAsPatterns = null;
     if (this.ignoreClasses != null) {
