@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 import org.apache.bcel.classfile.ClassFormatException;
 import org.apache.bcel.classfile.ClassParser;
@@ -43,6 +44,8 @@ import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
+
+import com.igormaznitsa.meta.checker.extracheck.MethodParameterChecker;
 
 @Mojo(name = "check", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class CheckerMojo extends AbstractMojo {
@@ -74,7 +77,7 @@ public class CheckerMojo extends AbstractMojo {
    *
    * @since 1.0.2
    */
-  @Parameter(defaultValue = "null", name = "restrictClassFormat")
+  @Parameter(name = "restrictClassFormat")
   private String restrictClassFormat;
 
   /**
@@ -84,11 +87,29 @@ public class CheckerMojo extends AbstractMojo {
   @Parameter(name = "failForAnnotations")
   private String[] failForAnnotations;
 
+  /**
+   * List of classes to be ignored by checker. Class namme must be defined in canonical view and can contain wildcat chars '*' and '?'.
+   * @since 1.0.3
+   */
+  @Parameter(name = "ignoreClasses")
+  private String[] ignoreClasses;
+  
+  /**
+   * Check every object argument and result to be marked by annotations describing its nullable or non-nullable state and fail if the rule is violated.
+   *
+   * @since 1.0.3
+   */
+  @Parameter(name = "failForNonMarkedParams", defaultValue = "false")
+  private boolean failForNonMarkedParams;
+
   private LongComparator comparatorForJavaVersion;
   private JavaVersion decodedJavaVersion;
-
+  private Pattern[] ignoreClassesAsPatterns;
+  
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
+    prepareIgnoreClassPatterns();
+    
     final File targetDirectoryFile = new File(this.targetDirectory);
     if (!targetDirectoryFile.isDirectory()) {
       throw new MojoExecutionException("Can't find the build output directory [" + this.targetDirectory + ']');
@@ -103,16 +124,24 @@ public class CheckerMojo extends AbstractMojo {
       if (javaClassVersion.isEmpty()) {
         throw new IllegalArgumentException("Detected empty value for 'restrictClassFormat'");
       }
+
       this.comparatorForJavaVersion = LongComparator.find(javaClassVersion);
-      if (this.comparatorForJavaVersion == null && Character.isDigit(javaClassVersion.charAt(0))) {
-        this.comparatorForJavaVersion = LongComparator.EQU;
+
+      final int versionOffset;
+      if (this.comparatorForJavaVersion == null) {
+        if (Character.isDigit(javaClassVersion.charAt(0))) {
+          this.comparatorForJavaVersion = LongComparator.EQU;
+        }
+        versionOffset = 0;
       }
       else {
-        javaClassVersion = javaClassVersion.substring(this.comparatorForJavaVersion.getText().length()).trim();
+        versionOffset = this.comparatorForJavaVersion.getText().length();
       }
+      javaClassVersion = javaClassVersion.substring(versionOffset).trim();
+
       this.decodedJavaVersion = JavaVersion.decode(javaClassVersion);
       if (this.decodedJavaVersion == null) {
-        throw new IllegalArgumentException("Illegal java version or expression in 'restrictClassFormat': " + this.restrictClassFormat);
+        throw new IllegalArgumentException("Illegal java version in 'restrictClassFormat': " + javaClassVersion);
       }
     }
 
@@ -124,13 +153,24 @@ public class CheckerMojo extends AbstractMojo {
     final Context context = new Context() {
       FieldOrMethod node;
       JavaClass klazz;
+      int itemIndex;
+
+      @Override
+      public int getItemIndex() {
+        return this.itemIndex;
+      }
+      
+      @Override
+      public File getTargetDirectoryFolder() {
+        return targetDirectoryFile;
+      }
 
       public String currentProcessingItemAsString() {
         final StringBuilder builder = new StringBuilder();
 
         final int line = Utils.findLineNumber(this.node);
-        String klazzName = Utils.normalizeClassName(this.klazz.getClassName());
-        final String nodeName = Utils.asString(this.node);
+        String klazzName = Utils.normalizeClassNameAndRemoveSubclassName(this.klazz.getClassName());
+        final String nodeName = Utils.asString(this.klazz,this.node);
 
         builder.append(klazzName).append(".java").append(":[");
         if (line < 0) {
@@ -141,7 +181,17 @@ public class CheckerMojo extends AbstractMojo {
         }
         builder.append(' ');
         if (this.node != null) {
-          builder.append(this.node instanceof Field ? "field" : "method").append(' ').append(nodeName);
+          if (this.node instanceof Field){
+            builder.append("field ").append(nodeName);
+          }else{
+            final Method method = (Method)node;
+            if (method.getName().equals("<init>")) {
+              builder.append("constructor ");
+            } else {
+              builder.append("method ");
+            }
+            builder.append(nodeName);
+          }
         }
         else {
           builder.append("whole class");
@@ -151,9 +201,15 @@ public class CheckerMojo extends AbstractMojo {
       }
 
       @Override
-      public void setProcessingItem(final JavaClass klazz, final FieldOrMethod node) {
-        this.klazz = klazz;
+      public boolean isObjResultAndParamsMustBeMarked() {
+        return failForNonMarkedParams;
+      }
+
+      @Override
+      public void setProcessingItem(final JavaClass klazz, final FieldOrMethod node, final int itemIndex) {
         this.node = node;
+        this.klazz = klazz;
+        this.itemIndex = itemIndex;
       }
 
       @Override
@@ -197,19 +253,30 @@ public class CheckerMojo extends AbstractMojo {
     final long startTime = System.currentTimeMillis();
     try {
       final Iterator<File> iterator = FileUtils.iterateFiles(targetDirectoryFile, new String[]{"class", "CLASS"}, true);
+      int classIndex = 0;
       while (iterator.hasNext()) {
         final File file = iterator.next();
         getLog().debug("Processing class file : " + file.getAbsolutePath());
         try {
           final JavaClass parsed = new ClassParser(file.getAbsolutePath()).parse();
+          
+          if (isClassIgnored(parsed)) {
+            getLog().info("Ignoring class file : " + file.getAbsolutePath());
+            continue;
+          }
+          
           if (!isClassVersionAllowed(parsed)) {
             getLog().error("Detected illegal class format '" + JavaVersion.decode(parsed.getMajor()) + "' at class file " + file.getAbsolutePath());
             counterErrors.incrementAndGet();
             break;
           }
           countAllDetectedAnnotations(context, parsed);
+          classIndex ++;
           for (final AnnotationProcessor p : AnnotationProcessor.values()) {
-            p.getInstance().processClass(context, parsed);
+            p.getInstance().processClass(context, parsed, classIndex);
+          }
+          if (context.isObjResultAndParamsMustBeMarked()) {
+            checkMethodsForMarkedObjectTypes(context, parsed);
           }
         }
         catch (AbortException ex) {
@@ -274,6 +341,47 @@ public class CheckerMojo extends AbstractMojo {
     }
   }
 
+  private void prepareIgnoreClassPatterns() {
+    this.ignoreClassesAsPatterns = null;
+    if (this.ignoreClasses != null) {
+      this.ignoreClassesAsPatterns = new Pattern[this.ignoreClasses.length];
+      int index = 0;
+      for(final String str : this.ignoreClasses) {
+        this.ignoreClassesAsPatterns [index++] = Pattern.compile(Utils.escapeRegexToWildCat(str));
+      }
+    }
+  }
+  
+  private void checkMethodsForMarkedObjectTypes(final Context context, final JavaClass clazz) {
+    if (!(clazz.isAnnotation() || clazz.isSynthetic())) {
+      int index = 0;
+      for (final Method m : clazz.getMethods()) {
+        context.setProcessingItem(clazz, m, index++);
+        final String name = m.getName();
+        if ("<clinit>".equals(name)) continue;
+        if ((m.getModifiers() & (0x40 | 0x1000)) == 0){
+          if (clazz.isEnum()){
+            if ("values".equals(name) || "valueOf".equals(name) || "<init>".equals(name)) continue;
+          }
+          MethodParameterChecker.checkReturnType(context, m);
+          MethodParameterChecker.checkParamsType(context, m);
+        }
+      }
+    }
+  }
+
+  private boolean isClassIgnored(final JavaClass clazz) {
+    if (this.ignoreClassesAsPatterns == null || this.ignoreClassesAsPatterns.length == 0) return false;
+    
+    final String klazzName = clazz.getClassName();
+    
+    for(final Pattern pattern : this.ignoreClassesAsPatterns){
+      if (pattern.matcher(klazzName).matches()) return true;
+    }
+    
+    return false;
+  }
+  
   private boolean isClassVersionAllowed(final JavaClass klazz) {
     if (this.comparatorForJavaVersion == null) {
       return true;

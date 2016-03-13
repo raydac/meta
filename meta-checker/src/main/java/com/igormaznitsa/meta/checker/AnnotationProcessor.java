@@ -33,10 +33,13 @@ public enum AnnotationProcessor {
   ONEWAYCHANGE(new OneWayChange()),
   RETURNSORIGHNAL(new ReturnsOriginal()),
   RISKY(new Risky()),
+  EXPERIMENTAL(new Experimental()),
   TODO(new ToDo()),
   WARNING(new Warning()),
   IMPLSPECIFIC(new ImplementationNote()),
-  WEIGHT(new Weight());
+  WEIGHT(new Weight()),
+  THROWSRE(new ThrowsRuntimeException()),
+  THROWSREs(new ThrowsRuntimeExceptions());
   
   private final AbstractMetaAnnotationProcessor INSTANCE;
 

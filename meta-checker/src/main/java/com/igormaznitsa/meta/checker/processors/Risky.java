@@ -27,7 +27,7 @@ public class Risky extends AbstractMetaAnnotationProcessor {
   @Override
   protected void doProcessing (final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
     final String text = extractStrValue("value", ae,"");
-    context.warning("is marked as risky : " + text, true);
+    context.warning("is marked as risky" + addSemicolonIfNeeded(text), true);
   }
 
   @Override

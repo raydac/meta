@@ -15,18 +15,41 @@
  */
 package com.igormaznitsa.meta.checker.processors;
 
+import static com.igormaznitsa.meta.checker.Utils.isObjectType;
+
 import com.igormaznitsa.meta.checker.Context;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
+
 import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.classfile.Method;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
 
 public class MayContainNull extends AbstractMetaAnnotationProcessor {
 
   @Override
   protected void doProcessing (final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
-    
+    final Method method = (Method) context.getNode();
+
+    boolean error = false;
+
+    String name = "";
+
+    if (type == ElementType.PARAMETER) {
+      error = !isObjectType(method.getArgumentTypes()[context.getItemIndex()]);
+      name = "a non-object parameter";
+    }
+    else if (type == ElementType.METHOD) {
+      error = !isObjectType(method.getReturnType());
+      name = "the non-object result";
+    }
+
+    if (error) {
+      context.error(name + " is marked by @" + getAnnotationClass().getName(), true);
+    }
+
   }
 
   @Override

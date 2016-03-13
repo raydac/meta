@@ -16,6 +16,7 @@
 package com.igormaznitsa.meta.checker.processors;
 
 import com.igormaznitsa.meta.checker.Context;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
@@ -23,6 +24,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.ElementValue;
 import org.apache.bcel.classfile.ElementValuePair;
@@ -30,6 +32,8 @@ import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
+
+import com.igormaznitsa.meta.checker.Utils;
 
 public abstract class AbstractMetaAnnotationProcessor {
 
@@ -40,7 +44,7 @@ public abstract class AbstractMetaAnnotationProcessor {
   public AbstractMetaAnnotationProcessor () {
     super();
     final Class<? extends Annotation> theKlazz = getAnnotationClass();
-    this.ANNOTATION_TYPE = 'L' + theKlazz.getName().replace('.', '/') + ';';
+    this.ANNOTATION_TYPE = Utils.makeSignatureForClass(theKlazz);
     for (final ElementType t : theKlazz.getAnnotation(Target.class).value()) {
       ALLOWED_ELEMENTS.add(t);
     }
@@ -66,20 +70,24 @@ public abstract class AbstractMetaAnnotationProcessor {
     return this.ALLOWED_ELEMENTS.contains(type);
   }
 
-  public final void processClass (final Context context, final JavaClass clazz) {
+  public final void processClass (final Context context, final JavaClass clazz, final int itemIndex) {
+    context.setProcessingItem(clazz, null, itemIndex);
+
     if (isElementTypeAllowed(ElementType.TYPE)) {
       processType(context, clazz, clazz.getAnnotationEntries());
     }
 
+    context.setProcessingItem(clazz, null, itemIndex);
     if (isElementTypeAllowed(ElementType.FIELD)) {
       processFields(context, clazz, clazz.getFields());
     }
 
+    context.setProcessingItem(clazz, null, itemIndex);
     if (isElementTypeAllowed(ElementType.METHOD) || isElementTypeAllowed(ElementType.PARAMETER)) {
       processMethods(context, clazz, clazz.getMethods());
     }
-    
-    context.setProcessingItem(clazz, null);
+
+    context.setProcessingItem(clazz, null, itemIndex);
   }
 
   private void processType (final Context context, final JavaClass clazz, final AnnotationEntry[] annotations) {
@@ -91,8 +99,9 @@ public abstract class AbstractMetaAnnotationProcessor {
   }
 
   private void processFields (final Context context, final JavaClass clazz, final Field[] fields) {
+    int index = 0;
     for (final Field f : fields) {
-      context.setProcessingItem(clazz, f);
+      context.setProcessingItem(clazz, f, index++);
       for (final AnnotationEntry ae : f.getAnnotationEntries()) {
         if (ANNOTATION_TYPE.equals(ae.getAnnotationType())) {
           process(context, clazz, ElementType.FIELD, null, ae);
@@ -102,8 +111,9 @@ public abstract class AbstractMetaAnnotationProcessor {
   }
 
   private void processMethods (final Context context, final JavaClass clazz, final Method[] methods) {
+    int method = 0;
     for (final Method m : methods) {
-      context.setProcessingItem(clazz, m);
+      context.setProcessingItem(clazz, m, method++);
       if (isElementTypeAllowed(ElementType.METHOD)) {
         for (final AnnotationEntry ae : m.getAnnotationEntries()) {
           if (ANNOTATION_TYPE.equals(ae.getAnnotationType())) {
@@ -112,7 +122,9 @@ public abstract class AbstractMetaAnnotationProcessor {
         }
       }
       if (isElementTypeAllowed(ElementType.PARAMETER)) {
+        int param = 0;
         for (final ParameterAnnotationEntry pe : m.getParameterAnnotationEntries()) {
+          context.setProcessingItem(clazz, m, param++);
           for (final AnnotationEntry ae : pe.getAnnotationEntries()) {
             if (ANNOTATION_TYPE.equals(ae.getAnnotationType())) {
               process(context, clazz, ElementType.PARAMETER, pe, ae);
@@ -156,6 +168,10 @@ public abstract class AbstractMetaAnnotationProcessor {
     doProcessing(context, clazz, type, pae, ae);
   }
 
+  protected static String addSemicolonIfNeeded(final String text) {
+    return text == null ? text : text.isEmpty() ? text : " : "+text;
+  }
+  
   protected abstract void doProcessing (Context context, JavaClass clazz, ElementType type, ParameterAnnotationEntry pae, AnnotationEntry ae);
 
   public abstract Class<? extends Annotation> getAnnotationClass ();

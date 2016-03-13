@@ -27,7 +27,7 @@ public class ToDo extends AbstractMetaAnnotationProcessor {
   @Override
   protected void doProcessing (final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
     final String text = extractStrValue("value", ae, "");
-    context.info("TO-DO : " + text, true);
+    context.info("TO-DO" + addSemicolonIfNeeded(text), true);
   }
 
   @Override

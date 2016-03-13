@@ -22,17 +22,17 @@ import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
 
-public class NeedsRefactoring extends AbstractMetaAnnotationProcessor {
+public class Experimental extends AbstractMetaAnnotationProcessor {
 
   @Override
   protected void doProcessing (final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
-    final String text = extractStrValue("value", ae, "");
-    context.warning("is marked for refactoring" + addSemicolonIfNeeded(text), true);
+    final String text = extractStrValue("value", ae,"");
+    context.warning("is marked as experimental" + addSemicolonIfNeeded(text), true);
   }
 
   @Override
   public Class<? extends Annotation> getAnnotationClass () {
-    return com.igormaznitsa.meta.annotation.NeedsRefactoring.class;
+    return com.igormaznitsa.meta.annotation.Experimental.class;
   }
   
 }

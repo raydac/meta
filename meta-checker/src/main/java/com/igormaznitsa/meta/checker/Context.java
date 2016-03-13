@@ -15,8 +15,12 @@
  */
 package com.igormaznitsa.meta.checker;
 
+import java.io.File;
+
+import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.FieldOrMethod;
 import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.classfile.Method;
 
 public interface Context {
 
@@ -28,9 +32,15 @@ public interface Context {
 
   void abort(String error, boolean showProcessingItem);
 
-  void setProcessingItem(JavaClass klazz, FieldOrMethod node);
+  void setProcessingItem(JavaClass klazz, FieldOrMethod node, int itemIndex);
 
+  boolean isObjResultAndParamsMustBeMarked();
+  
   FieldOrMethod getNode();
 
+  int getItemIndex();
+  
+  File getTargetDirectoryFolder();
+  
   void countDetectedAnnotation(final String annotationType);
 }
