@@ -94,10 +94,12 @@ public final class IOUtils {
    * global error listeners will be notified)
    *
    * @param closeable object to be closed quetly
+   * @return the same object provided in args
    * @since 1.0
    */
   @Weight (Weight.Unit.LIGHT)
-  public static void closeQuetly (@Nullable final Closeable closeable) {
+  @Nullable
+  public static Closeable closeQuetly (@Nullable final Closeable closeable) {
     if (closeable != null) {
       try {
         closeable.close();
@@ -106,5 +108,6 @@ public final class IOUtils {
         MetaErrorListeners.fireError("Exception in closeQuetly", ex);
       }
     }
+    return closeable;
   }
 }

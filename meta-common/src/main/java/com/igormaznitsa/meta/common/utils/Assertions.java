@@ -71,9 +71,24 @@ public final class Assertions {
    */
   @Nullable
   public static <T> T assertNull(@Nullable final T object) {
+    return assertNull(null, object);
+  }
+
+  /**
+   * Assert that value is null
+   *
+   * @param <T> type of the object to check
+   * @param failMessage the message to be provided for failure, can be null
+   * @param object the object to check
+   * @return the same input parameter if all is ok
+   * @throws AssertionError it will be thrown if the value is not null
+   * @since 1.0.3
+   */
+  public static <T> T assertNull(@Nullable final String failMessage, @Nullable final T object) {
     if (object != null) {
-      final AssertionError error = new AssertionError("Object must be NULL");
-      MetaErrorListeners.fireError("Asserion error", error);
+      final String txt = failMessage == null ? "Object must be NULL" : failMessage;
+      final AssertionError error = new AssertionError(txt);
+      MetaErrorListeners.fireError(txt, error);
       throw error;
     }
     return object;
@@ -90,9 +105,26 @@ public final class Assertions {
    */
   @Nonnull
   public static <T> T assertNotNull(@Nonnull final T object) {
+    return assertNotNull(null, object);
+  }
+
+  
+  /**
+   * Assert that value is not null
+   *
+   * @param <T> type of the object to check
+   * @param failMessage the message to be provided as error description, can be null
+   * @param object the object to check
+   * @return the same input parameter if all is ok
+   * @throws AssertionError it will be thrown if the value is null
+   * @since 1.0.3
+   */
+  @Nonnull
+  public static <T> T assertNotNull(@Nullable final String failMessage, @Nonnull final T object) {
     if (object == null) {
-      final AssertionError error = new AssertionError("Object must not be NULL");
-      MetaErrorListeners.fireError("Asserion error", error);
+      final String txt = failMessage == null ? "Object must not be NULL" : failMessage;
+      final AssertionError error = new AssertionError(txt);
+      MetaErrorListeners.fireError(txt, error);
       throw error;
     }
     return object;

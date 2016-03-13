@@ -102,23 +102,27 @@ public final class Deferrers {
    * Defer some action.
    *
    * @param deferred action to be defer.
+   * @return the same object from arguments
    * @since 1.0
    */
   @Weight (Weight.Unit.NORMAL)
-  public static void defer (@Nonnull final Deferred deferred) {
+  public static Deferred defer (@Nonnull final Deferred deferred) {
     REGISTRY.get().add(assertNotNull(deferred));
+    return deferred;
   }
 
   /**
    * Defer object containing public close() method. It catches all exceptions during closing and make notifications only for global error listeners.
    * It finds a public 'close' method of the object and call that through reflection.
    *
+   * @param <T> type of the object to be processed
    * @param closeable an object with close() method.
+   * @return the same object from arguments.
    * @since 1.0
    */
   @Warning("Using reflection")
   @Weight (Weight.Unit.NORMAL)
-  public static void deferredClose (@Nullable final Object closeable) {
+  public static <T> T deferredClose (@Nullable final T closeable) {
     if (closeable != null) {
       defer(new Deferred() {
         private static final long serialVersionUID = 2265124256013043847L;
@@ -133,16 +137,19 @@ public final class Deferrers {
         }
       });
     }
+    return closeable;
   }
 
   /**
    * Defer closing of an closeable object.
-   *
+   * 
+   * @param <T> type of closeable object
    * @param closeable an object implements java.io.Closeable
+   * @return the same closeable object from arguments
    * @since 1.0
    */
   @Weight (Weight.Unit.NORMAL)
-  public static void defer (@Nullable final Closeable closeable) {
+  public static <T extends Closeable> T defer (@Nullable final T closeable) {
     if (closeable != null) {
       defer(new Deferred() {
         private static final long serialVersionUID = 2265124256013043847L;
@@ -152,16 +159,18 @@ public final class Deferrers {
         }
       });
     }
+    return closeable;
   }
 
   /**
    * Defer execution of some runnable action.
    *
    * @param runnable some runnable action to be executed in future
+   * @return the same runnable object from arguments.
    * @throws AssertionError if the runnable object is null
    */
   @Weight (Weight.Unit.NORMAL)
-  public static void defer (@Nonnull final Runnable runnable) {
+  public static Runnable defer (@Nonnull final Runnable runnable) {
     assertNotNull(runnable);
     defer(new Deferred() {
       private static final long serialVersionUID = 2061489024868070733L;
@@ -172,18 +181,19 @@ public final class Deferrers {
         this.value.run();
       }
     });
-
+    return runnable;
   }
 
   /**
    * Defer execution of some disposable object.
    *
    * @param disposable some disposable object to be processed.
+   * @return the same object from arguments
    * @throws AssertionError if the disposable object is null
    * @see Disposable
    */
   @Weight (Weight.Unit.NORMAL)
-  public static void defer (@Nonnull final Disposable disposable) {
+  public static Disposable defer (@Nonnull final Disposable disposable) {
     assertNotNull(disposable);
     defer(new Deferred() {
       private static final long serialVersionUID = 7940162959962038010L;
@@ -194,7 +204,7 @@ public final class Deferrers {
         this.value.dispose();
       }
     });
-
+    return disposable;
   }
 
   /**
