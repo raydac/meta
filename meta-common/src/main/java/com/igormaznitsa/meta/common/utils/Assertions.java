@@ -104,7 +104,7 @@ public final class Assertions {
    * @since 1.0
    */
   @Nonnull
-  public static <T> T assertNotNull(@Nonnull final T object) {
+  public static <T> T assertNotNull(@Nullable final T object) {
     return assertNotNull(null, object);
   }
 
@@ -120,7 +120,7 @@ public final class Assertions {
    * @since 1.0.3
    */
   @Nonnull
-  public static <T> T assertNotNull(@Nullable final String failMessage, @Nonnull final T object) {
+  public static <T> T assertNotNull(@Nullable final String failMessage, @Nullable final T object) {
     if (object == null) {
       final String txt = failMessage == null ? "Object must not be NULL" : failMessage;
       final AssertionError error = new AssertionError(txt);

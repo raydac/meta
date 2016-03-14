@@ -265,22 +265,20 @@ public final class TimeGuard {
     while (iterator.hasNext()) {
       final TimeData timeWatchItem = iterator.next();
 
-      if (timeWatchItem.isTimePoint() && timeWatchItem.getDetectedStackDepth() >= stackDepth) {
-        if (timePointName.equals(timeWatchItem.getAlertMessage())) {
-          detected |= true;
-          final long detectedDelay = time - timeWatchItem.getCreationTimeInMilliseconds();
+      if (timeWatchItem.isTimePoint() && timeWatchItem.getDetectedStackDepth() >= stackDepth && timePointName.equals(timeWatchItem.getAlertMessage())) {
+        detected |= true;
+        final long detectedDelay = time - timeWatchItem.getCreationTimeInMilliseconds();
+        try {
           try {
-            try {
-              timeWatchItem.getAlertListener().onTimeAlert(detectedDelay, timeWatchItem);
-            }
-            catch (Exception ex) {
-              final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time point processing", ex);
-              MetaErrorListeners.fireError(error.getMessage(), error);
-            }
+            timeWatchItem.getAlertListener().onTimeAlert(detectedDelay, timeWatchItem);
           }
-          finally {
-            iterator.remove();
+          catch (Exception ex) {
+            final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time point processing", ex);
+            MetaErrorListeners.fireError(error.getMessage(), error);
           }
+        }
+        finally {
+          iterator.remove();
         }
       }
     }

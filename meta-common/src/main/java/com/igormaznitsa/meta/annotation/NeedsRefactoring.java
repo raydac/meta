@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  */
 @Documented
 @Target ({ElementType.METHOD, ElementType.TYPE, ElementType.CONSTRUCTOR})
-@Retention (RetentionPolicy.RUNTIME)
+@Retention (RetentionPolicy.CLASS)
 public @interface NeedsRefactoring {
   /**
    * Optional text

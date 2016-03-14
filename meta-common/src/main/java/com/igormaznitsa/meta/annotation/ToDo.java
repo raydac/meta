@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  */
 @Documented
 @Target ({ElementType.TYPE,ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER,ElementType.CONSTRUCTOR})
-@Retention (RetentionPolicy.RUNTIME)
+@Retention (RetentionPolicy.CLASS)
 public @interface ToDo {
   /**
    * Text note.
