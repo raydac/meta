@@ -34,7 +34,9 @@ public interface Context {
 
   void setProcessingItem(JavaClass klazz, FieldOrMethod node, int itemIndex);
 
-  boolean isObjResultAndParamsMustBeMarked();
+  boolean isCheckNullableArgs();
+  
+  boolean isCheckMayContainNullArgs();
   
   FieldOrMethod getNode();
 

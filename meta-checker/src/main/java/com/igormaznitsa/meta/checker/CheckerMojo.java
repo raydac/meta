@@ -95,12 +95,18 @@ public class CheckerMojo extends AbstractMojo {
   private String[] ignoreClasses;
   
   /**
-   * Check every object argument and result to be marked by annotations describing its nullable or non-nullable state and fail if the rule is violated.
-   *
+   * Check methods for @Nullable or @Nonnull (also Intellij IDEA annotations).
    * @since 1.0.3
    */
-  @Parameter(name = "failForNonMarkedParams", defaultValue = "false")
-  private boolean failForNonMarkedParams;
+  @Parameter(name = "checkNullableAnnotations", defaultValue = "false")
+  private boolean checkNullableAnnotations;
+
+  /**
+   * Check methods for @MayContainNull and @MustNotContainNull annotations.
+   * @since 1.0.3
+   */
+  @Parameter(name = "checkMayContainNullAnnotations", defaultValue = "false")
+  private boolean checkMayContainNullAnnotations;
 
   private LongComparator comparatorForJavaVersion;
   private JavaVersion decodedJavaVersion;
@@ -159,6 +165,16 @@ public class CheckerMojo extends AbstractMojo {
       public int getItemIndex() {
         return this.itemIndex;
       }
+
+      @Override
+      public boolean isCheckNullableArgs() {
+        return checkNullableAnnotations;
+      }
+
+      @Override
+      public boolean isCheckMayContainNullArgs() {
+        return checkMayContainNullAnnotations;
+      }
       
       @Override
       public File getTargetDirectoryFolder() {
@@ -198,11 +214,6 @@ public class CheckerMojo extends AbstractMojo {
         }
 
         return builder.toString();
-      }
-
-      @Override
-      public boolean isObjResultAndParamsMustBeMarked() {
-        return failForNonMarkedParams;
       }
 
       @Override
@@ -251,6 +262,7 @@ public class CheckerMojo extends AbstractMojo {
     };
 
     final long startTime = System.currentTimeMillis();
+    int processedClasses = 0;
     try {
       final Iterator<File> iterator = FileUtils.iterateFiles(targetDirectoryFile, new String[]{"class", "CLASS"}, true);
       int classIndex = 0;
@@ -265,6 +277,8 @@ public class CheckerMojo extends AbstractMojo {
             continue;
           }
           
+          processedClasses ++;
+          
           if (!isClassVersionAllowed(parsed)) {
             getLog().error("Detected illegal class format '" + JavaVersion.decode(parsed.getMajor()) + "' at class file " + file.getAbsolutePath());
             counterErrors.incrementAndGet();
@@ -275,9 +289,7 @@ public class CheckerMojo extends AbstractMojo {
           for (final AnnotationProcessor p : AnnotationProcessor.values()) {
             p.getInstance().processClass(context, parsed, classIndex);
           }
-          if (context.isObjResultAndParamsMustBeMarked()) {
-            checkMethodsForMarkedObjectTypes(context, parsed);
-          }
+          checkMethodsForMarkedObjectTypes(context, parsed);
         }
         catch (AbortException ex) {
           throw new MojoFailureException(ex.getMessage());
@@ -319,6 +331,7 @@ public class CheckerMojo extends AbstractMojo {
     }
     finally {
       getLog().info("................................");
+      getLog().info("Processed classes : "+processedClasses);
       getLog().info(String.format("Total To-Do : %d", extractCounter(counters, AnnotationProcessor.TODO)));
       getLog().info(String.format("Total risks : %d", extractCounter(counters, AnnotationProcessor.RISKY)));
 
@@ -345,8 +358,12 @@ public class CheckerMojo extends AbstractMojo {
     return this.restrictClassFormat;
   }
   
-  public boolean isFailForNonMarkedParams () {
-    return this.failForNonMarkedParams;
+  public boolean isCheckMayContainNullArgs () {
+    return this.checkMayContainNullAnnotations;
+  }
+  
+  public boolean isCheckNullableArgs () {
+    return this.checkNullableAnnotations;
   }
   
   public String [] getIgnoreClasses(){
@@ -373,18 +390,22 @@ public class CheckerMojo extends AbstractMojo {
   }
   
   private void checkMethodsForMarkedObjectTypes(final Context context, final JavaClass clazz) {
-    if (!(clazz.isAnnotation() || clazz.isSynthetic())) {
+    if ((context.isCheckMayContainNullArgs() || context.isCheckNullableArgs()) && !(clazz.isAnnotation() || clazz.isSynthetic())) {
       int index = 0;
       for (final Method m : clazz.getMethods()) {
         context.setProcessingItem(clazz, m, index++);
         final String name = m.getName();
         if ("<clinit>".equals(name)) continue;
         if ((m.getModifiers() & (0x40 | 0x1000)) == 0){
-          if (clazz.isEnum()){
-            if ("values".equals(name) || "valueOf".equals(name) || "<init>".equals(name)) continue;
+          if (clazz.isEnum() && ("values".equals(name) || "valueOf".equals(name) || "<init>".equals(name))) continue;
+          if (context.isCheckNullableArgs()) {
+            MethodParameterChecker.checkReturnTypeForNullable(context, m);
+            MethodParameterChecker.checkParamsTypeForNullable(context, m);
           }
-          MethodParameterChecker.checkReturnType(context, m);
-          MethodParameterChecker.checkParamsType(context, m);
+          if (context.isCheckMayContainNullArgs()) {
+            MethodParameterChecker.checkReturnTypeForMayContainNull(context, m);
+            MethodParameterChecker.checkParamsTypeForMayContainNull(context, m);
+          }
         }
       }
     }

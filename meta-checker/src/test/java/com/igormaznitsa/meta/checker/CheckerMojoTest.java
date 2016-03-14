@@ -32,7 +32,8 @@ public class CheckerMojoTest extends AbstractMojoTestCase {
     final File testPom = new File(this.getClass().getResource("default.xml").toURI());
     final CheckerMojo mojo = (CheckerMojo) lookupMojo("check", testPom);
     assertNotNull(mojo);
-    assertFalse(mojo.isFailForNonMarkedParams());
+    assertFalse(mojo.isCheckMayContainNullArgs());
+    assertFalse(mojo.isCheckNullableArgs());
     assertNull(mojo.getRestrictClassFormat());
     assertNull(mojo.getIgnoreClasses());
     assertNull(mojo.getFailForAnnotations());
@@ -43,7 +44,8 @@ public class CheckerMojoTest extends AbstractMojoTestCase {
     final File testPom = new File(this.getClass().getResource("allset.xml").toURI());
     final CheckerMojo mojo = (CheckerMojo) lookupMojo("check", testPom);
     assertNotNull(mojo);
-    assertTrue(mojo.isFailForNonMarkedParams());
+    assertTrue(mojo.isCheckMayContainNullArgs());
+    assertTrue(mojo.isCheckNullableArgs());
     assertEquals(">=7",mojo.getRestrictClassFormat());
     assertArrayEquals(new String[]{"com.hello.world","com.*?.test"},mojo.getIgnoreClasses());
     assertArrayEquals(new String[]{"risky"},mojo.getFailForAnnotations());

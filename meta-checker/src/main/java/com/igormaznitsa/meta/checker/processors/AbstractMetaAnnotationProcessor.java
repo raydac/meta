@@ -41,7 +41,7 @@ public abstract class AbstractMetaAnnotationProcessor {
   private final String ANNOTATION_TYPE;
   private final boolean alertable;
 
-  public AbstractMetaAnnotationProcessor () {
+  public AbstractMetaAnnotationProcessor() {
     super();
     final Class<? extends Annotation> theKlazz = getAnnotationClass();
     this.ANNOTATION_TYPE = Utils.makeSignatureForClass(theKlazz);
@@ -62,15 +62,15 @@ public abstract class AbstractMetaAnnotationProcessor {
     this.alertable = hasAlertField;
   }
 
-  public boolean isAlertable () {
+  public boolean isAlertable() {
     return this.alertable;
   }
 
-  public final boolean isElementTypeAllowed (final ElementType type) {
+  public final boolean isElementTypeAllowed(final ElementType type) {
     return this.ALLOWED_ELEMENTS.contains(type);
   }
 
-  public final void processClass (final Context context, final JavaClass clazz, final int itemIndex) {
+  public final void processClass(final Context context, final JavaClass clazz, final int itemIndex) {
     context.setProcessingItem(clazz, null, itemIndex);
 
     if (isElementTypeAllowed(ElementType.TYPE)) {
@@ -90,7 +90,7 @@ public abstract class AbstractMetaAnnotationProcessor {
     context.setProcessingItem(clazz, null, itemIndex);
   }
 
-  private void processType (final Context context, final JavaClass clazz, final AnnotationEntry[] annotations) {
+  private void processType(final Context context, final JavaClass clazz, final AnnotationEntry[] annotations) {
     for (final AnnotationEntry ae : annotations) {
       if (ANNOTATION_TYPE.equals(ae.getAnnotationType())) {
         process(context, clazz, ElementType.TYPE, null, ae);
@@ -98,7 +98,7 @@ public abstract class AbstractMetaAnnotationProcessor {
     }
   }
 
-  private void processFields (final Context context, final JavaClass clazz, final Field[] fields) {
+  private void processFields(final Context context, final JavaClass clazz, final Field[] fields) {
     int index = 0;
     for (final Field f : fields) {
       context.setProcessingItem(clazz, f, index++);
@@ -110,21 +110,23 @@ public abstract class AbstractMetaAnnotationProcessor {
     }
   }
 
-  private void processMethods (final Context context, final JavaClass clazz, final Method[] methods) {
-    int method = 0;
+  private void processMethods(final Context context, final JavaClass clazz, final Method[] methods) {
+    int methodIndex = 0;
     for (final Method m : methods) {
-      context.setProcessingItem(clazz, m, method++);
+      final int argNumner = m.getArgumentTypes().length;
+
       if (isElementTypeAllowed(ElementType.METHOD)) {
         for (final AnnotationEntry ae : m.getAnnotationEntries()) {
+          context.setProcessingItem(clazz, m, methodIndex);
           if (ANNOTATION_TYPE.equals(ae.getAnnotationType())) {
             process(context, clazz, ElementType.METHOD, null, ae);
           }
         }
       }
       if (isElementTypeAllowed(ElementType.PARAMETER)) {
-        int param = 0;
+        int paramIndex = 0;
         for (final ParameterAnnotationEntry pe : m.getParameterAnnotationEntries()) {
-          context.setProcessingItem(clazz, m, param++);
+          context.setProcessingItem(clazz, m, (paramIndex++) % argNumner);
           for (final AnnotationEntry ae : pe.getAnnotationEntries()) {
             if (ANNOTATION_TYPE.equals(ae.getAnnotationType())) {
               process(context, clazz, ElementType.PARAMETER, pe, ae);
@@ -132,6 +134,7 @@ public abstract class AbstractMetaAnnotationProcessor {
           }
         }
       }
+      methodIndex++;
     }
   }
 
@@ -139,24 +142,23 @@ public abstract class AbstractMetaAnnotationProcessor {
     final ElementValue value = extractValue(field, entry);
     return value == null ? dflt : value.stringifyValue();
   }
-  
+
 //  protected static boolean extractBoolValue(final String field, final AnnotationEntry entry, final boolean dflt) {
 //    final SimpleElementValue value = (SimpleElementValue)extractValue(field, entry);
 //    return value == null ? dflt : value.getValueBoolean();
 //  }
-  
   protected static ElementValue extractValue(final String field, final AnnotationEntry entry) {
     ElementValue result = null;
     for (final ElementValuePair p : entry.getElementValuePairs()) {
-      if (field.equals(p.getNameString())){
+      if (field.equals(p.getNameString())) {
         result = p.getValue();
         break;
       }
     }
     return result;
   }
-  
-  protected static Map<String, ElementValue> parseValues (final AnnotationEntry entry) {
+
+  protected static Map<String, ElementValue> parseValues(final AnnotationEntry entry) {
     final Map<String, ElementValue> result = new HashMap<String, ElementValue>();
     for (final ElementValuePair p : entry.getElementValuePairs()) {
       result.put(p.getNameString(), p.getValue());
@@ -164,15 +166,15 @@ public abstract class AbstractMetaAnnotationProcessor {
     return result;
   }
 
-  private void process (final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
+  private void process(final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
     doProcessing(context, clazz, type, pae, ae);
   }
 
   protected static String addSemicolonIfNeeded(final String text) {
-    return text == null ? text : text.isEmpty() ? text : " : "+text;
+    return text == null ? text : text.isEmpty() ? text : " : " + text;
   }
-  
-  protected abstract void doProcessing (Context context, JavaClass clazz, ElementType type, ParameterAnnotationEntry pae, AnnotationEntry ae);
 
-  public abstract Class<? extends Annotation> getAnnotationClass ();
+  protected abstract void doProcessing(Context context, JavaClass clazz, ElementType type, ParameterAnnotationEntry pae, AnnotationEntry ae);
+
+  public abstract Class<? extends Annotation> getAnnotationClass();
 }

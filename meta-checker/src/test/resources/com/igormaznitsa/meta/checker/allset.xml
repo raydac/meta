@@ -18,7 +18,8 @@
         <artifactId>meta-checker</artifactId>
         <configuration>
           <restrictClassFormat><![CDATA[>=7]]></restrictClassFormat>
-          <failForNonMarkedParams>true</failForNonMarkedParams>
+          <checkNullableAnnotations>true</checkNullableAnnotations>
+          <checkMayContainNullAnnotations>true</checkMayContainNullAnnotations>
           <failForAnnotations>
             <param>risky</param>
           </failForAnnotations>

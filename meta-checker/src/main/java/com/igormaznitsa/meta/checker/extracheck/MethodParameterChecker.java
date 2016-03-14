@@ -15,6 +15,8 @@
  */
 package com.igormaznitsa.meta.checker.extracheck;
 
+import static com.igormaznitsa.meta.common.utils.Assertions.fail;
+
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,45 +43,71 @@ public class MethodParameterChecker {
   private static final Set<String> CACHED_CLASS_NAMES_POSITIVE_RECOGNIZED = new HashSet<String>();
   private static final Set<String> CACHED_CLASS_NAMES_NEGATIVE_RECOGNIZED = new HashSet<String>();
 
-  private static final Set<String> ANNOTATIONS_FOR_OBJECT = classesToNameSet(javax.annotation.Nullable.class, javax.annotation.Nonnull.class);
+  private static final Set<String> ANNOTATIONS_FOR_OBJECT = classesToNameSet(javax.annotation.Nullable.class, javax.annotation.Nonnull.class, "org.jetbrains.annotations.Nullable", "org.jetbrains.annotations.NotNull");
   private static final Set<String> ANNOTATIONS_FOR_ARRAY_OR_COLLECTION = classesToNameSet(MayContainNull.class, MustNotContainNull.class);
 
-  public static void checkReturnType(final Context context, final Method method) {
+  public static void checkReturnTypeForNullable(final Context context, final Method method) {
     final Type returnType = method.getReturnType();
     if (isNullableType(returnType)) {
       final AnnotationEntry[] annotations = method.getAnnotationEntries();
       if (!hasAnnotationFromSet(annotations, ANNOTATIONS_FOR_OBJECT)) {
         context.error("Must have either @" + Nullable.class.getName() + " or @" + Nonnull.class.getName() + " for return type", true);
       }
+    }
+  }
+
+  public static void checkReturnTypeForMayContainNull(final Context context, final Method method) {
+    final Type returnType = method.getReturnType();
+    if (isNullableType(returnType)) {
+      final AnnotationEntry[] annotations = method.getAnnotationEntries();
+
       if (isArrayOfObjectsOrCollection(context, returnType) && !hasAnnotationFromSet(annotations, ANNOTATIONS_FOR_ARRAY_OR_COLLECTION)) {
         context.error("Must have either @" + MayContainNull.class.getName() + " or @" + MustNotContainNull.class.getName() + " for return type", true);
       }
     }
   }
 
-  public static void checkParamsType(final Context context, final Method method) {
+  public static void checkParamsTypeForNullable(final Context context, final Method method) {
     final Type[] arguments = method.getArgumentTypes();
-    final ParameterAnnotationEntry[] argAnnotations = method.getParameterAnnotationEntries();
+    final ParameterAnnotationEntry[] paramAnnotations = method.getParameterAnnotationEntries();
 
-    for (int i = 0; i < arguments.length; i++) {
-      if (isNullableType(arguments[i])) {
-        if (i >= argAnnotations.length || !hasAnnotationFromSet(argAnnotations[i].getAnnotationEntries(), ANNOTATIONS_FOR_OBJECT)) {
-          context.error("Must have either @" + Nullable.class.getName() + " or @" + Nonnull.class.getName() + " for argument #" + (i + 1), true);
-        }
+    final int argLength = arguments.length;
 
-        if (isArrayOfObjectsOrCollection(context, arguments[i])) {
-          if (i >= argAnnotations.length || !hasAnnotationFromSet(argAnnotations[i].getAnnotationEntries(), ANNOTATIONS_FOR_ARRAY_OR_COLLECTION)) {
-            context.error("Must have either @" + MayContainNull.class.getName() + " or @" + MustNotContainNull.class.getName() + " for argument #" + (i + 1), true);
-          }
-        }
+    for (int argIndex = 0; argIndex < argLength; argIndex++) {
+      if (isNullableType(arguments[argIndex])
+          && (argIndex >= paramAnnotations.length || !hasParameterAnnotationFromSet(argLength, argIndex, paramAnnotations, ANNOTATIONS_FOR_OBJECT))) {
+        context.error("Must have either @" + Nullable.class.getName() + " or @" + Nonnull.class.getName() + " for argument #" + (argIndex + 1), true);
       }
     }
   }
 
-  private static Set<String> classesToNameSet(final Class<?>... klazzes) {
+  public static void checkParamsTypeForMayContainNull(final Context context, final Method method) {
+    final Type[] arguments = method.getArgumentTypes();
+    final ParameterAnnotationEntry[] paramAnnotations = method.getParameterAnnotationEntries();
+
+    final int argLength = arguments.length;
+
+    for (int argIndex = 0; argIndex < argLength; argIndex++) {
+      if (isNullableType(arguments[argIndex])
+          && isArrayOfObjectsOrCollection(context, arguments[argIndex])
+          && (argIndex >= paramAnnotations.length || !hasParameterAnnotationFromSet(argLength, argIndex, paramAnnotations, ANNOTATIONS_FOR_ARRAY_OR_COLLECTION))) {
+        context.error("Must have either @" + MayContainNull.class.getName() + " or @" + MustNotContainNull.class.getName() + " for argument #" + (argIndex + 1), true);
+      }
+    }
+  }
+
+  private static Set<String> classesToNameSet(final Object... klazzes) {
     final Set<String> result = new HashSet<String>();
-    for (final Class<?> k : klazzes) {
-      result.add(Utils.makeSignatureForClass(k));
+    for (final Object k : klazzes) {
+      if (k instanceof Class) {
+        result.add(Utils.makeSignatureForClass((Class<?>) k));
+      }
+      else if (k instanceof String) {
+        result.add(Utils.makeSignatureForClass((String) k));
+      }
+      else {
+        throw fail("Unexpected object type [" + k + ']');
+      }
     }
     return result;
   }
@@ -98,8 +126,15 @@ public class MethodParameterChecker {
       return true;
     }
 
-    if (!signature.endsWith(";")) return false;
-    
+    if (signature.endsWith(";")) {
+      if (arrayLastChar >= 0) {
+        return true;
+      }
+    }
+    else {
+      return false;
+    }
+
     if (CACHED_CLASS_NAMES_POSITIVE_RECOGNIZED.contains(signature)) {
       return true;
     }
@@ -157,12 +192,22 @@ public class MethodParameterChecker {
   }
 
   private static boolean hasAnnotationFromSet(final AnnotationEntry[] annotations, final Set<String> namesToFind) {
-    if (annotations != null) {
-      for (final AnnotationEntry a : annotations) {
+    for (final AnnotationEntry a : annotations) {
+      if (namesToFind.contains(a.getAnnotationType())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean hasParameterAnnotationFromSet(int methodArgsNummber, int parameterIndex, final ParameterAnnotationEntry[] paramAnnotations, final Set<String> namesToFind) {
+    while (parameterIndex < paramAnnotations.length) {
+      for (final AnnotationEntry a : paramAnnotations[parameterIndex].getAnnotationEntries()) {
         if (namesToFind.contains(a.getAnnotationType())) {
           return true;
         }
       }
+      parameterIndex += methodArgsNummber;
     }
     return false;
   }
