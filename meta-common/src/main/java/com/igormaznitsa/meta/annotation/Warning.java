@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
  * @since 1.0
  */
 @Documented
-@Target ({ElementType.TYPE,ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER,ElementType.CONSTRUCTOR})
+@Target ({ElementType.TYPE,ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER,ElementType.CONSTRUCTOR, ElementType.PACKAGE,ElementType.ANNOTATION_TYPE})
 @Retention (RetentionPolicy.CLASS)
 public @interface Warning {
   /**
