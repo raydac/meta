@@ -34,6 +34,7 @@ public class CheckerMojoTest extends AbstractMojoTestCase {
     assertNotNull(mojo);
     assertFalse(mojo.isCheckMayContainNullArgs());
     assertFalse(mojo.isCheckNullableArgs());
+    assertFalse(mojo.isHideBanner());
     assertNull(mojo.getRestrictClassFormat());
     assertNull(mojo.getIgnoreClasses());
     assertNull(mojo.getFailForAnnotations());
@@ -46,6 +47,7 @@ public class CheckerMojoTest extends AbstractMojoTestCase {
     assertNotNull(mojo);
     assertTrue(mojo.isCheckMayContainNullArgs());
     assertTrue(mojo.isCheckNullableArgs());
+    assertTrue(mojo.isHideBanner());
     assertEquals(">=7",mojo.getRestrictClassFormat());
     assertArrayEquals(new String[]{"com.hello.world","com.*?.test"},mojo.getIgnoreClasses());
     assertArrayEquals(new String[]{"risky"},mojo.getFailForAnnotations());
