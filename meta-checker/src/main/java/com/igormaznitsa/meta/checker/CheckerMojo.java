@@ -70,7 +70,7 @@ public class CheckerMojo extends AbstractMojo {
 //  @Parameter (defaultValue = "${project}", readonly = true, required = true)
 //  private MavenProject project;
   /**
-   * The Directory contains compiled classes of the project.
+   * Folder which will be recursively used as the source of class files.
    */
   @Parameter(defaultValue = "${project.build.outputDirectory}", name = "targetDirectory")
   private String targetDirectory;
@@ -89,14 +89,13 @@ public class CheckerMojo extends AbstractMojo {
   private String restrictClassFormat;
 
   /**
-   * List of meta annotations which will be recognized as failure. Names are case insensitive and if name doesn't contain dot char then only class name will be checked (without
-   * package part).
+   * List of annotations in full canonical or short form. If checker met annotation from the list then it will be recognized as error. NB! Annotation names are case insensitive.
    */
   @Parameter(name = "failForAnnotations")
   private String[] failForAnnotations;
 
   /**
-   * List of classes to be ignored by checker. Class namme must be defined in canonical view and can contain wildcat chars '*' and '?'.
+   * List of classes to be ignored by checker. Class name must be defined in canonical form and wildcat chars '*' and '?' are allowed.
    *
    * @since 1.0.3
    */
@@ -104,7 +103,7 @@ public class CheckerMojo extends AbstractMojo {
   private String[] ignoreClasses;
 
   /**
-   * Check methods for @Nullable or @Nonnull (also allowed Intellij IDEA annotations).
+   * Check that method object arguments are marked by @Nullable or @Nonnull (also allowed Intellij IDEA annotations).
    *
    * @since 1.0.3
    */
@@ -112,7 +111,7 @@ public class CheckerMojo extends AbstractMojo {
   private boolean checkNullable;
 
   /**
-   * Check methods for @MayContainNull and @MustNotContainNull annotations.
+   * Check that list and object array types in methods are marked by @MayContainNull and @MustNotContainNull annotations.
    *
    * @since 1.0.3
    */
@@ -120,7 +119,9 @@ public class CheckerMojo extends AbstractMojo {
   private boolean checkMayContainNull;
 
   /**
-   * Hide pseudographic banner. since 1.0.3
+   * Hide pseudo-graphic banner. 
+   * 
+   * @since 1.0.3
    */
   @Parameter(name = "hideBanner", defaultValue = "false")
   private boolean hideBanner;
