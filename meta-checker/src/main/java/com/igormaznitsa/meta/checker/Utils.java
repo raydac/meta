@@ -34,7 +34,6 @@ import org.joda.time.PeriodType;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
-
 public abstract class Utils {
 
   private static final PeriodFormatter TIME_FORMATTER = new PeriodFormatterBuilder()
@@ -57,24 +56,10 @@ public abstract class Utils {
   private Utils() {
   }
 
-  public static final String LINE_SEPARATOR = System.getProperty("line.separator", "\r\n");
-
   public static String printTimeDelay(final long timeInMilliseconds) {
     final Duration duration = new Duration(timeInMilliseconds);
     final Period period = duration.toPeriod().normalizedStandard(PeriodType.time());
     return TIME_FORMATTER.print(period);
-  }
-
-  public static int getMaxLineWidth(final List<String> str) {
-    int max = 0;
-    if (str != null && !str.isEmpty()) {
-      for (final String s : str) {
-        if (s != null && s.length() > max) {
-          max = s.length();
-        }
-      }
-    }
-    return max;
   }
 
   public static String extractShortNameOfClass(final String cacnonicalClassName) {
@@ -223,6 +208,6 @@ public abstract class Utils {
 
   private static String utfCode(final char ch) {
     final String s = Integer.toHexString(ch).toUpperCase(Locale.ENGLISH);
-    return "\\u" + "0000".substring(4 - s.length()) + s;
+    return "\\u" + "0000".substring(0, 4 - s.length()) + s;
   }
 }

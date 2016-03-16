@@ -60,7 +60,7 @@ public class CheckerMojo extends AbstractMojo {
   }
 
   private static final String DELIMITER = "................................";
-  private static final String FAILURE_STRING = "Classes contain forbidden annotation : '%s'";
+  private static final String FAILURE_STRING = "Detected annotation '%s' defined to be recognized as error";
   private static final String[] BANNER = new String[]{
     " __  __  ____  ____   __   ",
     "(  \\/  )( ___)(_  _) /__\\  ",
@@ -296,19 +296,19 @@ public class CheckerMojo extends AbstractMojo {
       int classIndex = 0;
       while (iterator.hasNext()) {
         final File file = iterator.next();
-        getLog().debug("Processing class file : " + file.getAbsolutePath());
+        getLog().debug(String.format("Processing class file : %s", file.getAbsolutePath()));
         try {
           final JavaClass parsed = new ClassParser(file.getAbsolutePath()).parse();
 
           if (isClassIgnored(parsed)) {
-            getLog().info("Ignoring class file : " + file.getAbsolutePath());
+            context.info(String.format("Ignoring class file : %s",file.getAbsolutePath()),false);
             continue;
           }
 
           processedClasses++;
 
           if (!isClassVersionAllowed(parsed)) {
-            getLog().error("Detected illegal class format '" + JavaVersion.decode(parsed.getMajor()) + "' at class file " + file.getAbsolutePath());
+            context.error(String.format("Detected class version violator, version %s at %s", JavaVersion.decode(parsed.getMajor()), file.getAbsolutePath()),false);
             counterErrors.incrementAndGet();
             break;
           }
@@ -323,15 +323,15 @@ public class CheckerMojo extends AbstractMojo {
           throw new MojoFailureException(ex.getMessage());
         }
         catch (IOException ex) {
-          getLog().error("Can't read class file [" + file.getAbsolutePath() + ']');
+          context.error(String.format("Can't read class file : %s",file.getAbsolutePath()),false);
         }
         catch (ClassFormatException ex) {
-          getLog().error("Can't parse class file [" + file.getAbsolutePath() + ']');
+          context.error(String.format("Can't parse class file : %s", file.getAbsolutePath()), false);
         }
       }
 
       if (this.failForAnnotations != null && this.failForAnnotations.length > 0) {
-        getLog().debug("Should be recognized as failure : " + Arrays.toString(this.failForAnnotations));
+        getLog().debug("Defined annotations to be interpreted as error : " + Arrays.toString(this.failForAnnotations));
         for (final String detected : counters.keySet()) {
           if (counters.get(detected).get() > 0) {
             final String name = detected.toLowerCase(Locale.ENGLISH);
@@ -356,7 +356,7 @@ public class CheckerMojo extends AbstractMojo {
         }
       }
       else {
-        getLog().debug("there is not any detected annotation in config to be recognized as failure");
+        getLog().debug("There are not defined annotations to be interpreted as error");
       }
     }
     finally {
@@ -369,23 +369,24 @@ public class CheckerMojo extends AbstractMojo {
         totalAnnotations += e.getValue().get();
       }
 
-      getLog().info(String.format("Total classes : %d", processedClasses));
-      getLog().info(String.format("Total annotations : %d", totalAnnotations));
-      getLog().info(String.format("Total To-Do : %d", extractCounter(counters, AnnotationProcessor.TODO)));
-      getLog().info(String.format("Total risks : %d", extractCounter(counters, AnnotationProcessor.RISKY)));
-
-      if (counterErrors.get() > 0) {
-        getLog().error(String.format("Total errors : %d", counterErrors.get()));
-      }
-      else {
-        getLog().info(String.format("Total errors : %d", counterErrors.get()));
-      }
+      getLog().info(String.format("Processed classes : %d", processedClasses));
+      getLog().info(String.format("Detected annotations : %d", totalAnnotations));
+      getLog().info(String.format("Detected To-Do : %d", extractCounter(counters, AnnotationProcessor.TODO)));
+      getLog().info(String.format("Detected risks : %d", extractCounter(counters, AnnotationProcessor.RISKY)));
+      getLog().info(String.format("Detected experimental : %d", extractCounter(counters, AnnotationProcessor.EXPERIMENTAL)));
 
       if (counterWarings.get() > 0) {
         getLog().warn(String.format("Total warnings : %d", counterWarings.get()));
       }
       else {
         getLog().info(String.format("Total warnings : %d", counterWarings.get()));
+      }
+
+      if (counterErrors.get() > 0) {
+        getLog().error(String.format("Total errors : %d", counterErrors.get()));
+      }
+      else {
+        getLog().info(String.format("Total errors : %d", counterErrors.get()));
       }
 
       getLog().info(DELIMITER);

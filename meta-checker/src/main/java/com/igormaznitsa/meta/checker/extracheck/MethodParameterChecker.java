@@ -46,12 +46,15 @@ public class MethodParameterChecker {
   private static final Set<String> ANNOTATIONS_FOR_OBJECT = classesToNameSet(javax.annotation.Nullable.class, javax.annotation.Nonnull.class, "org.jetbrains.annotations.Nullable", "org.jetbrains.annotations.NotNull");
   private static final Set<String> ANNOTATIONS_FOR_ARRAY_OR_COLLECTION = classesToNameSet(MayContainNull.class, MustNotContainNull.class);
 
+  private static final String RETURN_TYPE_NOTIFICATION = "Return type must be marked by either @%s or @%s";
+  private static final String ARG_TYPE_NOTIFICATION = "Arg. #%d must be marked by either @%s or @%s";
+  
   public static void checkReturnTypeForNullable(final Context context, final Method method) {
     final Type returnType = method.getReturnType();
     if (isNullableType(returnType)) {
       final AnnotationEntry[] annotations = method.getAnnotationEntries();
       if (!hasAnnotationFromSet(annotations, ANNOTATIONS_FOR_OBJECT)) {
-        context.error("Must have either @" + Nullable.class.getName() + " or @" + Nonnull.class.getName() + " for return type", true);
+        context.error(String.format(RETURN_TYPE_NOTIFICATION,Utils.extractClassName(Nullable.class.getName()), Utils.extractClassName(Nonnull.class.getName())),true);
       }
     }
   }
@@ -62,7 +65,7 @@ public class MethodParameterChecker {
       final AnnotationEntry[] annotations = method.getAnnotationEntries();
 
       if (isArrayOfObjectsOrCollection(context, returnType) && !hasAnnotationFromSet(annotations, ANNOTATIONS_FOR_ARRAY_OR_COLLECTION)) {
-        context.error("Must have either @" + MayContainNull.class.getName() + " or @" + MustNotContainNull.class.getName() + " for return type", true);
+        context.error(String.format(RETURN_TYPE_NOTIFICATION,Utils.extractClassName(MayContainNull.class.getName()), Utils.extractClassName(MustNotContainNull.class.getName())), true);
       }
     }
   }
@@ -76,7 +79,7 @@ public class MethodParameterChecker {
     for (int argIndex = 0; argIndex < argLength; argIndex++) {
       if (isNullableType(arguments[argIndex])
           && (argIndex >= paramAnnotations.length || !hasParameterAnnotationFromSet(argLength, argIndex, paramAnnotations, ANNOTATIONS_FOR_OBJECT))) {
-        context.error("Must have either @" + Nullable.class.getName() + " or @" + Nonnull.class.getName() + " for argument #" + (argIndex + 1), true);
+        context.error(String.format(ARG_TYPE_NOTIFICATION,argIndex+1,Utils.extractClassName(Nullable.class.getName()),Utils.extractClassName(Nonnull.class.getName())), true);
       }
     }
   }
@@ -91,7 +94,7 @@ public class MethodParameterChecker {
       if (isNullableType(arguments[argIndex])
           && isArrayOfObjectsOrCollection(context, arguments[argIndex])
           && (argIndex >= paramAnnotations.length || !hasParameterAnnotationFromSet(argLength, argIndex, paramAnnotations, ANNOTATIONS_FOR_ARRAY_OR_COLLECTION))) {
-        context.error("Must have either @" + MayContainNull.class.getName() + " or @" + MustNotContainNull.class.getName() + " for argument #" + (argIndex + 1), true);
+        context.error(String.format(ARG_TYPE_NOTIFICATION,argIndex + 1,Utils.extractClassName(MayContainNull.class.getName()),Utils.extractClassName(MustNotContainNull.class.getName())), true);
       }
     }
   }
@@ -169,7 +172,7 @@ public class MethodParameterChecker {
         }
       }
       catch (Exception ex) {
-        context.warning("Can't parse class file " + classFile.getAbsolutePath(), false);
+        context.warning("Can't parse class file : " + classFile.getAbsolutePath(), false);
       }
     }
     else {
