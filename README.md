@@ -11,11 +11,16 @@ It is a small general-purpose library includes:
 * maven plugin to log info about some annotations and check java class version
 
 # Change log
-* __1.0.3-SNAPSHOT__
+* __1.1.0-SNAPSHOT__
+ * __utilities and auxiliary classes extracted to separated module meta-utils__
+ * __meta-common module renamed to meta-annotations__
+ * __annotation classes compiled in JVM 1.5 format__
+ * improved maven plugin to check marks for method arguments, NB! It also supports @Nullable and @NotNull annotations from IDEA annotation pack.
+ * changed retention policy for annotations to CLASS, but shaded annotations from JR-305 have retention policy RUNTIME
+ * extended scope for many annotations
  * improved utility methods and assertions
  * added annotations @Experimental, @ThrowsRuntimeException, @ThrowsRuntimeExceptions
- * added extra check of marked method parameters into the maven plugin
- * fixed NPE in the maven plugin for missing class format option
+ * bugfixing and refactoring, also fixed NPE in the maven plugin for missing class format option
 
 * __1.0.2 (06-mar-2016)__
  * added Assertions.assertIsValid method
@@ -48,6 +53,9 @@ It contains number annotations to mark code, plus JSR-305 annotations provided b
 * ToDo
 * Warning
 * Weight
+* ThrowsRuntimeException
+* ThrowsRuntimeExceptions
+* Experimental
 
 # How to add the library into maven project
 To use annotations just add dependency to the library

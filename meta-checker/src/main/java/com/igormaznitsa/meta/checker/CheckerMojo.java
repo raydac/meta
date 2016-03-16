@@ -99,7 +99,7 @@ public class CheckerMojo extends AbstractMojo {
   /**
    * List of classes to be ignored by checker. Class name must be defined in canonical form and wildcat chars '*' and '?' are allowed.
    *
-   * @since 1.0.3
+   * @since 1.1.0
    */
   @Parameter(name = "ignoreClasses")
   private String[] ignoreClasses;
@@ -107,7 +107,7 @@ public class CheckerMojo extends AbstractMojo {
   /**
    * Check that method object arguments are marked by @Nullable or @Nonnull (also allowed Intellij IDEA annotations).
    *
-   * @since 1.0.3
+   * @since 1.1.0
    */
   @Parameter(name = "checkNullable", defaultValue = "false")
   private boolean checkNullable;
@@ -115,7 +115,7 @@ public class CheckerMojo extends AbstractMojo {
   /**
    * Check that list and object array types in methods are marked by @MayContainNull and @MustNotContainNull annotations.
    *
-   * @since 1.0.3
+   * @since 1.1.0
    */
   @Parameter(name = "checkMayContainNull", defaultValue = "false")
   private boolean checkMayContainNull;
@@ -123,7 +123,7 @@ public class CheckerMojo extends AbstractMojo {
   /**
    * Hide pseudo-graphic banner. 
    * 
-   * @since 1.0.3
+   * @since 1.1.0
    */
   @Parameter(name = "hideBanner", defaultValue = "false")
   private boolean hideBanner;

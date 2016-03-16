@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Igor Maznitsa.
+ * Copyright 2015 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,21 +22,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Allows to describe a runtime exception thrown by method.
- * @since 1.0.3
+ * Marks item as experimental one.
+ * @since 1.1.0
  */
 @Documented
-@Target({ElementType.METHOD,ElementType.CONSTRUCTOR})
-@Retention(RetentionPolicy.CLASS)
-public @interface ThrowsRuntimeException {
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER, ElementType.CONSTRUCTOR, ElementType.PACKAGE, ElementType.ANNOTATION_TYPE})
+@Retention (RetentionPolicy.CLASS)
+public @interface Experimental {
   /**
-   * The Class of the runtime exception.
-   * @return the class of the runtime exception
+   * Some optional text description.
+   * @return optional text description
    */
-  Class<? extends RuntimeException> value();
-  /**
-   * Description of the exception.
-   * @return the description as text.
-   */
-  String reference () default "";
+  String value () default "";
 }

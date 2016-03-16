@@ -5,15 +5,20 @@
   <parent>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
       
-  <artifactId>meta-common</artifactId>
+  <artifactId>meta-annotations</artifactId>
   <packaging>jar</packaging>
 
-  <name>meta-common</name>
-  <description>Set of annotations and auxuliary classes to mark code and make measurement and analyzing in runtime. It includes shaded FindBugs jsr-305 annotations from the com.google.code.findbugs library .</description>
+  <name>meta-annotations</name>
+  <description>Set of annotations to mark code and keep the marks in compiled classes. It includes shaded FindBugs jsr-305 annotations from the com.google.code.findbugs library .</description>
+
+  <properties>
+    <maven.compiler.source>1.5</maven.compiler.source>
+    <maven.compiler.target>1.5</maven.compiler.target>
+  </properties>
 
   <profiles>
     <profile>
@@ -172,30 +177,19 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.5</version>
-        <configuration>
-          <compilerArgument>-Xlint:all</compilerArgument>
-          <verbose>true</verbose>
-          <showDeprecation>true</showDeprecation>
-          <showWarnings>true</showWarnings>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
         <version>1.14</version>
         <configuration>
           <signature>
             <groupId>org.codehaus.mojo.signature</groupId>
-            <artifactId>java16-sun</artifactId>
-            <version>1.10</version>
+            <artifactId>java15-sun</artifactId>
+            <version>1.0</version>
           </signature>
         </configuration>
         <executions>
           <execution>
-            <id>ensure-java-1.6-class-library</id>
+            <id>ensure-java-1.5-class-library</id>
             <phase>test</phase>
             <goals>
               <goal>check</goal>

@@ -82,7 +82,7 @@ public final class Assertions {
    * @param object the object to check
    * @return the same input parameter if all is ok
    * @throws AssertionError it will be thrown if the value is not null
-   * @since 1.0.3
+   * @since 1.1.0
    */
   public static <T> T assertNull(@Nullable final String failMessage, @Nullable final T object) {
     if (object != null) {
@@ -117,7 +117,7 @@ public final class Assertions {
    * @param object the object to check
    * @return the same input parameter if all is ok
    * @throws AssertionError it will be thrown if the value is null
-   * @since 1.0.3
+   * @since 1.1.0
    */
   @Nonnull
   public static <T> T assertNotNull(@Nullable final String failMessage, @Nullable final T object) {

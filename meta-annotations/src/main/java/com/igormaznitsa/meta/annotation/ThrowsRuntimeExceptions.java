@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 /**
  * It allows to describe set of runtime exceptions thrown by method.
  * 
- * @since 1.0.3
+ * @since 1.1.0
  */
 @Documented
 @Target({ElementType.METHOD,ElementType.CONSTRUCTOR})
