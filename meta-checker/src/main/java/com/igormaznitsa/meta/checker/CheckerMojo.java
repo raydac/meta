@@ -148,7 +148,7 @@ public class CheckerMojo extends AbstractMojo {
         }
         getLog().info(DELIMITER);
       }
-      getLog().info("Folder to find classes : " + targetDirectoryFile.getAbsolutePath());
+      getLog().info("Folder to look for classes : " + targetDirectoryFile.getAbsolutePath());
       getLog().info(DELIMITER);
     }
 
@@ -304,7 +304,7 @@ public class CheckerMojo extends AbstractMojo {
           final JavaClass parsed = new ClassParser(file.getAbsolutePath()).parse();
 
           if (isClassIgnored(parsed)) {
-            context.info(String.format("Ignoring class file : %s",file.getAbsolutePath()),false);
+            context.info(String.format("Ignored class file : %s",file.getAbsolutePath()),false);
             continue;
           }
 
