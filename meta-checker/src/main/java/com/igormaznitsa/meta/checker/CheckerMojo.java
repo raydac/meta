@@ -62,10 +62,12 @@ public class CheckerMojo extends AbstractMojo {
   private static final String DELIMITER = "................................";
   private static final String FAILURE_STRING = "Detected annotation '%s' defined to be recognized as error";
   private static final String[] BANNER = new String[]{
-    " __  __  ____  ____   __   ",
-    "(  \\/  )( ___)(_  _) /__\\  ",
-    " )    (  )__)   )(  /(__)\\ ",
-    "(_/\\/\\_)(____) (__)(__)(__)"};
+    "  __  __  ____  ____   __   ",
+    " (  \\/  )( ___)(_  _) /__\\  ",
+    "  )    (  )__)   )(  /(__)\\ ",
+    " (_/\\/\\_)(____) (__)(__)(__)",
+    "https://github.com/raydac/meta",
+    ""};
 
 //  @Parameter (defaultValue = "${project}", readonly = true, required = true)
 //  private MavenProject project;
