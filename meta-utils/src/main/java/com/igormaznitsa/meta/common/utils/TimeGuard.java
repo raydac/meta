@@ -269,15 +269,11 @@ public final class TimeGuard {
         detected |= true;
         final long detectedDelay = time - timeWatchItem.getCreationTimeInMilliseconds();
         try {
-          try {
-            timeWatchItem.getAlertListener().onTimeAlert(detectedDelay, timeWatchItem);
-          }
-          catch (Exception ex) {
-            final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time point processing", ex);
-            MetaErrorListeners.fireError(error.getMessage(), error);
-          }
-        }
-        finally {
+          timeWatchItem.getAlertListener().onTimeAlert(detectedDelay, timeWatchItem);
+        } catch (Exception ex) {
+          final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time point processing", ex);
+          MetaErrorListeners.fireError(error.getMessage(), error);
+        } finally {
           iterator.remove();
         }
       }
@@ -306,15 +302,11 @@ public final class TimeGuard {
       if (timeWatchItem.isTimePoint() && timeWatchItem.getDetectedStackDepth() >= stackDepth) {
         final long detectedDelay = time - timeWatchItem.getCreationTimeInMilliseconds();
         try {
-          try {
-            timeWatchItem.getAlertListener().onTimeAlert(detectedDelay, timeWatchItem);
-          }
-          catch (Exception ex) {
-            final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time point processing", ex);
-            MetaErrorListeners.fireError(error.getMessage(), error);
-          }
-        }
-        finally {
+          timeWatchItem.getAlertListener().onTimeAlert(detectedDelay, timeWatchItem);
+        } catch (Exception ex) {
+          final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time point processing", ex);
+          MetaErrorListeners.fireError(error.getMessage(), error);
+        } finally {
           iterator.remove();
         }
       }
@@ -406,29 +398,24 @@ public final class TimeGuard {
           if (timePoint) {
             try {
               timeWatchItem.getAlertListener().onTimeAlert(detectedDelay, timeWatchItem);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
               final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time point processing", ex);
               MetaErrorListeners.fireError(error.getMessage(), error);
             }
-          }
-          else if (detectedDelay > timeWatchItem.getMaxAllowedDelayInMilliseconds()) {
+          } else if (detectedDelay > timeWatchItem.getMaxAllowedDelayInMilliseconds()) {
             final TimeAlertListener processor = timeWatchItem.getAlertListener();
             if (processor == NULL_TIME_ALERT_LISTENER) {
               MetaErrorListeners.fireError("Detected time violation without defined time alert listener", new TimeViolationError(detectedDelay, timeWatchItem));
-            }
-            else {
+            } else {
               try {
                 processor.onTimeAlert(detectedDelay, timeWatchItem);
-              }
-              catch (Exception ex) {
+              } catch (Exception ex) {
                 final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during time alert processing", ex);
                 MetaErrorListeners.fireError(error.getMessage(), error);
               }
             }
           }
-        }
-        finally {
+        } finally {
           iterator.remove();
         }
       }

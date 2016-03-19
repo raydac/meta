@@ -24,7 +24,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * The Class allows to save stack trace history (it is possible to keep it in packed format) and restore it to text representation for request.
- * 
+ *
  * @since 1.0
  */
 @Weight(Weight.Unit.VARIABLE)
@@ -38,12 +38,14 @@ public class CallTrace implements Serializable {
 
   /**
    * Default end-of-line for linux.
+   *
    * @since 1.0
    */
   public static final String EOL_LINUX = "\n";
-  
+
   /**
    * Default end-of-line for windows.
+   *
    * @since 1.0
    */
   public static final String EOL_WINDOWS = "\r\n";
@@ -55,19 +57,21 @@ public class CallTrace implements Serializable {
 
   /**
    * The Constructor allows to create call trace history point for the called method.
+   *
    * @since 1.0
    * @see #EOL_LINUX
    */
-  public CallTrace () {
+  public CallTrace() {
     this(true, true, EOL_LINUX);
   }
 
   /**
    * The Constructor allows to create call trace history with defined end-of-line symbol and since needed stack item position.
+   *
    * @param skipConstructors flag to skip first calls from constructors in the stack.
    * @param pack flag shows that string data must be packed, false if should not be packed
    * @param eol string shows which end-of-line should be used
-   * 
+   *
    * @since 1.0.2
    * @see #EOL_LINUX
    * @see #EOL_WINDOWS
@@ -83,7 +87,7 @@ public class CallTrace implements Serializable {
 
     if (skipConstructors) {
       for (; index < allElements.length; index++) {
-        if (!allElements[index].getMethodName().equals("<init>")) {
+        if (!"<init>".equals(allElements[index].getMethodName())) {
           break;
         }
       }
@@ -99,8 +103,7 @@ public class CallTrace implements Serializable {
     this.packed = pack;
     if (pack) {
       this.stacktrace = IOUtils.packData(buffer.toString().getBytes(UTF8));
-    }
-    else {
+    } else {
       this.stacktrace = buffer.toString().getBytes(UTF8);
     }
   }
@@ -119,15 +122,16 @@ public class CallTrace implements Serializable {
 
   /**
    * Restore stack trace as a string from inside data representation.
+   *
    * @return the stack trace as String
    */
   @Nonnull
-  public String restoreStackTrace () {
+  public String restoreStackTrace() {
     return "THREAD_ID : " + this.threadDescriptor + this.eol + new String(this.packed ? IOUtils.unpackData(this.stacktrace) : this.stacktrace, UTF8);
   }
 
   @Override
-  public String toString () {
+  public String toString() {
     return restoreStackTrace();
   }
 }

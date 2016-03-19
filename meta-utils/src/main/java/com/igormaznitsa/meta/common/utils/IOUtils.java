@@ -34,7 +34,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class IOUtils {
 
-  private IOUtils () {
+  private IOUtils() {
   }
 
   /**
@@ -45,8 +45,8 @@ public final class IOUtils {
    * @since 1.0
    */
   @Nonnull
-  @Weight (Weight.Unit.VARIABLE)
-  public static byte[] packData (@Nonnull final byte[] data) {
+  @Weight(Weight.Unit.VARIABLE)
+  public static byte[] packData(@Nonnull final byte[] data) {
     final Deflater compressor = new Deflater(Deflater.BEST_COMPRESSION);
     compressor.setInput(Assertions.assertNotNull(data));
     compressor.finish();
@@ -65,14 +65,13 @@ public final class IOUtils {
    *
    * @param data packed data array
    * @return unpacked byte array
-   * @throws IllegalArgumentException it will be thrown if the data has wrong
-   * format, global error listeners will be also notified
+   * @throws IllegalArgumentException it will be thrown if the data has wrong format, global error listeners will be also notified
    * @see #packData(byte[])
    * @since 1.0
    */
   @Nonnull
-  @Weight (Weight.Unit.VARIABLE)
-  public static byte[] unpackData (@Nonnull final byte[] data) {
+  @Weight(Weight.Unit.VARIABLE)
+  public static byte[] unpackData(@Nonnull final byte[] data) {
     final Inflater decompressor = new Inflater();
     decompressor.setInput(Assertions.assertNotNull(data));
     final ByteArrayOutputStream outStream = new ByteArrayOutputStream(data.length * 2);
@@ -82,29 +81,26 @@ public final class IOUtils {
         outStream.write(buffer, 0, decompressor.inflate(buffer));
       }
       return outStream.toByteArray();
-    }
-    catch (DataFormatException ex) {
+    } catch (DataFormatException ex) {
       MetaErrorListeners.fireError("Can't unpack data for wrong format", ex);
       throw new IllegalArgumentException("Wrong formatted data", ex);
     }
   }
 
   /**
-   * Closing quetly any closeable object. Any exception will be caught (but
-   * global error listeners will be notified)
+   * Closing quetly any closeable object. Any exception will be caught (but global error listeners will be notified)
    *
    * @param closeable object to be closed quetly
    * @return the same object provided in args
    * @since 1.0
    */
-  @Weight (Weight.Unit.LIGHT)
+  @Weight(Weight.Unit.LIGHT)
   @Nullable
-  public static Closeable closeQuetly (@Nullable final Closeable closeable) {
+  public static Closeable closeQuetly(@Nullable final Closeable closeable) {
     if (closeable != null) {
       try {
         closeable.close();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
         MetaErrorListeners.fireError("Exception in closeQuetly", ex);
       }
     }

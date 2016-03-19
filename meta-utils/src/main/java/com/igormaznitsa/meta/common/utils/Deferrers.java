@@ -33,10 +33,8 @@ import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Auxiliary tool to defer some actions and process them in some point
- in future. it check stack depth and executes only locally (for the stack
- level) defer actions. <b>It works through ThreadLocal so that
- * actions saved separately for every thread.</b>
+ * Auxiliary tool to defer some actions and process them in some point in future. it check stack depth and executes only locally (for the stack level) defer actions. <b>It works
+ * through ThreadLocal so that actions saved separately for every thread.</b>
  *
  * @since 1.0
  * @see ThreadLocal
@@ -44,7 +42,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class Deferrers {
 
-  private Deferrers () {
+  private Deferrers() {
   }
 
   /**
@@ -53,7 +51,7 @@ public final class Deferrers {
    * @since 1.0
    */
   @Immutable
-  @Weight (Weight.Unit.VARIABLE)
+  @Weight(Weight.Unit.VARIABLE)
   public abstract static class Deferred implements Serializable {
 
     private static final long serialVersionUID = -1134788854676942497L;
@@ -62,38 +60,42 @@ public final class Deferrers {
 
     /**
      * The Constructor.
+     *
      * @since 1.0
      */
     @Weight(value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth@")
-    public Deferred () {
+    public Deferred() {
       this.stackDepth = ThreadUtils.stackDepth() - 1;
     }
 
     /**
      * Get the stack depth detected during object creation.
+     *
      * @return the stack depth
      * @since 1.0
      */
-    public int getStackDepth () {
+    public int getStackDepth() {
       return this.stackDepth;
     }
 
     /**
      * Execute call.
+     *
      * @throws Exception it will be thrown for error.
      * @since 1.0
      */
-    public abstract void executeDeferred () throws Exception;
+    public abstract void executeDeferred() throws Exception;
   }
 
   /**
    * Inside registry for defer actions.
+   *
    * @since 1.0
    */
   @MustNotContainNull
   private static final ThreadLocal<List<Deferred>> REGISTRY = new ThreadLocal<List<Deferred>>() {
     @Override
-    protected List<Deferred> initialValue () {
+    protected List<Deferred> initialValue() {
       return new ArrayList<Deferred>();
     }
   };
@@ -105,15 +107,15 @@ public final class Deferrers {
    * @return the same object from arguments
    * @since 1.0
    */
-  @Weight (Weight.Unit.NORMAL)
-  public static Deferred defer (@Nonnull final Deferred deferred) {
+  @Weight(Weight.Unit.NORMAL)
+  public static Deferred defer(@Nonnull final Deferred deferred) {
     REGISTRY.get().add(assertNotNull(deferred));
     return deferred;
   }
 
   /**
-   * Defer object containing public close() method. It catches all exceptions during closing and make notifications only for global error listeners.
-   * It finds a public 'close' method of the object and call that through reflection.
+   * Defer object containing public close() method. It catches all exceptions during closing and make notifications only for global error listeners. It finds a public 'close'
+   * method of the object and call that through reflection.
    *
    * @param <T> type of the object to be processed
    * @param closeable an object with close() method.
@@ -121,17 +123,17 @@ public final class Deferrers {
    * @since 1.0
    */
   @Warning("Using reflection")
-  @Weight (Weight.Unit.NORMAL)
-  public static <T> T deferredClose (@Nullable final T closeable) {
+  @Weight(Weight.Unit.NORMAL)
+  public static <T> T deferredClose(@Nullable final T closeable) {
     if (closeable != null) {
       defer(new Deferred() {
         private static final long serialVersionUID = 2265124256013043847L;
+
         @Override
-        public void executeDeferred () throws Exception {
+        public void executeDeferred() throws Exception {
           try {
             closeable.getClass().getMethod("close").invoke(closeable);
-          }
-          catch (Exception thr) {
+          } catch (Exception thr) {
             MetaErrorListeners.fireError("Error during deferred closing action", thr);
           }
         }
@@ -142,19 +144,20 @@ public final class Deferrers {
 
   /**
    * Defer closing of an closeable object.
-   * 
+   *
    * @param <T> type of closeable object
    * @param closeable an object implements java.io.Closeable
    * @return the same closeable object from arguments
    * @since 1.0
    */
-  @Weight (Weight.Unit.NORMAL)
-  public static <T extends Closeable> T defer (@Nullable final T closeable) {
+  @Weight(Weight.Unit.NORMAL)
+  public static <T extends Closeable> T defer(@Nullable final T closeable) {
     if (closeable != null) {
       defer(new Deferred() {
         private static final long serialVersionUID = 2265124256013043847L;
+
         @Override
-        public void executeDeferred () throws Exception {
+        public void executeDeferred() throws Exception {
           IOUtils.closeQuetly(closeable);
         }
       });
@@ -169,15 +172,15 @@ public final class Deferrers {
    * @return the same runnable object from arguments.
    * @throws AssertionError if the runnable object is null
    */
-  @Weight (Weight.Unit.NORMAL)
-  public static Runnable defer (@Nonnull final Runnable runnable) {
+  @Weight(Weight.Unit.NORMAL)
+  public static Runnable defer(@Nonnull final Runnable runnable) {
     assertNotNull(runnable);
     defer(new Deferred() {
       private static final long serialVersionUID = 2061489024868070733L;
       private final Runnable value = runnable;
 
       @Override
-      public void executeDeferred () throws Exception {
+      public void executeDeferred() throws Exception {
         this.value.run();
       }
     });
@@ -192,15 +195,15 @@ public final class Deferrers {
    * @throws AssertionError if the disposable object is null
    * @see Disposable
    */
-  @Weight (Weight.Unit.NORMAL)
-  public static Disposable defer (@Nonnull final Disposable disposable) {
+  @Weight(Weight.Unit.NORMAL)
+  public static Disposable defer(@Nonnull final Disposable disposable) {
     assertNotNull(disposable);
     defer(new Deferred() {
       private static final long serialVersionUID = 7940162959962038010L;
       private final Disposable value = disposable;
 
       @Override
-      public void executeDeferred () throws Exception {
+      public void executeDeferred() throws Exception {
         this.value.dispose();
       }
     });
@@ -212,8 +215,8 @@ public final class Deferrers {
    *
    * @since 1.0
    */
-  @Weight (Weight.Unit.NORMAL)
-  public static void cancelAllDeferredActionsGlobally () {
+  @Weight(Weight.Unit.NORMAL)
+  public static void cancelAllDeferredActionsGlobally() {
     final List<Deferred> list = REGISTRY.get();
     list.clear();
     REGISTRY.remove();
@@ -224,8 +227,8 @@ public final class Deferrers {
    *
    * @since 1.0
    */
-  @Weight (value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
-  public static void cancelDeferredActions () {
+  @Weight(value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
+  public static void cancelDeferredActions() {
     final int stackDepth = ThreadUtils.stackDepth();
 
     final List<Deferred> list = REGISTRY.get();
@@ -247,8 +250,8 @@ public final class Deferrers {
    *
    * @since 1.0
    */
-  @Weight (value = Weight.Unit.VARIABLE,comment = "Depends on the current call stack depth")
-  public static void processDeferredActions () {
+  @Weight(value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
+  public static void processDeferredActions() {
     final int stackDepth = ThreadUtils.stackDepth();
 
     final List<Deferred> list = REGISTRY.get();
@@ -259,12 +262,10 @@ public final class Deferrers {
       if (deferred.getStackDepth() >= stackDepth) {
         try {
           deferred.executeDeferred();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
           final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during deferred action processing", ex);
           MetaErrorListeners.fireError(error.getMessage(), error);
-        }
-        finally {
+        } finally {
           iterator.remove();
         }
       }
@@ -280,8 +281,8 @@ public final class Deferrers {
    * @return true if presented, false otherwise
    * @since 1.0
    */
-  @Weight (Weight.Unit.NORMAL)
-  public static boolean isEmpty () {
+  @Weight(Weight.Unit.NORMAL)
+  public static boolean isEmpty() {
     final boolean result = REGISTRY.get().isEmpty();
     if (result) {
       REGISTRY.remove();

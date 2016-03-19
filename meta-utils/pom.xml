@@ -11,7 +11,7 @@
   <packaging>jar</packaging>
     
   <name>meta-utils</name>
-  <description>Set of utils and auxiliary classes to make development easier.</description>
+  <description>Set of utilities and auxiliary classes to make development easier.</description>
 
   <properties>
     <maven.compiler.source>1.6</maven.compiler.source>

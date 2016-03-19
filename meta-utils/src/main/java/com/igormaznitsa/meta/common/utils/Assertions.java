@@ -108,7 +108,6 @@ public final class Assertions {
     return assertNotNull(null, object);
   }
 
-  
   /**
    * Assert that value is not null
    *
@@ -239,8 +238,7 @@ public final class Assertions {
           return i;
         }
       }
-    }
-    else {
+    } else {
       for (final T i : assertNotNull(list)) {
         if (obj == i || obj.equals(i)) {
           return i;
@@ -266,8 +264,7 @@ public final class Assertions {
   public static <T> T assertIsValid(@Nullable T obj, @Nonnull Validator<T> validator) {
     if (assertNotNull(validator).isValid(obj)) {
       return obj;
-    }
-    else {
+    } else {
       final InvalidObjectError error = new InvalidObjectError("Detected invalid object", obj);
       MetaErrorListeners.fireError("Invalid object", error);
       throw error;
