@@ -11,7 +11,7 @@ It is a small general-purpose library includes:
 * maven plugin to log info about some annotations and check java class version
 
 # Change log
-* __1.1.0-SNAPSHOT__
+* __1.1.0 (19-mar-2016)__
  * __utilities and auxiliary classes extracted to separated module meta-utils__
  * __meta-common module renamed to meta-annotations__
  * __annotation classes compiled in JVM 1.5 format__

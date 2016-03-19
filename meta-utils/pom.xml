@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0</version>
   </parent>
   
   <artifactId>meta-utils</artifactId>
@@ -55,6 +55,7 @@
             <artifactId>meta-checker</artifactId>
             <version>1.0.2</version>
             <configuration>
+              <restrictClassFormat>6</restrictClassFormat>
               <failForAnnotations>
                 <param>risky</param>
                 <param>todo</param>
