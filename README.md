@@ -115,7 +115,8 @@ It checks stack frames and all deferred operations will be processed by `Deferre
 ```
 
 # How to use the maven plugin
-Just add the lines below into build section.
+I have also published some maven plugin which allows to check compiled classes for the annotations and print some information and check that methods marked by nullable and nonnull annotations.
+Also the plugin allows to fail build process if detected some annotations, it allows to avoid publishing of project with to-do or experimental stuff.
 ```
 <plugin>
     <groupId>com.igormaznitsa</groupId>
