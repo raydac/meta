@@ -120,7 +120,7 @@ Just add the lines below into build section.
 <plugin>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta-checker</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
     <configuration>
         <restrictClassFormat>7</restrictClassFormat>
         <failForAnnotations>
