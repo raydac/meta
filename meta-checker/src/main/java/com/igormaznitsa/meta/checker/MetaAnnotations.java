@@ -21,7 +21,7 @@ import com.igormaznitsa.meta.checker.processors.Determined;
 import com.igormaznitsa.meta.checker.processors.*;
 import com.igormaznitsa.meta.checker.processors.Link;
 
-public enum AnnotationProcessor {
+public enum MetaAnnotations {
   CONSTRAINT(new Constraint()),
   DETERMINED(new Determined()),
   LAZYINITED(new LazyInited()),
@@ -47,7 +47,7 @@ public enum AnnotationProcessor {
     return this.INSTANCE;
   }
   
-  private AnnotationProcessor(final AbstractMetaAnnotationProcessor instance){
+  private MetaAnnotations(final AbstractMetaAnnotationProcessor instance){
     this.INSTANCE = instance;
   }
 

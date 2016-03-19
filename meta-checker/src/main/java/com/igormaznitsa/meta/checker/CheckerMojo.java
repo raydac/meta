@@ -317,7 +317,7 @@ public class CheckerMojo extends AbstractMojo {
           }
           countAllDetectedAnnotations(context, parsed);
           classIndex++;
-          for (final AnnotationProcessor p : AnnotationProcessor.values()) {
+          for (final MetaAnnotations p : MetaAnnotations.values()) {
             p.getInstance().processClass(context, parsed, classIndex);
           }
           checkMethodsForMarkedObjectTypes(context, parsed);
@@ -374,9 +374,9 @@ public class CheckerMojo extends AbstractMojo {
 
       getLog().info(String.format("Processed classes : %d", processedClasses));
       getLog().info(String.format("Detected annotations : %d", totalAnnotations));
-      getLog().info(String.format("Detected To-Do : %d", extractCounter(counters, AnnotationProcessor.TODO)));
-      getLog().info(String.format("Detected risks : %d", extractCounter(counters, AnnotationProcessor.RISKY)));
-      getLog().info(String.format("Detected experimental : %d", extractCounter(counters, AnnotationProcessor.EXPERIMENTAL)));
+      getLog().info(String.format("Detected To-Do : %d", extractCounter(counters, MetaAnnotations.TODO)));
+      getLog().info(String.format("Detected risks : %d", extractCounter(counters, MetaAnnotations.RISKY)));
+      getLog().info(String.format("Detected experimental : %d", extractCounter(counters, MetaAnnotations.EXPERIMENTAL)));
 
       if (counterWarings.get() > 0) {
         getLog().warn(String.format("Total warnings : %d", counterWarings.get()));
@@ -506,7 +506,7 @@ public class CheckerMojo extends AbstractMojo {
     }
   }
 
-  private static int extractCounter(final Map<String, AtomicInteger> counters, final AnnotationProcessor annotation) {
+  private static int extractCounter(final Map<String, AtomicInteger> counters, final MetaAnnotations annotation) {
     final AtomicInteger result = counters.get(annotation.getAnnotationClassName());
     return result == null ? 0 : result.get();
   }
