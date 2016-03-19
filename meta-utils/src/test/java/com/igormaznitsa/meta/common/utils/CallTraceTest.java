@@ -21,17 +21,25 @@ import static org.junit.Assert.*;
 public class CallTraceTest {
 
   @Test
-  public void testConstructor () {
+  public void testConstructorEmpty () {
     final CallTrace callTrace = new CallTrace();
     final String[] lines = callTrace.toString().split("\n");
     assertTrue(lines[0].contains("THREAD_ID : "));
-    assertTrue(lines[1].contains("testConstructor") && lines[1].contains("CallTraceTest") && lines[1].contains(":25"));
+    assertTrue(lines[1].contains("testConstructorEmpty") && lines[1].contains("CallTraceTest") && lines[1].contains(":25"));
   }
 
   @Test
-  public void testThreadDescriptor() {
+  public void testThreadDescriptorConstructorEmpty() {
     final CallTrace callTrace = new CallTrace();
     assertTrue(callTrace.getThreadDescriptor().equals(Thread.currentThread().toString()));
+  }
+
+  @Test
+  public void testConstructor() {
+    final CallTrace callTrace = new CallTrace(true,false,"\n");
+    final String[] lines = callTrace.toString().split("\n");
+    assertTrue(lines[0].contains("THREAD_ID : "));
+    assertTrue(lines[1].contains("testConstructor") && lines[1].contains("CallTraceTest") && lines[1].contains(":39"));
   }
 
 }
