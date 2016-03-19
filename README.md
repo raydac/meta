@@ -60,17 +60,27 @@ It contains number annotations to mark code, plus JSR-305 annotations provided b
 * ThrowsRuntimeExceptions
 * Experimental
 
-# How to add the library into maven project
+# How to add the annotation library into maven project
 To use annotations just add dependency to the library
 ```
 <dependency>
     <groupId>com.igormaznitsa</groupId>
-    <artifactId>meta-common</artifactId>
-    <version>1.0.2</version>
+    <artifactId>meta-annotations</artifactId>
+    <version>1.1.0</version>
 </dependency>
 ```
+It shades JSR-305 annotations from the FindBugs library so that they also will be available for usage automatically.
 
 # Utilities
+Since 1.1.0 utility classes extracted into separated module which is available in maven central
+Just add the lines below into build section.
+```
+<dependency>
+    <groupId>com.igormaznitsa</groupId>
+    <artifactId>meta-utils</artifactId>
+    <version>1.1.0</version>
+</dependency>
+```
 ## com.igormaznitsa.meta.common.utils.Deferrers
 It allows to defer some operations, like it works in Go but unfortunately the call to process all deferred operations must be placed into try...finally block to ensure the call.
 It checks stack frames and all deferred operations will be processed by `Deferrers.processDeferredActions()` only for actual stack depth, it means that deferred operations added on higher stack levels will be ignored.
