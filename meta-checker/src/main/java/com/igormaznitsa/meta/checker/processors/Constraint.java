@@ -16,18 +16,20 @@
 package com.igormaznitsa.meta.checker.processors;
 
 import com.igormaznitsa.meta.checker.Context;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
-import java.util.Locale;
+import java.util.regex.Pattern;
+
 import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
-import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
 
 public final class Constraint extends AbstractMetaAnnotationProcessor {
 
   private final JexlEngine JEXL = new JexlEngine();
+  static final Pattern ARG_SEARCHER = Pattern.compile(".*?(?:\\b|\\s)X(\\b|\\s).*?",Pattern.CASE_INSENSITIVE);
   
   public Constraint(){
     super();
@@ -37,9 +39,7 @@ public final class Constraint extends AbstractMetaAnnotationProcessor {
   protected void doProcessing (final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
     final String text = extractStrValue("value", ae, "");
     try{
-      final Expression expression = JEXL.createExpression(text);
-      final String dumped = expression.dump().toUpperCase(Locale.ENGLISH);
-      if (!(dumped.contains("X ") || dumped.contains(" X ") || dumped.contains(" X;")))
+      if (!ARG_SEARCHER.matcher(JEXL.createExpression(text).dump()).matches())
         context.error(String.format("can't detect 'X' at constraint expression '%s'", text), true);
     }catch(Throwable thr){
       context.error(String.format("wrong constraint expression '%s'", text), true);
