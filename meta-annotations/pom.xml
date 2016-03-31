@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.1.1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
       
@@ -52,25 +52,6 @@
       <id>prepare-distributive</id>
       <build>
         <plugins>
-          <plugin>
-            <groupId>com.igormaznitsa</groupId>
-            <artifactId>meta-checker</artifactId>
-            <version>1.0.2</version>
-            <configuration>
-              <restrictClassFormat>5</restrictClassFormat>
-              <failForAnnotations>
-                <param>risky</param>
-                <param>todo</param>
-              </failForAnnotations>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>check</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
