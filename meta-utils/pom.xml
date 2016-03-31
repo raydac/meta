@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   
@@ -51,10 +51,10 @@
       <id>prepare-distributive</id>
       <build>
         <plugins>
-<!--          <plugin>
+          <plugin>
             <groupId>com.igormaznitsa</groupId>
             <artifactId>meta-checker</artifactId>
-            <version>1.1.0</version>
+            <version>1.1.1</version>
             <configuration>
               <restrictClassFormat>6</restrictClassFormat>
               <failForAnnotations>
@@ -69,7 +69,7 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>-->
+          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>

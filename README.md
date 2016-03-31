@@ -11,7 +11,7 @@ It is a small general-purpose library includes:
 * maven plugin to log info about some annotations and check java class version
 
 # Change log
-* __1.1.1 (SNAPSHOT)__
+* __1.1.1 (31-mar-2016)__
  * added Assertions#assertEquals
  * fixed issue #1
  * fixed checking of @MayContainNull and @MustNotContainNull for fields
