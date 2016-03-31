@@ -168,6 +168,28 @@ public final class Assertions {
   }
 
   /**
+   * Assert that value is equal to some etalon value.
+   * @param <T> type of object to be checked.
+   * @param etalon etalon value
+   * @param value value to check
+   * @return value if it is equal to etalon
+   * @throws AssertionError if the value id not equal to the etalon
+   * @since 1.1.1
+   */
+  public static <T> T assertEquals(@Nullable final T etalon, @Nullable final T value) {
+    if (etalon == null) {
+      assertNull(value);
+    } else {
+      if (!(etalon==value || etalon.equals(value))){
+        final AssertionError error = new AssertionError("Value is not equal to etalon");
+        MetaErrorListeners.fireError(error.getMessage(), error);
+        throw error;
+      }
+    }
+    return value;
+  }
+
+  /**
    * Assert condition flag is FALSE. GEL will be notified about error.
    *
    * @param message message describing situation
@@ -239,8 +261,9 @@ public final class Assertions {
         }
       }
     } else {
+      final int objHash = obj.hashCode();
       for (final T i : assertNotNull(list)) {
-        if (obj == i || obj.equals(i)) {
+        if (obj == i || (i!=null && objHash == i.hashCode() && obj.equals(i))) {
           return i;
         }
       }

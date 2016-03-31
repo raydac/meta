@@ -12,6 +12,7 @@ It is a small general-purpose library includes:
 
 # Change log
 * __1.1.1 (SNAPSHOT)__
+ * added Assertions#assertEquals
  * fixed issue #1
  * fixed checking of @MayContainNull and @MustNotContainNull for fields
  * little improvement in JCL check in @Constraint

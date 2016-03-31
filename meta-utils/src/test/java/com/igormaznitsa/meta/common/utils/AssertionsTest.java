@@ -186,4 +186,24 @@ public class AssertionsTest {
     Assertions.assertIsValid(100, testValidator);
   }
 
+  @Test(expected = AssertionError.class)
+  public void testAssertEquals_NullAndNotNull() {
+    Assertions.assertEquals(null, "Hello");
+  }
+  
+  @Test(expected = AssertionError.class)
+  public void testAssertEquals_NotNullAndNull() {
+    Assertions.assertEquals("Hello",null);
+  }
+  
+  @Test(expected = AssertionError.class)
+  public void testAssertEquals_NotEquals() {
+    Assertions.assertEquals("Hello","Goodbye");
+  }
+  
+  @Test
+  public void testAssertEquals_Equals() {
+    assertEquals("Hello",Assertions.assertEquals("Hello","Hello"));
+  }
+  
 }
