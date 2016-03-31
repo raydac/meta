@@ -191,6 +191,11 @@ public class CheckerMojo extends AbstractMojo {
       int itemIndex;
 
       @Override
+      public JavaClass getProcessingClass() {
+        return this.klazz;
+      }
+
+      @Override
       public int getItemIndex() {
         return this.itemIndex;
       }

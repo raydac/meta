@@ -24,6 +24,7 @@ import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.FieldOrMethod;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.LineNumberTable;
+import org.apache.bcel.classfile.LocalVariable;
 import org.apache.bcel.classfile.LocalVariableTable;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.classfile.Utility;
@@ -137,7 +138,8 @@ public abstract class Utils {
           result.append(a);
           final int argIndex = locVarOffset + index;
           if (locVars != null && argIndex < locVars.getTableLength()) {
-            final String argName = locVars.getLocalVariable(argIndex, 0).getName();
+            final LocalVariable localVariable = locVars.getLocalVariable(argIndex, 0);
+            final String argName = localVariable == null ? "<unknown>" : localVariable.getName();
             if (argName != null) {
               result.append(' ').append(argName);
             }

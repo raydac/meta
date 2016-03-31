@@ -32,6 +32,8 @@ public interface Context {
 
   void setProcessingItem(JavaClass klazz, FieldOrMethod node, int itemIndex);
 
+  JavaClass getProcessingClass();
+  
   boolean isCheckNullableArgs();
   
   boolean isCheckMayContainNullArgs();
