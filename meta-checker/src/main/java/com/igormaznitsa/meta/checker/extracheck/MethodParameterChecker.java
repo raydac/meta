@@ -36,7 +36,7 @@ import com.igormaznitsa.meta.annotation.MustNotContainNull;
 import com.igormaznitsa.meta.checker.Context;
 import com.igormaznitsa.meta.checker.Utils;
 
-public class MethodParameterChecker {
+public final class MethodParameterChecker {
 
   private static final Class<?>[] CLASSES_WHERE_POSSIBLE_NULL = new Class<?>[]{java.util.List.class, java.util.Vector.class, java.util.Queue.class};
 
@@ -70,7 +70,7 @@ public class MethodParameterChecker {
     }
   }
 
-  private static boolean shouldSkipFirstArg(final JavaClass klazz, final Method method) {
+  private static boolean shouldSkipFirstMethodArg(final JavaClass klazz, final Method method) {
     return method.getName().equals("<init>") && klazz.isNested() && !klazz.isStatic();
   }
 
@@ -78,18 +78,20 @@ public class MethodParameterChecker {
     final Type[] arguments = method.getArgumentTypes();
     final ParameterAnnotationEntry[] paramAnnotations = method.getParameterAnnotationEntries();
 
-    final boolean ignoreFirst = shouldSkipFirstArg(context.getProcessingClass(), method);
+    final boolean ignoreFirst = shouldSkipFirstMethodArg(context.getProcessingClass(), method);
     final int argLength = arguments.length;
     final int realArgLength = ignoreFirst ? argLength - 1 : argLength;
-    
+
     int paramAnnoIndex = 0;
     for (int argIndex = 0; argIndex < argLength; argIndex++) {
-      if (ignoreFirst && argIndex == 0) continue;
+      if (ignoreFirst && argIndex == 0) {
+        continue;
+      }
       if (isNullableType(arguments[argIndex])
           && (paramAnnoIndex >= paramAnnotations.length || !hasParameterAnnotationFromSet(realArgLength, paramAnnoIndex, paramAnnotations, ANNOTATIONS_FOR_OBJECT))) {
-        context.error(String.format(ARG_TYPE_NOTIFICATION,argIndex+1,Utils.extractClassName(Nullable.class.getName()),Utils.extractClassName(Nonnull.class.getName())), true);
+        context.error(String.format(ARG_TYPE_NOTIFICATION, argIndex + 1, Utils.extractClassName(Nullable.class.getName()), Utils.extractClassName(Nonnull.class.getName())), true);
       }
-      paramAnnoIndex ++;
+      paramAnnoIndex++;
     }
   }
 
@@ -97,7 +99,7 @@ public class MethodParameterChecker {
     final Type[] arguments = method.getArgumentTypes();
     final ParameterAnnotationEntry[] paramAnnotations = method.getParameterAnnotationEntries();
 
-    final boolean ignoreFirst = shouldSkipFirstArg(context.getProcessingClass(), method);
+    final boolean ignoreFirst = shouldSkipFirstMethodArg(context.getProcessingClass(), method);
     final int argLength = arguments.length;
     final int realArgLength = ignoreFirst ? argLength - 1 : argLength;
 
@@ -111,7 +113,7 @@ public class MethodParameterChecker {
           && (paramAnnoIndex >= paramAnnotations.length || !hasParameterAnnotationFromSet(realArgLength, paramAnnoIndex, paramAnnotations, ANNOTATIONS_FOR_ARRAY_OR_COLLECTION))) {
         context.error(String.format(ARG_TYPE_NOTIFICATION, argIndex + 1, Utils.extractClassName(MayContainNull.class.getName()), Utils.extractClassName(MustNotContainNull.class.getName())), true);
       }
-      paramAnnoIndex ++;
+      paramAnnoIndex++;
     }
   }
 

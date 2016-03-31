@@ -12,6 +12,7 @@ It is a small general-purpose library includes:
 
 # Change log
 * __1.1.1 (SNAPSHOT)__
+ * fixed issue #1
  * fixed checking of @MayContainNull and @MustNotContainNull for fields
  * little improvement in JCL check in @Constraint
  * added GetUtils#ensureNonNullAndNonEmpty and GetUtils#ensureNonNullStr for String
