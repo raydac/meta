@@ -46,6 +46,7 @@ import org.apache.bcel.classfile.Method;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
 
 import com.igormaznitsa.meta.checker.extracheck.MethodParameterChecker;
+import com.igormaznitsa.meta.common.utils.Assertions;
 
 @Mojo(name = "check", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class CheckerMojo extends AbstractMojo {
@@ -213,7 +214,7 @@ public class CheckerMojo extends AbstractMojo {
         final StringBuilder builder = new StringBuilder();
 
         final int line = Utils.findLineNumber(this.node);
-        String klazzName = Utils.normalizeClassNameAndRemoveSubclassName(this.klazz.getClassName());
+        String klazzName = Utils.normalizeClassNameAndRemoveSubclassName(Assertions.assertNotNull(this.klazz).getClassName());
         final String nodeName = Utils.asString(this.klazz, this.node);
 
         builder.append(klazzName).append(".java").append(":[");
@@ -335,9 +336,9 @@ public class CheckerMojo extends AbstractMojo {
 
       if (this.failForAnnotations != null && this.failForAnnotations.length > 0) {
         getLog().debug("Defined annotations to be interpreted as error : " + Arrays.toString(this.failForAnnotations));
-        for (final String detected : counters.keySet()) {
-          if (counters.get(detected).get() > 0) {
-            final String name = detected.toLowerCase(Locale.ENGLISH);
+        for (final Map.Entry<String,AtomicInteger> detected : counters.entrySet()) {
+          if (detected.getValue().get() > 0) {
+            final String name = detected.getKey().toLowerCase(Locale.ENGLISH);
             final String shortName = Utils.extractShortNameOfClass(name);
             for (final String s : this.failForAnnotations) {
               if (s.indexOf('.') < 0) {
@@ -482,7 +483,7 @@ public class CheckerMojo extends AbstractMojo {
     if (this.comparatorForJavaVersion == null) {
       return true;
     }
-    return this.comparatorForJavaVersion.compare(klazz.getMajor(), this.decodedJavaVersion.getValue());
+    return this.comparatorForJavaVersion.compare(klazz.getMajor(), Assertions.assertNotNull(this.decodedJavaVersion).getValue());
   }
 
   private static void countAllDetectedAnnotations(final Context context, final JavaClass clazz) {

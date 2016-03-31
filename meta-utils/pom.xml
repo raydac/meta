@@ -53,7 +53,7 @@
           <plugin>
             <groupId>com.igormaznitsa</groupId>
             <artifactId>meta-checker</artifactId>
-            <version>1.0.2</version>
+            <version>${project.version}</version>
             <configuration>
               <restrictClassFormat>6</restrictClassFormat>
               <failForAnnotations>

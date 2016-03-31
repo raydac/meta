@@ -17,10 +17,8 @@ package com.igormaznitsa.meta.checker;
 
 import java.io.File;
 
-import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.FieldOrMethod;
 import org.apache.bcel.classfile.JavaClass;
-import org.apache.bcel.classfile.Method;
 
 public interface Context {
 

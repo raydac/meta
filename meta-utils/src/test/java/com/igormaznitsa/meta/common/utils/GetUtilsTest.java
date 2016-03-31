@@ -63,4 +63,32 @@ public class GetUtilsTest {
   public void testFindFirstNonNull_NotPresented() {
     GetUtils.findFirstNonNull(null,null,null);
   }
+
+  @Test(expected = AssertionError.class)
+  public void testEnsureNonNullAndNonEmpty_DefaultIsNull() {
+    GetUtils.ensureNonNullAndNonEmpty(null,null);
+  }
+
+  @Test(expected = AssertionError.class)
+  public void testEnsureNonNullAndNonEmpty_DefaultIsEmpty() {
+    GetUtils.ensureNonNullAndNonEmpty(null,"");
+  }
+
+  @Test
+  public void testEnsureNonNullAndNonEmpty_ValueIsOk() {
+    assertEquals("Hello",GetUtils.ensureNonNullAndNonEmpty("Hello",""));
+  }
+
+  @Test
+  public void testEnsureNonNullAndNonEmpty_ValueIsEmpty() {
+    assertEquals("Default",GetUtils.ensureNonNullAndNonEmpty("","Default"));
+  }
+
+  @Test
+  public void testEnsureNonNullStr() {
+    assertEquals("",GetUtils.ensureNonNullStr(null));
+    assertEquals("value",GetUtils.ensureNonNullStr("value"));
+  }
+
+  
 }

@@ -15,10 +15,16 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
+import static com.igormaznitsa.meta.common.utils.Assertions.assertFalse;
+import static com.igormaznitsa.meta.common.utils.Assertions.assertNotNull;
+
 import com.igormaznitsa.meta.annotation.Weight;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
+
+import com.igormaznitsa.meta.annotation.Constraint;
 
 /**
  * Auxiliary methods to get values.
@@ -26,6 +32,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * @since 1.0
  */
 @ThreadSafe
+@Weight(Weight.Unit.LIGHT)
 public final class GetUtils {
 
   private GetUtils () {
@@ -42,7 +49,6 @@ public final class GetUtils {
    * @since 1.0
    */
   @Nonnull
-  @Weight (Weight.Unit.LIGHT)
   public static <T> T ensureNonNull (@Nullable final T value, @Nonnull final T defaultValue) {
     return value == null ? Assertions.assertNotNull(defaultValue) : value;
   }
@@ -57,7 +63,6 @@ public final class GetUtils {
    * @since 1.0
    */
   @Nonnull
-  @Weight (Weight.Unit.LIGHT)
   public static <T> T ensureNonNull (@Nonnull final T value) {
     return Assertions.assertNotNull(value);
   }
@@ -80,5 +85,33 @@ public final class GetUtils {
       }
     }
     throw Assertions.fail("Can't find non-null item in array");
+  }
+  
+  /**
+   * Get non-null non-empty string.
+   * @param value a base string
+   * @param dflt default string to be provided if value is null or empty
+   * @return non-nullable non-empty string
+   * @since 1.1.1
+   */
+  @Nonnull
+  public static String ensureNonNullAndNonEmpty(@Nullable final String value, @Nonnull @Constraint("notEmpty(X)") final String dflt) {
+    String result = value;
+    if (result == null || result.isEmpty()) {
+      assertFalse("Default value must not be empty",assertNotNull("Default value must not be null",dflt).isEmpty());
+      result = dflt;
+    }
+    return result;
+  }
+  
+  /**
+   * Ensure that a string will not be null.
+   * @param value value to be checked
+   * @return the value if it is not null or empty string if the value is null
+   * @since 1.1.1
+   */
+  @Nonnull
+  public static String ensureNonNullStr(@Nullable final String value) {
+    return value == null ? "" : value;
   }
 }

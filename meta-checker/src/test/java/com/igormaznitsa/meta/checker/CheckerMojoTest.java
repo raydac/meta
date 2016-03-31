@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 
-public class CheckerMojoTest extends AbstractMojoTestCase {
+public final class CheckerMojoTest extends AbstractMojoTestCase {
   
   @Override
   protected void setUp() throws Exception {
