@@ -47,14 +47,19 @@ public final class MethodParameterChecker {
   private static final Set<String> ANNOTATIONS_FOR_ARRAY_OR_COLLECTION = classesToNameSet(MayContainNull.class, MustNotContainNull.class);
 
   private static final String RETURN_TYPE_NOTIFICATION = "Return type must be marked by either @%s or @%s";
+  private static final String RETURN_TYPE_NOTIFICATION_WRONG_TYPE = "Non-object result type can't be marked by either @%s or @%s";
   private static final String ARG_TYPE_NOTIFICATION = "Arg. #%d must be marked by either @%s or @%s";
 
   public static void checkReturnTypeForNullable(final Context context, final Method method) {
     final Type returnType = method.getReturnType();
+    final AnnotationEntry[] annotations = method.getAnnotationEntries();
     if (isNullableType(returnType)) {
-      final AnnotationEntry[] annotations = method.getAnnotationEntries();
       if (!hasAnnotationFromSet(annotations, ANNOTATIONS_FOR_OBJECT)) {
         context.error(String.format(RETURN_TYPE_NOTIFICATION, Utils.extractClassName(Nullable.class.getName()), Utils.extractClassName(Nonnull.class.getName())), true);
+      }
+    } else {
+      if (hasAnnotationFromSet(annotations, ANNOTATIONS_FOR_OBJECT)) {
+        context.error(String.format(RETURN_TYPE_NOTIFICATION_WRONG_TYPE, Utils.extractClassName(Nullable.class.getName()), Utils.extractClassName(Nonnull.class.getName())), true);
       }
     }
   }
@@ -71,6 +76,12 @@ public final class MethodParameterChecker {
   }
 
   private static boolean shouldSkipFirstMethodArg(final JavaClass klazz, final Method method) {
+    if (klazz.isNested() && "<init>".equals(method.getName()) && method.getArgumentTypes().length>0){
+      if (klazz.isStatic()) return false;
+      final String firstArgType = method.getArgumentTypes()[0].getSignature();
+      final String outerKlazzSignature = 'L'+Utils.extractOuterClassName(klazz.getClassName())+';';
+      return firstArgType.equals(outerKlazzSignature);
+    }
     return method.getName().equals("<init>") && klazz.isNested() && !klazz.isStatic();
   }
 

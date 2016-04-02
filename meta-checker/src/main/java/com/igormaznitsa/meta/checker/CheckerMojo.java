@@ -122,8 +122,8 @@ public class CheckerMojo extends AbstractMojo {
   private boolean checkMayContainNull;
 
   /**
-   * Hide pseudo-graphic banner. 
-   * 
+   * Hide pseudo-graphic banner.
+   *
    * @since 1.1.0
    */
   @Parameter(name = "hideBanner", defaultValue = "false")
@@ -141,8 +141,7 @@ public class CheckerMojo extends AbstractMojo {
     if (!targetDirectoryFile.isDirectory()) {
       getLog().warn("Can't find directory for investigation, may be there are not classes for compilation : " + this.targetDirectory);
       return;
-    }
-    else {
+    } else {
       if (!this.hideBanner) {
         for (final String s : BANNER) {
           getLog().info(s);
@@ -167,8 +166,7 @@ public class CheckerMojo extends AbstractMojo {
           this.comparatorForJavaVersion = LongComparator.EQU;
         }
         versionOffset = 0;
-      }
-      else {
+      } else {
         versionOffset = this.comparatorForJavaVersion.getText().length();
       }
       javaClassVersion = javaClassVersion.substring(versionOffset).trim();
@@ -225,27 +223,23 @@ public class CheckerMojo extends AbstractMojo {
         builder.append(klazzName).append(".java").append(":[");
         if (line < 0) {
           builder.append("-,-]");
-        }
-        else {
+        } else {
           builder.append(line).append(',').append(1).append(']');
         }
         builder.append(' ');
         if (this.node != null) {
           if (this.node instanceof Field) {
             builder.append("field ").append(nodeName);
-          }
-          else {
+          } else {
             final Method method = (Method) node;
             if (method.getName().equals("<init>")) {
               builder.append("constructor ");
-            }
-            else {
+            } else {
               builder.append("method ");
             }
-            builder.append(nodeName);
+            builder.append(nodeName).append(" (flags: #").append(Integer.toHexString(method.getAccessFlags()).toUpperCase(Locale.ENGLISH)).append(") ");
           }
-        }
-        else {
+        } else {
           builder.append("whole class");
         }
 
@@ -310,14 +304,14 @@ public class CheckerMojo extends AbstractMojo {
           final JavaClass parsed = new ClassParser(file.getAbsolutePath()).parse();
 
           if (isClassIgnored(parsed)) {
-            context.info(String.format("Ignored class file : %s",file.getAbsolutePath()),false);
+            context.info(String.format("Ignored class file : %s", file.getAbsolutePath()), false);
             continue;
           }
 
           processedClasses++;
 
           if (!isClassVersionAllowed(parsed)) {
-            context.error(String.format("Detected class version violator, version %s at %s", JavaVersion.decode(parsed.getMajor()), file.getAbsolutePath()),false);
+            context.error(String.format("Detected class version violator, version %s at %s", JavaVersion.decode(parsed.getMajor()), file.getAbsolutePath()), false);
             counterErrors.incrementAndGet();
             break;
           }
@@ -327,21 +321,18 @@ public class CheckerMojo extends AbstractMojo {
             p.getInstance().processClass(context, parsed, classIndex);
           }
           checkMethodsForMarkedObjectTypes(context, parsed);
-        }
-        catch (AbortException ex) {
+        } catch (AbortException ex) {
           throw new MojoFailureException(ex.getMessage());
-        }
-        catch (IOException ex) {
-          context.error(String.format("Can't read class file : %s",file.getAbsolutePath()),false);
-        }
-        catch (ClassFormatException ex) {
+        } catch (IOException ex) {
+          context.error(String.format("Can't read class file : %s", file.getAbsolutePath()), false);
+        } catch (ClassFormatException ex) {
           context.error(String.format("Can't parse class file : %s", file.getAbsolutePath()), false);
         }
       }
 
       if (this.failForAnnotations != null && this.failForAnnotations.length > 0) {
         getLog().debug("Defined annotations to be interpreted as error : " + Arrays.toString(this.failForAnnotations));
-        for (final Map.Entry<String,AtomicInteger> detected : counters.entrySet()) {
+        for (final Map.Entry<String, AtomicInteger> detected : counters.entrySet()) {
           if (detected.getValue().get() > 0) {
             final String name = detected.getKey().toLowerCase(Locale.ENGLISH);
             final String shortName = Utils.extractShortNameOfClass(name);
@@ -351,8 +342,7 @@ public class CheckerMojo extends AbstractMojo {
                   final String text = String.format(FAILURE_STRING, s);
                   context.error(text, false);
                 }
-              }
-              else if (name.equalsIgnoreCase(s)) {
+              } else if (name.equalsIgnoreCase(s)) {
                 final String text = String.format(FAILURE_STRING, s);
                 context.error(text, false);
               }
@@ -363,12 +353,10 @@ public class CheckerMojo extends AbstractMojo {
         if (counterErrors.get() > 0) {
           throw new MojoFailureException(String.format("Detected %d error(s)", counterErrors.get()));
         }
-      }
-      else {
+      } else {
         getLog().debug("There are not defined annotations to be interpreted as error");
       }
-    }
-    finally {
+    } finally {
       if ((counterErrors.get() | counterInfo.get() | counterWarings.get()) != 0) {
         getLog().info(DELIMITER);
       }
@@ -386,20 +374,22 @@ public class CheckerMojo extends AbstractMojo {
 
       if (counterWarings.get() > 0) {
         getLog().warn(String.format("Total warnings : %d", counterWarings.get()));
-      }
-      else {
+      } else {
         getLog().info(String.format("Total warnings : %d", counterWarings.get()));
       }
 
       if (counterErrors.get() > 0) {
         getLog().error(String.format("Total errors : %d", counterErrors.get()));
-      }
-      else {
+      } else {
         getLog().info(String.format("Total errors : %d", counterErrors.get()));
       }
 
       getLog().info(DELIMITER);
       getLog().info(String.format("Total spent time : %s", Utils.printTimeDelay(System.currentTimeMillis() - startTime)));
+    }
+
+    if (counterErrors.get() > 0) {
+      throw new MojoFailureException(String.format("Detected %d error(s), see the log", counterErrors.get()));
     }
   }
 
@@ -452,16 +442,23 @@ public class CheckerMojo extends AbstractMojo {
           continue;
         }
         if ((m.getModifiers() & (0x40 | 0x1000)) == 0) {
+
+          final boolean skipCheckParameters = clazz.isNested() && m.getAccessFlags() == 0 && "<init>".equals(m.getName());
+
           if (clazz.isEnum() && ("values".equals(name) || "valueOf".equals(name) || "<init>".equals(name))) {
             continue;
           }
           if (context.isCheckNullableArgs()) {
             MethodParameterChecker.checkReturnTypeForNullable(context, m);
-            MethodParameterChecker.checkParamsTypeForNullable(context, m);
+            if (!skipCheckParameters) {
+              MethodParameterChecker.checkParamsTypeForNullable(context, m);
+            }
           }
           if (context.isCheckMayContainNullArgs()) {
             MethodParameterChecker.checkReturnTypeForMayContainNull(context, m);
-            MethodParameterChecker.checkParamsTypeForMayContainNull(context, m);
+            if (!skipCheckParameters) {
+              MethodParameterChecker.checkParamsTypeForMayContainNull(context, m);
+            }
           }
         }
       }

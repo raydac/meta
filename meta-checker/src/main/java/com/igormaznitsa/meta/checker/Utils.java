@@ -63,11 +63,11 @@ public abstract class Utils {
     return TIME_FORMATTER.print(period);
   }
 
-  public static String extractShortNameOfClass(final String cacnonicalClassName) {
-    int index = cacnonicalClassName.lastIndexOf('.');
-    String text = index < 0 ? cacnonicalClassName : cacnonicalClassName.substring(index + 1);
+  public static String extractShortNameOfClass(final String canonicalClassName) {
+    int index = canonicalClassName.lastIndexOf('.');
+    String text = index < 0 ? canonicalClassName : canonicalClassName.substring(index + 1);
     index = text.lastIndexOf('$');
-    text = index < 0 ? text : cacnonicalClassName.substring(index + 1);
+    text = index < 0 ? text : text.substring(index);
     return text;
   }
 
@@ -103,6 +103,15 @@ public abstract class Utils {
     return result;
   }
 
+  public static String extractOuterClassName(final String jvmInnerClassName) {
+    final int lastDelimiter = jvmInnerClassName.lastIndexOf('$');
+    String result = "";
+    if (lastDelimiter>=0){
+      result = jvmInnerClassName.substring(0, lastDelimiter).replace('.', '/');
+    }
+    return result;
+  }
+  
   public static String asString(final JavaClass clazz, final FieldOrMethod item) {
     final StringBuilder result = new StringBuilder();
     if (item != null) {
