@@ -128,4 +128,9 @@ public enum Complexity {
   public String getFormula(){
     return this.formula;
   }
+  
+  @Override
+  public String toString() {
+    return this.formula;
+  }
 }

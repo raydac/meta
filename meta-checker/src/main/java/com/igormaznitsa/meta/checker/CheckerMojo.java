@@ -254,11 +254,20 @@ public class CheckerMojo extends AbstractMojo {
     final Complexity theMaxAllowedMemoryComplexity;
     final Weight.Unit theMaxAllowedWeight;
 
+    try{
+      theMaxAllowedWeight = decodeWeight(this.maxAllowedWeight);
+    }catch(NoSuchElementException ex){
+      getLog().error("Can't recognize weight value : "+this.maxAllowedWeight);
+      getLog().error("Allowed values : "+Arrays.toString(Weight.Unit.values()));
+      throw new MojoExecutionException(ex.getMessage(), ex);
+    }
+    
     try {
       theMaxAllowedTimeComplexity = decodeComplexity(this.maxAllowedTimeComplexity);
       theMaxAllowedMemoryComplexity = decodeComplexity(this.maxAllowedMemoryComplexity);
-      theMaxAllowedWeight = decodeWeight(this.maxAllowedWeight);
     } catch (NoSuchElementException ex) {
+      getLog().error("Can't recognize a complexity constant");
+      getLog().error("Allowed values : " + Arrays.toString(Complexity.values()));
       throw new MojoExecutionException(ex.getMessage(), ex);
     }
 
