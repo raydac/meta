@@ -20,6 +20,9 @@ import java.io.File;
 import org.apache.bcel.classfile.FieldOrMethod;
 import org.apache.bcel.classfile.JavaClass;
 
+import com.igormaznitsa.meta.Complexity;
+import com.igormaznitsa.meta.annotation.Weight;
+
 public interface Context {
 
   void info(String info, boolean showProcessingItem);
@@ -45,4 +48,10 @@ public interface Context {
   File getTargetDirectoryFolder();
   
   void countDetectedAnnotation(final String annotationType);
+  
+  com.igormaznitsa.meta.annotation.Weight.Unit getMaxAllowedWeightLevel();
+  
+  com.igormaznitsa.meta.Complexity getMaxAllowedTimeComplexity();
+  
+  com.igormaznitsa.meta.Complexity getMaxAllowedMemoryComplexity();
 }

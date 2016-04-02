@@ -11,6 +11,15 @@ It is a small general-purpose library includes:
 * maven plugin to log info about some annotations and check java class version
 
 # Change log
+* __1.1.2-SNAPSHOT__
+ * annotations : added annotations to describe time and memory complexity : `@TimeComplexity` and `@MemoryComplexity`
+ * plugin : fixed false positive for constructors of nested classes
+ * plugin : fixed successful completion with non-zero error counter
+ * plugin : fixed nested class name extraction for log
+ * plugin : added check for placing of `@Nullable` or `@NonNullable` on non-object return type
+ * plugin : added check for max allowed levels for `@Weight`, `@TimeComplexity` and `@MemoryComplexity` and it throws error if rule is violated
+ * utils  : added `StrUtils`
+
 * __1.1.1 (31-mar-2016)__
  * added Assertions#assertEquals
  * fixed issue #1

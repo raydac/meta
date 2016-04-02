@@ -28,27 +28,31 @@ import org.apache.bcel.classfile.ParameterAnnotationEntry;
 public class Weight extends AbstractMetaAnnotationProcessor {
 
   @Override
-  protected void doProcessing (final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
+  protected void doProcessing(final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
     final ElementValue element = extractValue("value", ae);
     if (element == null) {
       context.error("Can't find unit for " + getAnnotationClass().getCanonicalName() + " annotation", true);
-    }
-    else {
+    } else {
       try {
         final com.igormaznitsa.meta.annotation.Weight.Unit unit = com.igormaznitsa.meta.annotation.Weight.Unit.valueOf(element.stringifyValue());
-        if (unit.ordinal() >= com.igormaznitsa.meta.annotation.Weight.Unit.EXTRAHARD.ordinal()) {
-          context.warning("has weight " + unit.name(), true);
+        final com.igormaznitsa.meta.annotation.Weight.Unit maxAllowed = context.getMaxAllowedWeightLevel();
+
+        if (maxAllowed == null) {
+          if (unit.ordinal() >= com.igormaznitsa.meta.annotation.Weight.Unit.EXTRAHARD.ordinal()) {
+            context.warning("has weight " + unit.name(), true);
+          }
+        } else if (unit.ordinal() > maxAllowed.ordinal()) {
+          context.error("Detected violation of max weight rule : " + unit.name(), true);
         }
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
         context.error("Can't get information about unit from annotation " + getAnnotationClass().getCanonicalName() + " [" + element.stringifyValue() + "]", true);
       }
     }
   }
 
   @Override
-  public Class<? extends Annotation> getAnnotationClass () {
+  public Class<? extends Annotation> getAnnotationClass() {
     return com.igormaznitsa.meta.annotation.Weight.class;
   }
-  
+
 }

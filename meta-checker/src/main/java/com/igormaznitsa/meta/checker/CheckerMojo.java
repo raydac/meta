@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
@@ -45,8 +46,12 @@ import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
 
+import com.igormaznitsa.meta.Complexity;
+import com.igormaznitsa.meta.annotation.Weight;
 import com.igormaznitsa.meta.checker.extracheck.MethodParameterChecker;
 import com.igormaznitsa.meta.common.utils.Assertions;
+import com.igormaznitsa.meta.common.utils.GetUtils;
+import com.igormaznitsa.meta.common.utils.StrUtils;
 
 @Mojo(name = "check", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class CheckerMojo extends AbstractMojo {
@@ -122,6 +127,30 @@ public class CheckerMojo extends AbstractMojo {
   private boolean checkMayContainNull;
 
   /**
+   * Define max allowed value for detected weight annotation, if detected annotation has bigger weight then it will be recognized as error.
+   *
+   * @since 1.1.2
+   */
+  @Parameter(name = "maxAllowedWeight")
+  private String maxAllowedWeight;
+
+  /**
+   * Define max allowed value for detected time complexity annotation, if detected annotation has bigger complexity then it will be recognized as error.
+   *
+   * @since 1.1.2
+   */
+  @Parameter(name = "maxAllowedTimeComplexity")
+  private String maxAllowedTimeComplexity;
+
+  /**
+   * Define max allowed value for detected memory complexity annotation, if detected annotation has bigger complexity then it will be recognized as error.
+   *
+   * @since 1.1.2
+   */
+  @Parameter(name = "maxAllowedMemoryComplexity")
+  private String maxAllowedMemoryComplexity;
+
+  /**
    * Hide pseudo-graphic banner.
    *
    * @since 1.1.0
@@ -132,6 +161,44 @@ public class CheckerMojo extends AbstractMojo {
   private LongComparator comparatorForJavaVersion;
   private JavaVersion decodedJavaVersion;
   private Pattern[] ignoreClassesAsPatterns;
+
+  private static Weight.Unit decodeWeight(final String value) {
+    final String normalized = StrUtils.pressing(GetUtils.ensureNonNullStr(value)).replace("_", "");
+    if (normalized.isEmpty()) {
+      return null;
+    }
+
+    for (final Weight.Unit u : Weight.Unit.values()) {
+      if (normalized.equalsIgnoreCase(StrUtils.pressing(u.name()).replace("_", ""))) {
+        return u;
+      }
+    }
+    throw new NoSuchElementException("Can't recognize weight unit for its name : " + value);
+  }
+
+  private static Complexity decodeComplexity(final String value) {
+    final String normalized = StrUtils.pressing(GetUtils.ensureNonNullStr(value)).replace("_", "");
+    if (normalized.isEmpty()) {
+      return null;
+    }
+
+    Complexity detected = null;
+
+    for (final Complexity c : Complexity.values()) {
+      final String name = StrUtils.pressing(c.name()).replace("_", "");
+      final String formula = StrUtils.pressing(c.getFormula()).replace("_", "");
+      if (normalized.equalsIgnoreCase(name) || normalized.equalsIgnoreCase(formula)) {
+        detected = c;
+        break;
+      }
+    }
+
+    if (detected == null) {
+      throw new NoSuchElementException("Can't recognize complexity level from string value : " + value);
+    }
+
+    return detected;
+  }
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
@@ -183,10 +250,37 @@ public class CheckerMojo extends AbstractMojo {
     final AtomicInteger counterErrors = new AtomicInteger();
     final AtomicInteger counterInfo = new AtomicInteger();
 
+    final Complexity theMaxAllowedTimeComplexity;
+    final Complexity theMaxAllowedMemoryComplexity;
+    final Weight.Unit theMaxAllowedWeight;
+
+    try {
+      theMaxAllowedTimeComplexity = decodeComplexity(this.maxAllowedTimeComplexity);
+      theMaxAllowedMemoryComplexity = decodeComplexity(this.maxAllowedMemoryComplexity);
+      theMaxAllowedWeight = decodeWeight(this.maxAllowedWeight);
+    } catch (NoSuchElementException ex) {
+      throw new MojoExecutionException(ex.getMessage(), ex);
+    }
+
     final Context context = new Context() {
       FieldOrMethod node;
       JavaClass klazz;
       int itemIndex;
+
+      @Override
+      public Weight.Unit getMaxAllowedWeightLevel() {
+        return theMaxAllowedWeight;
+      }
+
+      @Override
+      public Complexity getMaxAllowedTimeComplexity() {
+        return theMaxAllowedTimeComplexity;
+      }
+
+      @Override
+      public Complexity getMaxAllowedMemoryComplexity() {
+        return theMaxAllowedMemoryComplexity;
+      }
 
       @Override
       public JavaClass getProcessingClass() {

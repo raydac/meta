@@ -39,7 +39,9 @@ public enum MetaAnnotations {
   IMPLSPECIFIC(new ImplementationNote()),
   WEIGHT(new Weight()),
   THROWSRE(new ThrowsRuntimeException()),
-  THROWSREs(new ThrowsRuntimeExceptions());
+  THROWSREs(new ThrowsRuntimeExceptions()),
+  TIMECOMPLEXITY(new TimeComplexity()),
+  MEMORYCOMPLEXITY(new MemoryComplexity());
   
   private final AbstractMetaAnnotationProcessor INSTANCE;
 
