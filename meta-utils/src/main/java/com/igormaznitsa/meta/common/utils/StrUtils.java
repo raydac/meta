@@ -70,7 +70,7 @@ public final class StrUtils {
   }
   
   /**
-   * Remove all white chars and ISO control chars.
+   * Remove all white space chars and ISO control chars.
    * @param value string to be processed
    * @return pressed string without white spaces and control chars
    * @since 1.1.2
