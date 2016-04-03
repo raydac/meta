@@ -11,7 +11,7 @@ It is a small general-purpose library includes:
 * maven plugin to log info about some annotations and check java class version
 
 # Change log
-* __1.1.2-SNAPSHOT__
+* __1.1.2 (03-apr-2016)__
  * annotations : added annotations to describe time and memory complexity : `@TimeComplexity` and `@MemoryComplexity`
  * plugin : fixed false positive for constructors of nested classes
  * plugin : fixed successful completion with non-zero error counter
@@ -72,6 +72,8 @@ It contains number annotations to mark code, plus JSR-305 annotations provided b
 * ThrowsRuntimeException
 * ThrowsRuntimeExceptions
 * Experimental
+* TimeComplexity
+* MemoryComplexity
 
 # How to add the annotation library into maven project
 To use annotations just add dependency to the library
@@ -79,7 +81,7 @@ To use annotations just add dependency to the library
 <dependency>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta-annotations</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 </dependency>
 ```
 It shades JSR-305 annotations from the FindBugs library so that they also will be available for usage automatically.
@@ -91,7 +93,7 @@ Just add the lines below into build section.
 <dependency>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta-utils</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 </dependency>
 ```
 ## com.igormaznitsa.meta.common.utils.Deferrers
@@ -134,7 +136,7 @@ Also the plugin allows to fail build process if detected some annotations, it al
 <plugin>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta-checker</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <configuration>
         <restrictClassFormat>7</restrictClassFormat>
         <failForAnnotations>

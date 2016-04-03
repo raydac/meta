@@ -24,6 +24,9 @@
           <failForAnnotations>
             <param>risky</param>
           </failForAnnotations>
+          <maxAllowedWeight>maxWeight</maxAllowedWeight>>
+          <maxAllowedTimeComplexity>maxTime</maxAllowedTimeComplexity>
+          <maxAllowedMemoryComplexity>maxMemory</maxAllowedMemoryComplexity>
           <ignoreClasses>
             <class>com.hello.world</class>
             <class>com.*?.test</class>

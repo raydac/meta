@@ -162,6 +162,18 @@ public class CheckerMojo extends AbstractMojo {
   private JavaVersion decodedJavaVersion;
   private Pattern[] ignoreClassesAsPatterns;
 
+  public String getMaxAllowedWeight() {
+    return this.maxAllowedWeight;
+  }
+  
+  public String getMaxAllowedTimeComplexity() {
+    return this.maxAllowedTimeComplexity;
+  }
+  
+  public String getMaxAllowedMemoryComplexity() {
+    return this.maxAllowedMemoryComplexity;
+  }
+  
   private static Weight.Unit decodeWeight(final String value) {
     final String normalized = StrUtils.pressing(GetUtils.ensureNonNullStr(value)).replace("_", "");
     if (normalized.isEmpty()) {
@@ -255,16 +267,16 @@ public class CheckerMojo extends AbstractMojo {
     final Weight.Unit theMaxAllowedWeight;
 
     try{
-      theMaxAllowedWeight = decodeWeight(this.maxAllowedWeight);
+      theMaxAllowedWeight = decodeWeight(getMaxAllowedWeight());
     }catch(NoSuchElementException ex){
-      getLog().error("Can't recognize weight value : "+this.maxAllowedWeight);
+      getLog().error("Can't recognize weight value : "+getMaxAllowedWeight());
       getLog().error("Allowed values : "+Arrays.toString(Weight.Unit.values()));
       throw new MojoExecutionException(ex.getMessage(), ex);
     }
     
     try {
-      theMaxAllowedTimeComplexity = decodeComplexity(this.maxAllowedTimeComplexity);
-      theMaxAllowedMemoryComplexity = decodeComplexity(this.maxAllowedMemoryComplexity);
+      theMaxAllowedTimeComplexity = decodeComplexity(getMaxAllowedTimeComplexity());
+      theMaxAllowedMemoryComplexity = decodeComplexity(getMaxAllowedMemoryComplexity());
     } catch (NoSuchElementException ex) {
       getLog().error("Can't recognize a complexity constant");
       getLog().error("Allowed values : " + Arrays.toString(Complexity.values()));

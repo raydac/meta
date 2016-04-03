@@ -38,6 +38,9 @@ public final class CheckerMojoTest extends AbstractMojoTestCase {
     assertNull(mojo.getRestrictClassFormat());
     assertNull(mojo.getIgnoreClasses());
     assertNull(mojo.getFailForAnnotations());
+    assertNull(mojo.getMaxAllowedWeight());
+    assertNull(mojo.getMaxAllowedTimeComplexity());
+    assertNull(mojo.getMaxAllowedMemoryComplexity());
   }
   
   @Test
@@ -51,6 +54,9 @@ public final class CheckerMojoTest extends AbstractMojoTestCase {
     assertEquals(">=7",mojo.getRestrictClassFormat());
     assertArrayEquals(new String[]{"com.hello.world","com.*?.test"},mojo.getIgnoreClasses());
     assertArrayEquals(new String[]{"risky"},mojo.getFailForAnnotations());
+    assertEquals("maxWeight",mojo.getMaxAllowedWeight());
+    assertEquals("maxTime",mojo.getMaxAllowedTimeComplexity());
+    assertEquals("maxMemory",mojo.getMaxAllowedMemoryComplexity());
   }
   
 }
