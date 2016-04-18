@@ -11,6 +11,9 @@ It is a small general-purpose library includes:
 * maven plugin to log info about some annotations and check java class version
 
 # Change log
+* __1.1.3-SNAPSHOT__
+ * updated the `uber-pom` dependency
+
 * __1.1.2 (03-apr-2016)__
  * annotations : added annotations to describe time and memory complexity : `@TimeComplexity` and `@MemoryComplexity`
  * plugin : fixed false positive for constructors of nested classes
