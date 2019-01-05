@@ -52,6 +52,8 @@ import com.igormaznitsa.meta.checker.extracheck.MethodParameterChecker;
 import com.igormaznitsa.meta.common.utils.Assertions;
 import com.igormaznitsa.meta.common.utils.GetUtils;
 import com.igormaznitsa.meta.common.utils.StrUtils;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 
 @Mojo(name = "check", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class CheckerMojo extends AbstractMojo {
@@ -75,8 +77,12 @@ public class CheckerMojo extends AbstractMojo {
     "https://github.com/raydac/meta",
     ""};
 
-//  @Parameter (defaultValue = "${project}", readonly = true, required = true)
-//  private MavenProject project;
+  @Parameter (defaultValue = "${project}", readonly = true, required = true)
+  private MavenProject project;
+
+  @Parameter (defaultValue = "${session}", readonly = true, required = true)
+  private MavenSession session;
+
   /**
    * Folder which will be recursively used as the source of class files.
    */
@@ -221,7 +227,7 @@ public class CheckerMojo extends AbstractMojo {
       getLog().warn("Can't find directory for investigation, may be there are not classes for compilation : " + this.targetDirectory);
       return;
     } else {
-      if (!this.hideBanner) {
+      if (!this.hideBanner && !this.session.isParallel()) {
         for (final String s : BANNER) {
           getLog().info(s);
         }
@@ -412,7 +418,7 @@ public class CheckerMojo extends AbstractMojo {
     try {
       final Iterator<File> iterator = FileUtils.iterateFiles(targetDirectoryFile, new String[]{"class", "CLASS"}, true);
       int classIndex = 0;
-      while (iterator.hasNext()) {
+      while (iterator.hasNext() && !Thread.currentThread().isInterrupted()) {
         final File file = iterator.next();
         getLog().debug(String.format("Processing class file : %s", file.getAbsolutePath()));
         try {

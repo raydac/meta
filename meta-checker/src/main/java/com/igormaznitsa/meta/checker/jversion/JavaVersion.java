@@ -26,7 +26,10 @@ public enum JavaVersion {
   JDK50("5.0", 0x31),
   JDK60("6.0", 0x32),
   JDK70("7.0", 0x33),
-  JDK80("8.0", 0x34);
+  JDK80("8.0", 0x34),
+  JDK90("9.0", 0x35),
+  JDK100("10.0", 0x36),
+  JDK110("11.0", 0x37);
 
   private final String text;
   private final int value;
