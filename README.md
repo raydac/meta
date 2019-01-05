@@ -14,6 +14,9 @@ It is a small general-purpose library includes:
 # Change log
 ## __1.1.3-SNAPSHOT__
  * updated the `uber-pom` dependency
+ * utils: added `append` into `ArrayUtils`
+ * annotations: added `UiThread` and `Critical` annotations
+ * plugin: added `check-jar` goal
 
 ## __1.1.2 (03-apr-2016)__
  * annotations : added annotations to describe time and memory complexity : `@TimeComplexity` and `@MemoryComplexity`
@@ -25,21 +28,21 @@ It is a small general-purpose library includes:
  * utils  : added `StrUtils`
 
 ## __1.1.1 (31-mar-2016)__
- * added Assertions#assertEquals
+ * added `Assertions#assertEquals`
  * fixed issue #1
- * fixed checking of @MayContainNull and @MustNotContainNull for fields
+ * fixed checking of `@MayContainNull` and `@MustNotContainNull` for fields
  * little improvement in JCL check in @Constraint
- * added GetUtils#ensureNonNullAndNonEmpty and GetUtils#ensureNonNullStr for String
+ * added `GetUtils#ensureNonNullAndNonEmpty` and `GetUtils#ensureNonNullStr` for String
 
 ## __1.1.0 (19-mar-2016)__
  * __utilities and auxiliary classes extracted as separated module meta-utils__
  * __meta-common module renamed to meta-annotations__
  * __annotation classes compiled in JVM 1.5 format__
- * improved maven plugin to check marks for method arguments, NB! It also supports @Nullable and @NotNull annotations from IDEA annotation pack.
+ * improved maven plugin to check marks for method arguments, NB! It also supports `@Nullable` and `@NotNull` annotations from IDEA annotation pack.
  * changed retention policy for annotations to CLASS, but shaded annotations from JR-305 have retention policy RUNTIME
  * extended scope for many annotations
  * improved utility methods and assertions
- * added annotations @Experimental, @ThrowsRuntimeException, @ThrowsRuntimeExceptions
+ * added annotations `@Experimental`, `@ThrowsRuntimeException`, `@ThrowsRuntimeExceptions`
  * bugfixing and refactoring, also fixed NPE in the maven plugin for missing class format option
 
 ## __1.0.2 (06-mar-2016)__
