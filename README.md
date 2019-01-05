@@ -12,10 +12,10 @@ It is a small general-purpose library includes:
 * maven plugin to log info about some annotations and check java class version
 
 # Change log
-* __1.1.3-SNAPSHOT__
+## __1.1.3-SNAPSHOT__
  * updated the `uber-pom` dependency
 
-* __1.1.2 (03-apr-2016)__
+## __1.1.2 (03-apr-2016)__
  * annotations : added annotations to describe time and memory complexity : `@TimeComplexity` and `@MemoryComplexity`
  * plugin : fixed false positive for constructors of nested classes
  * plugin : fixed successful completion with non-zero error counter
@@ -24,14 +24,14 @@ It is a small general-purpose library includes:
  * plugin : added check for max allowed levels for `@Weight`, `@TimeComplexity` and `@MemoryComplexity` and it throws error if rule is violated
  * utils  : added `StrUtils`
 
-* __1.1.1 (31-mar-2016)__
+## __1.1.1 (31-mar-2016)__
  * added Assertions#assertEquals
  * fixed issue #1
  * fixed checking of @MayContainNull and @MustNotContainNull for fields
  * little improvement in JCL check in @Constraint
  * added GetUtils#ensureNonNullAndNonEmpty and GetUtils#ensureNonNullStr for String
 
-* __1.1.0 (19-mar-2016)__
+## __1.1.0 (19-mar-2016)__
  * __utilities and auxiliary classes extracted as separated module meta-utils__
  * __meta-common module renamed to meta-annotations__
  * __annotation classes compiled in JVM 1.5 format__
@@ -42,7 +42,7 @@ It is a small general-purpose library includes:
  * added annotations @Experimental, @ThrowsRuntimeException, @ThrowsRuntimeExceptions
  * bugfixing and refactoring, also fixed NPE in the maven plugin for missing class format option
 
-* __1.0.2 (06-mar-2016)__
+## __1.0.2 (06-mar-2016)__
  * added Assertions.assertIsValid method
  * improved logging in meta-checker plugin
  * added empty arrays for primitives into Arrays class
@@ -50,10 +50,10 @@ It is a small general-purpose library includes:
  * added ImplementationNote annotation
  * improved the meta-check plugin, added support to check java class version 
 
-* __1.0.1 (12-feb-2016)__
+## __1.0.1 (12-feb-2016)__
  * Bug fixing
 
-* __1.0 (10-feb-2016)__
+## __1.0 (10-feb-2016)__
  * Initial version
 
 # Annotations
