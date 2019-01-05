@@ -19,6 +19,7 @@ import com.igormaznitsa.meta.annotation.Weight;
 import java.lang.reflect.Array;
 import com.igormaznitsa.meta.annotation.MayContainNull;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -82,7 +83,8 @@ public final class ArrayUtils {
   }
 
   /**
-   * Join arrays provided as parameters, all arrays must be the same type, null values allowed.
+   * Join arrays provided as parameters, all arrays must be the same type, null
+   * values allowed.
    *
    * @param <T> type of array
    * @param arrays array of arrays to be joined
@@ -107,6 +109,49 @@ public final class ArrayUtils {
         System.arraycopy(array, 0, result, position, array.length);
         position += array.length;
       }
+    }
+    return result;
+  }
+
+  /**
+   * Append element to the start of an array.
+   *
+   * @param <T> type of array elements
+   * @param element element to be added into start of array, can be null
+   * @param array target array
+   * @return new array where the element on the first position
+   * @since 1.1.3
+   */
+  @Nonnull
+  @MayContainNull
+  @Weight(Weight.Unit.NORMAL)
+  public static <T> T[] append(@Nullable final T element, @MayContainNull @Nonnull final T[] array) {
+    @SuppressWarnings("unchecked")
+    final T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), array.length + 1);
+    System.arraycopy(array, 0, result, 1, array.length);
+    result[0] = element;
+    return result;
+  }
+
+  /**
+   * Append elements to the end of an array
+   *
+   * @param <T> type of array elements
+   * @param array target array
+   * @param elements elements to be added to the end of the target array
+   * @return new array where elements are placed in the end
+   * @since 1.1.3
+   */
+  @Nonnull
+  @MayContainNull
+  @Weight(Weight.Unit.NORMAL)
+  public static <T> T[] append(@MayContainNull @Nonnull final T[] array, @MayContainNull final T... elements) {
+    @SuppressWarnings("unchecked")
+    final T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), array.length + elements.length);
+    System.arraycopy(array, 0, result, 0, array.length);
+    int index = array.length;
+    for (final T element : elements) {
+      result[index++] = element;
     }
     return result;
   }

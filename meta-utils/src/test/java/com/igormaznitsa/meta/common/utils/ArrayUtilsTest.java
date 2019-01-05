@@ -19,10 +19,20 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class ArrayUtilsTest {
-  
+
   @Test
-  public void testSomeMethod () {
-    assertArrayEquals(new String[]{"One","Two",null,"Three"}, ArrayUtils.joinArrays(null,null,new String[]{"One","Two"},new String[]{null},null,new String[]{"Three"}));
+  public void testJoinArrays() {
+    assertArrayEquals(new String[]{"One", "Two", null, "Three"}, ArrayUtils.joinArrays(null, null, new String[]{"One", "Two"}, new String[]{null}, null, new String[]{"Three"}));
   }
-  
+
+  @Test
+  public void testAppend_Start() {
+    assertArrayEquals(new String[]{"one", "two", "three"}, ArrayUtils.append("one", new String[]{"two", "three"}));
+  }
+
+  @Test
+  public void testAppend_End() {
+    assertArrayEquals(new String[]{"one", "two", "three", "fourth"}, ArrayUtils.append(new String[]{"one", "two"}, "three", "fourth"));
+  }
+
 }
