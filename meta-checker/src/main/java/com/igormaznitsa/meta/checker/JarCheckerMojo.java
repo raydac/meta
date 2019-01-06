@@ -24,7 +24,6 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -93,7 +92,8 @@ public class JarCheckerMojo extends AbstractMojo {
   private List<String> expected = new ArrayList<String>();
 
   /**
-   * ANT path patterns to detect resources which must NOT be presented in archive.
+   * ANT path patterns to detect resources which must NOT be presented in
+   * archive.
    */
   @Parameter(name = "unexpected")
   private List<String> unexpected = new ArrayList<String>();
@@ -113,35 +113,35 @@ public class JarCheckerMojo extends AbstractMojo {
   public String getRestrictClassFormat() {
     return this.restrictClassFormat;
   }
-  
-  public String getArchive(){
+
+  public String getArchive() {
     return this.archive;
   }
-  
-  public List<String> getExclude(){
+
+  public List<String> getExclude() {
     return this.exclude;
   }
-  
-  public List<String> getInclude(){
+
+  public List<String> getInclude() {
     return this.include;
   }
-  
-  public List<String> getExpected(){
+
+  public List<String> getExpected() {
     return this.expected;
   }
-  
-  public List<String> getUnexpected(){
+
+  public List<String> getUnexpected() {
     return this.unexpected;
   }
-  
-  public List<String> getManifestHas(){
+
+  public List<String> getManifestHas() {
     return this.manifestHas;
   }
-  
-  public List<String> getManifestHasNot(){
+
+  public List<String> getManifestHasNot() {
     return this.manifestHasNot;
   }
-  
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     final Log log = this.getLog();
@@ -217,7 +217,10 @@ public class JarCheckerMojo extends AbstractMojo {
           log.error("Java can't find MANIFEST.MF in the archive");
           errorCounter.incrementAndGet();
         } else {
-          log.warn(manifest.getEntries() + "  "+manifest.getMainAttributes().keySet());
+
+          log.debug("Detected manifest entries: " + manifest.getEntries().keySet());
+          log.debug("Detected manifest main attributes: " + manifest.getMainAttributes().keySet());
+
           for (final String key : this.manifestHas) {
             final Attributes.Name keyName = new Attributes.Name(key);
             if (manifest.getAttributes(key) == null && !manifest.getMainAttributes().containsKey(keyName)) {
