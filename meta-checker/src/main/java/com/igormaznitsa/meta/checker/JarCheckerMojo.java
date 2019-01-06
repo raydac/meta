@@ -110,6 +110,38 @@ public class JarCheckerMojo extends AbstractMojo {
   @Parameter(name = "manifestHasNot")
   private List<String> manifestHasNot = new ArrayList<String>();
 
+  public String getRestrictClassFormat() {
+    return this.restrictClassFormat;
+  }
+  
+  public String getArchive(){
+    return this.archive;
+  }
+  
+  public List<String> getExclude(){
+    return this.exclude;
+  }
+  
+  public List<String> getInclude(){
+    return this.include;
+  }
+  
+  public List<String> getExpected(){
+    return this.expected;
+  }
+  
+  public List<String> getUnexpected(){
+    return this.unexpected;
+  }
+  
+  public List<String> getManifestHas(){
+    return this.manifestHas;
+  }
+  
+  public List<String> getManifestHasNot(){
+    return this.manifestHasNot;
+  }
+  
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     final Log log = this.getLog();

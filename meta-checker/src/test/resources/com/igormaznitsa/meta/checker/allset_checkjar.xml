@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.igormaznitsa</groupId>
+  <artifactId>meta-checker-test</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.igormaznitsa</groupId>
+        <artifactId>meta-checker</artifactId>
+        <goals>
+          <goals>check-jar</goals>
+        </goals>
+        <configuration>
+          <archive>some.jar</archive>
+          <restrictClassFormat><![CDATA[>=7]]></restrictClassFormat>
+          <exclude>
+            <file>some1/**/*.class</file>
+            <file>some2/**/*.class</file>
+          </exclude>
+          <include>
+            <file>some3/**/*.class</file>
+            <file>some4/**/*.class</file>
+          </include>
+          <expected>
+            <file>some/**/image1.jpg</file>
+            <file>some/**/image2.jpg</file>
+          </expected>
+          <unexpected>
+            <file>some/**/image3.jpg</file>
+            <file>some/**/image4.jpg</file>
+          </unexpected>
+          <manifestHas>
+            <attribute>Main-Class</attribute>
+            <attribute>Compiled-By</attribute>
+          </manifestHas>
+          <manifestHasNot>
+            <attribute>Attribute1</attribute>
+            <attribute>Attribute2</attribute>
+          </manifestHasNot>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>  
+</project>

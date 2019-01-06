@@ -26,7 +26,37 @@ public final class CheckerMojoTest extends AbstractMojoTestCase {
   protected void setUp() throws Exception {
     super.setUp();
   }
-  
+
+  @Test
+  public void testDefaultCfg_CheckJar() throws Exception {
+    final File testPom = new File(this.getClass().getResource("default.xml").toURI());
+    final JarCheckerMojo mojo = (JarCheckerMojo) lookupMojo("check-jar", testPom);
+    assertNotNull(mojo);
+    assertNull(mojo.getArchive());
+    assertNull(mojo.getRestrictClassFormat());
+    assertTrue(mojo.getExclude().isEmpty());
+    assertTrue(mojo.getInclude().isEmpty());
+    assertTrue(mojo.getExpected().isEmpty());
+    assertTrue(mojo.getUnexpected().isEmpty());
+    assertTrue(mojo.getManifestHas().isEmpty());
+    assertTrue(mojo.getManifestHasNot().isEmpty());
+  }
+
+  @Test
+  public void testAllCfg_CheckJar() throws Exception {
+    final File testPom = new File(this.getClass().getResource("allset_checkjar.xml").toURI());
+    final JarCheckerMojo mojo = (JarCheckerMojo) lookupMojo("check-jar", testPom);
+    assertNotNull(mojo);
+    assertEquals("some.jar",mojo.getArchive());
+    assertEquals(">=7",mojo.getRestrictClassFormat());
+    assertArrayEquals(new String[]{"some1/**/*.class","some2/**/*.class"},mojo.getExclude().toArray());
+    assertArrayEquals(new String[]{"some3/**/*.class", "some4/**/*.class"},mojo.getInclude().toArray());
+    assertArrayEquals(new String[]{"some/**/image1.jpg","some/**/image2.jpg"},mojo.getExpected().toArray());
+    assertArrayEquals(new String[]{"some/**/image3.jpg", "some/**/image4.jpg"},mojo.getUnexpected().toArray());
+    assertArrayEquals(new String[]{"Main-Class","Compiled-By"},mojo.getManifestHas().toArray());
+    assertArrayEquals(new String[]{"Attribute1","Attribute2"},mojo.getManifestHasNot().toArray());
+  }
+
   @Test
   public void testDefaultCfg() throws Exception {
     final File testPom = new File(this.getClass().getResource("default.xml").toURI());
