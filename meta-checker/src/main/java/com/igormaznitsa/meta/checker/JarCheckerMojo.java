@@ -21,11 +21,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -42,6 +46,7 @@ import org.springframework.util.AntPathMatcher;
 
 /**
  * It allows to make check of classes in a JAR packed archive.
+ *
  * @since 1.1.3
  */
 @Mojo(name = "check-jar", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
@@ -70,16 +75,40 @@ public class JarCheckerMojo extends AbstractMojo {
   private String archive;
 
   /**
-   * List of ant path patterns for files to be excluded.
+   * List of ANT path patterns for files to be excluded.
    */
   @Parameter(name = "exclude")
   private List<String> exclude = new ArrayList<String>();
 
   /**
-   * List of ant path patterns for files to be included.
+   * List of ANT path patterns for files to be included.
    */
   @Parameter(name = "include")
   private List<String> include = new ArrayList<String>();
+
+  /**
+   * ANT path patterns to detect resources which must be presented in archive.
+   */
+  @Parameter(name = "expected")
+  private List<String> expected = new ArrayList<String>();
+
+  /**
+   * ANT path patterns to detect resources which must NOT be presented in archive.
+   */
+  @Parameter(name = "unexpected")
+  private List<String> unexpected = new ArrayList<String>();
+
+  /**
+   * Expected keys in manifest.
+   */
+  @Parameter(name = "manifestHas")
+  private List<String> manifestHas = new ArrayList<String>();
+
+  /**
+   * Unexpected keys in manifest.
+   */
+  @Parameter(name = "manifestHasNot")
+  private List<String> manifestHasNot = new ArrayList<String>();
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
@@ -112,9 +141,9 @@ public class JarCheckerMojo extends AbstractMojo {
     final JavaVersion javaVersion;
 
     if (this.restrictClassFormat != null) {
-      
+
       String javaClassVersion = this.restrictClassFormat.trim();
-      
+
       if (javaClassVersion.isEmpty()) {
         throw new IllegalArgumentException("Detected empty value for 'restrictClassFormat'");
       }
@@ -148,6 +177,37 @@ public class JarCheckerMojo extends AbstractMojo {
     final AtomicInteger errorCounter = new AtomicInteger();
     final int MAX_SHOWN_ERRORS = 48;
 
+    if (!this.manifestHas.isEmpty() || !this.manifestHasNot.isEmpty()) {
+      try {
+        final Manifest manifest = jarFile.getManifest();
+
+        if (manifest == null) {
+          log.error("Java can't find MANIFEST.MF in the archive");
+          errorCounter.incrementAndGet();
+        } else {
+          log.warn(manifest.getEntries() + "  "+manifest.getMainAttributes().keySet());
+          for (final String key : this.manifestHas) {
+            final Attributes.Name keyName = new Attributes.Name(key);
+            if (manifest.getAttributes(key) == null && !manifest.getMainAttributes().containsKey(keyName)) {
+              log.error("Can't find key '" + key + "' in MANIFEST.MF");
+              errorCounter.incrementAndGet();
+            }
+          }
+
+          for (final String key : this.manifestHasNot) {
+            final Attributes.Name keyName = new Attributes.Name(key);
+            if (manifest.getAttributes(key) != null || manifest.getMainAttributes().containsKey(keyName)) {
+              log.error("Detected key '" + key + "' in MANIFEST.MF");
+              errorCounter.incrementAndGet();
+            }
+          }
+        }
+      } catch (IOException ex) {
+        log.error("Can't read manifest file from the archive", ex);
+        errorCounter.incrementAndGet();
+      }
+    }
+
     final ClassVisitor classVisitor = new ClassVisitor(Opcodes.ASM7) {
       @Override
       public void visit(final int version, final int access, final String name, final String signature, final String superName, final String[] interfaces) {
@@ -169,10 +229,38 @@ public class JarCheckerMojo extends AbstractMojo {
 
     final Enumeration<JarEntry> entries = jarFile.entries();
 
+    final List<String> resourcesExpected = new ArrayList<String>(this.expected);
+    final List<String> resourcesUnexpected = new ArrayList<String>(this.unexpected);
+    final List<String> detectedUnexpectedPattern = new ArrayList<String>();
+
     while (entries.hasMoreElements() && !Thread.currentThread().isInterrupted()) {
       final JarEntry entry = entries.nextElement();
 
       final String path = entry.getName();
+
+      if (!resourcesExpected.isEmpty()) {
+        final Iterator<String> iter = resourcesExpected.iterator();
+        while (iter.hasNext()) {
+          final String pattern = iter.next();
+          if (antPathMatcher.match(pattern, path)) {
+            log.info("Contains " + path + " (pattern: " + pattern + ")");
+            iter.remove();
+          }
+        }
+      }
+
+      if (!resourcesUnexpected.isEmpty()) {
+        final Iterator<String> iter = resourcesUnexpected.iterator();
+        while (iter.hasNext()) {
+          final String pattern = iter.next();
+          if (antPathMatcher.match(pattern, path)) {
+            detectedUnexpectedPattern.add(pattern);
+            log.error("Detected unexpected " + path + " (pattern: " + pattern + ")");
+            iter.remove();
+            errorCounter.incrementAndGet();
+          }
+        }
+      }
 
       boolean process = true;
 
@@ -214,7 +302,20 @@ public class JarCheckerMojo extends AbstractMojo {
       log.warn("Interrupted...");
       return;
     }
-    
+
+    if (!resourcesExpected.isEmpty()) {
+      for (final String s : resourcesExpected) {
+        log.error("Can't find resource for pattern: " + s);
+        errorCounter.incrementAndGet();
+      }
+    }
+
+    if (!detectedUnexpectedPattern.isEmpty()) {
+      for (final String s : detectedUnexpectedPattern) {
+        log.error("Detected unexpected resource for pattern: " + s);
+      }
+    }
+
     log.info("Processed " + classCounter.get() + " class(es)");
 
     if (errorCounter.get() != 0) {
