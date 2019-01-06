@@ -76,7 +76,7 @@ public enum Complexity {
   /**
    * Fractional power. Example: <a href="https://en.wikipedia.org/wiki/Kd-tree">Searching in a kd-tree</a>.
    * <p>
-   * <b>O(n<sup>c</sup>) where 0 < c < 1 </b></p>
+   * <b>O(n<sup>c</sup>) where 0 &lt; c &lt; 1 </b></p>
    *
    * @since 1.1.2
    */
@@ -143,7 +143,7 @@ public enum Complexity {
    * <a href="https://en.wikipedia.org/wiki/Time_complexity#Sub-exponential_time">Sub-exponential</a>. Example: Assuming complexity theoretic conjectures, BPP is contained in
    * SUBEXP.
    * <p>
-   * <b>O(2<sup>n<sup>ε</sup></sup>) for all ε > 0</b></p>
+   * <b>O(2^n^ε) for all ε &gt; 0</b></p>
    *
    * @since 1.1.2
    */
@@ -168,7 +168,7 @@ public enum Complexity {
    * <a href="https://en.wikipedia.org/wiki/Time_complexity#Double_exponential_time">Double exponential</a>. Example: Deciding the truth of a given statement in Presburger
    * arithmetic.
    * <p>
-   * <b>2<sup>2<sup>poly(n)</sup></sup></b></p>
+   * <b>2^2^poly(n)</b></p>
    *
    * @since 1.1.2
    */
