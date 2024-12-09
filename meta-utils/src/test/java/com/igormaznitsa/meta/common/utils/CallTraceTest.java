@@ -31,7 +31,7 @@ public class CallTraceTest {
   @Test
   public void testThreadDescriptorConstructorEmpty() {
     final CallTrace callTrace = new CallTrace();
-    assertTrue(callTrace.getThreadDescriptor().equals(Thread.currentThread().toString()));
+    assertEquals(callTrace.getThreadDescriptor(), Thread.currentThread().toString());
   }
 
   @Test

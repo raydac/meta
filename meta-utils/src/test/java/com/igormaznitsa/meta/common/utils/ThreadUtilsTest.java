@@ -13,59 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.common.utils;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.igormaznitsa.meta.annotation.Warning;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class ThreadUtilsTest {
-  private int testCall1 () {
+  private int testCall1() {
     return testCall2();
   }
 
-  private int testCall2 () {
+  private int testCall2() {
     return ThreadUtils.stackDepth();
   }
 
   @Test
-  public void testGetCallStackDepth () {
+  public void testGetCallStackDepth() {
     assertEquals(ThreadUtils.stackDepth() + 2, testCall1());
   }
 
   @Test
-  public void testSilentSleep_NotInterrupted(){
+  public void testSilentSleep_NotInterrupted() {
     final long start = System.currentTimeMillis();
     assertTrue(ThreadUtils.silentSleep(100L));
-    assertTrue(System.currentTimeMillis()-start >= 100L);
+    assertTrue(System.currentTimeMillis() - start >= 100L);
   }
-  
+
   @Test
   public void testSilentSleep_Interrupted() throws Exception {
     final AtomicBoolean result = new AtomicBoolean(true);
-    
-    final Thread thr = new Thread(){
-      
-      @Override
-      public void run(){
-        result.set(ThreadUtils.silentSleep(1000L));
-      }
-    };
-    
+
+    final Thread thr = new Thread(() -> result.set(ThreadUtils.silentSleep(1000L)));
+
     thr.start();
     Thread.sleep(100L);
     thr.interrupt();
     thr.join();
     assertFalse(result.get());
   }
-  
+
   @Test
-  @Warning("The Test depends on its position in the class sources")
-  public void testGetCurrentStackElement () {
+  @Warning("The test depends on its position in the class sources")
+  public void testGetCurrentStackElement() {
     final StackTraceElement element = ThreadUtils.stackElement();
-    assertEquals(66,element.getLineNumber());
-    assertEquals("testGetCurrentStackElement",element.getMethodName());
-    assertEquals("com.igormaznitsa.meta.common.utils.ThreadUtilsTest",element.getClassName());
+    assertEquals(64, element.getLineNumber());
+    assertEquals("testGetCurrentStackElement", element.getMethodName());
+    assertEquals("com.igormaznitsa.meta.common.utils.ThreadUtilsTest", element.getClassName());
   }
 }

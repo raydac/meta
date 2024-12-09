@@ -48,7 +48,7 @@ public final class ThreadUtils {
   }
   
   /**
-   * Get the stack element of the method caller.
+   * Get the stack element of the calling method.
    * @return the stack trace element for the calling method.
    * @since 1.0
    */

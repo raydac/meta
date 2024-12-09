@@ -132,10 +132,10 @@ public class DeferrersTest {
     assertEquals(num, value.get());
   }
   
-  private void thirdLevel(final AtomicInteger value, final int num, final List<Integer> order){
+  private void thirdLevel(final AtomicInteger value, final int someNumber, final List<Integer> order){
     Deferrers.defer(new TestDeferrer(value,order,5));
     Deferrers.processDeferredActions();
-    assertEquals(num, value.get());
+    assertEquals(someNumber, value.get());
   }
   
 }

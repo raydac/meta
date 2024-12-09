@@ -25,7 +25,6 @@ import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import com.igormaznitsa.meta.common.exceptions.MetaErrorListener;
 
 public class TimeGuardTest {
 
@@ -74,13 +73,10 @@ public class TimeGuardTest {
   public void testGuard_OneLevel_NotificationOfGELaboutErrorDuringProcessing () throws Exception {
     final AtomicInteger detector = new AtomicInteger(0);
     
-    MetaErrorListeners.addErrorListener(new MetaErrorListener() {
-      @Override
-      public void onDetectedError (final String text, final Throwable error) {
-        assertEquals("UUUHHH!", error.getCause().getMessage());
-        assertTrue(error instanceof UnexpectedProcessingError);
-        detector.incrementAndGet();
-      }
+    MetaErrorListeners.addErrorListener((text, error) -> {
+      assertEquals("UUUHHH!", error.getCause().getMessage());
+      assertTrue(error instanceof UnexpectedProcessingError);
+      detector.incrementAndGet();
     });
 
     TimeGuard.addGuard("test1", 100L, new TimeGuard.TimeAlertListener() {
@@ -97,16 +93,13 @@ public class TimeGuardTest {
   }
   
   @Test
-  public void testGuard_OneLevel_NotificationOfGELaboutViolation () throws Exception {
+  public void testGuard_OneLevel_NotificationOfGEL_aboutViolation() throws Exception {
     final AtomicInteger detector = new AtomicInteger(0);
     
-    MetaErrorListeners.addErrorListener(new MetaErrorListener() {
-      @Override
-      public void onDetectedError (final String text, final Throwable error) {
-        assertTrue(error instanceof TimeViolationError);
-        assertEquals("test1", error.getMessage());
-        detector.incrementAndGet();
-      }
+    MetaErrorListeners.addErrorListener((text, error) -> {
+      assertTrue(error instanceof TimeViolationError);
+      assertEquals("test1", error.getMessage());
+      detector.incrementAndGet();
     });
 
     TimeGuard.addGuard("test1", 100L);
@@ -118,7 +111,7 @@ public class TimeGuardTest {
   
   @Test
   public void testGuard_OneLevel_DetectedAndNotDetected () throws Exception {
-    final List<String> detector = new ArrayList<String>();
+    final List<String> detector = new ArrayList<>();
     TimeGuard.addGuard("test1", 300L,new TimeGuard.TimeAlertListener() {
       private static final long serialVersionUID = 6599462085266065454L;
       @Override
@@ -166,7 +159,7 @@ public class TimeGuardTest {
   
   @Test
   public void testGuard_MultiLevel () throws Exception {
-    final List<String> detector = new ArrayList<String>();
+    final List<String> detector = new ArrayList<>();
     TimeGuard.addGuard("test1", 300L,new TimeGuard.TimeAlertListener() {
       private static final long serialVersionUID = 6599462085266065454L;
       @Override
@@ -264,8 +257,8 @@ public class TimeGuardTest {
     TimeGuard.addPoint("p3", testListener);
     ThreadUtils.silentSleep(100L);
     TimeGuard.checkPoints();
-    
-    assertTrue(counter.get()==timePoints.length);
+
+    assertEquals(counter.get(), timePoints.length);
   
     assertTrue(TimeGuard.isEmpty());
   }

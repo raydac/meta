@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 
@@ -43,12 +42,9 @@ public class IOUtilsTest {
   public void testCloseQuietly() {
     final AtomicInteger callCounter = new AtomicInteger();
     
-    final Closeable clb = new Closeable() {
-      @Override
-      public void close () throws IOException {
-        callCounter.incrementAndGet();
-        throw new NullPointerException("Some error!");
-      }
+    final Closeable clb = () -> {
+      callCounter.incrementAndGet();
+      throw new NullPointerException("Some error!");
     };
 
     IOUtils.closeQuietly(clb);
