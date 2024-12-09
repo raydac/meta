@@ -62,7 +62,7 @@ public class ThreadUtilsTest {
   @Warning("The test depends on its position in the class sources")
   public void testGetCurrentStackElement() {
     final StackTraceElement element = ThreadUtils.stackElement();
-    assertEquals(64, element.getLineNumber());
+    assertEquals(64, element.getLineNumber()); // error if previous line changed position
     assertEquals("testGetCurrentStackElement", element.getMethodName());
     assertEquals("com.igormaznitsa.meta.common.utils.ThreadUtilsTest", element.getClassName());
   }

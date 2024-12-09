@@ -16,6 +16,9 @@ It is a small general-purpose library includes:
 - __1.2.0 (SNAPSHOT)__
  - __minimal JDK 11__
  - __minimal Maven 3.8.1__
+ - removed vulnerable dependencies
+ - minor renaming of methods
+ - use of Joda Time replaced by Java API
  - updated dependencies
  - minor refactoring and typo fixing
 
