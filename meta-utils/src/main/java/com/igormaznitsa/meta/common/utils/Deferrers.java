@@ -15,25 +15,26 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
+import static com.igormaznitsa.meta.common.utils.Assertions.assertNotNull;
+
+import com.igormaznitsa.meta.annotation.MustNotContainNull;
+import com.igormaznitsa.meta.annotation.Warning;
 import com.igormaznitsa.meta.annotation.Weight;
 import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
-import static com.igormaznitsa.meta.common.utils.Assertions.assertNotNull;
+import com.igormaznitsa.meta.common.exceptions.UnexpectedProcessingError;
+import com.igormaznitsa.meta.common.interfaces.Disposable;
 import java.io.Closeable;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import com.igormaznitsa.meta.annotation.MustNotContainNull;
-import com.igormaznitsa.meta.common.interfaces.Disposable;
-import com.igormaznitsa.meta.annotation.Warning;
-import com.igormaznitsa.meta.common.exceptions.UnexpectedProcessingError;
-import java.io.Serializable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Auxiliary tool to defer some actions and process them in some point in future. it check stack depth and executes only locally (for the stack level) defer actions. <b>It works
+ * Auxiliary tool to defer some actions and process them in some point in the future. It checks stack depth and executes only locally (for the stack level) defer actions. <b>It works
  * through ThreadLocal so that actions saved separately for every thread.</b>
  *
  * @since 1.0
@@ -93,17 +94,13 @@ public final class Deferrers {
    * @since 1.0
    */
   @MustNotContainNull
-  private static final ThreadLocal<List<Deferred>> REGISTRY = new ThreadLocal<List<Deferred>>() {
-    @Override
-    protected List<Deferred> initialValue() {
-      return new ArrayList<Deferred>();
-    }
-  };
+  private static final ThreadLocal<List<Deferred>> REGISTRY =
+      ThreadLocal.withInitial(ArrayList::new);
 
   /**
    * Defer some action.
    *
-   * @param deferred action to be defer.
+   * @param deferred action to be deferred.
    * @return the same object from arguments
    * @since 1.0
    */
@@ -130,7 +127,7 @@ public final class Deferrers {
         private static final long serialVersionUID = 2265124256013043847L;
 
         @Override
-        public void executeDeferred() throws Exception {
+        public void executeDeferred() {
           try {
             closeable.getClass().getMethod("close").invoke(closeable);
           } catch (Exception thr) {
@@ -143,7 +140,7 @@ public final class Deferrers {
   }
 
   /**
-   * Defer closing of an closeable object.
+   * Defer closing of a closeable object.
    *
    * @param <T> type of closeable object
    * @param closeable an object implements java.io.Closeable
@@ -157,8 +154,8 @@ public final class Deferrers {
         private static final long serialVersionUID = 2265124256013043847L;
 
         @Override
-        public void executeDeferred() throws Exception {
-          IOUtils.closeQuetly(closeable);
+        public void executeDeferred() {
+          IOUtils.closeQuietly(closeable);
         }
       });
     }
@@ -180,7 +177,7 @@ public final class Deferrers {
       private final Runnable value = runnable;
 
       @Override
-      public void executeDeferred() throws Exception {
+      public void executeDeferred() {
         this.value.run();
       }
     });
@@ -203,7 +200,7 @@ public final class Deferrers {
       private final Disposable value = disposable;
 
       @Override
-      public void executeDeferred() throws Exception {
+      public void executeDeferred() {
         this.value.dispose();
       }
     });
@@ -232,14 +229,8 @@ public final class Deferrers {
     final int stackDepth = ThreadUtils.stackDepth();
 
     final List<Deferred> list = REGISTRY.get();
-    final Iterator<Deferred> iterator = list.iterator();
 
-    while (iterator.hasNext()) {
-      final Deferred deferred = iterator.next();
-      if (deferred.getStackDepth() >= stackDepth) {
-        iterator.remove();
-      }
-    }
+    list.removeIf(deferred -> deferred.getStackDepth() >= stackDepth);
     if (list.isEmpty()) {
       REGISTRY.remove();
     }

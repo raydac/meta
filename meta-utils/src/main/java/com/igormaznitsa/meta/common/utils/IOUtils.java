@@ -88,20 +88,20 @@ public final class IOUtils {
   }
 
   /**
-   * Closing quetly any closeable object. Any exception will be caught (but global error listeners will be notified)
+   * Closing quietly any closeable object. Any exception will be caught (but global error listeners will be notified)
    *
-   * @param closeable object to be closed quetly
+   * @param closeable object to be closed quietly
    * @return the same object provided in args
    * @since 1.0
    */
   @Weight(Weight.Unit.LIGHT)
   @Nullable
-  public static Closeable closeQuetly(@Nullable final Closeable closeable) {
+  public static Closeable closeQuietly(@Nullable final Closeable closeable) {
     if (closeable != null) {
       try {
         closeable.close();
       } catch (Exception ex) {
-        MetaErrorListeners.fireError("Exception in closeQuetly", ex);
+        MetaErrorListeners.fireError("Exception in closeQuietly", ex);
       }
     }
     return closeable;

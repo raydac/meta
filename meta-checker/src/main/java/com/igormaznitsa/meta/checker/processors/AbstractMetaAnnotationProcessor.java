@@ -16,15 +16,15 @@
 package com.igormaznitsa.meta.checker.processors;
 
 import com.igormaznitsa.meta.checker.Context;
-
+import com.igormaznitsa.meta.checker.Utils;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.ElementValue;
 import org.apache.bcel.classfile.ElementValuePair;
@@ -32,8 +32,6 @@ import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
-
-import com.igormaznitsa.meta.checker.Utils;
 
 public abstract class AbstractMetaAnnotationProcessor {
 
@@ -45,16 +43,13 @@ public abstract class AbstractMetaAnnotationProcessor {
     super();
     final Class<? extends Annotation> theKlazz = getAnnotationClass();
     this.ANNOTATION_TYPE = Utils.makeSignatureForClass(theKlazz);
-    for (final ElementType t : theKlazz.getAnnotation(Target.class).value()) {
-      ALLOWED_ELEMENTS.add(t);
-    }
+    Collections.addAll(ALLOWED_ELEMENTS, theKlazz.getAnnotation(Target.class).value());
 
     boolean hasAlertField = false;
     try {
       final java.lang.reflect.Method alert = theKlazz.getMethod("alert");
       hasAlertField = alert.getReturnType() == boolean.class;
-    }
-    catch (NoSuchMethodException ex) {
+    } catch (NoSuchMethodException ignored) {
     }
     catch (SecurityException ex) {
       throw new Error("Unexpected security error", ex);
@@ -110,10 +105,43 @@ public abstract class AbstractMetaAnnotationProcessor {
     }
   }
 
+  protected static String extractStrValue(final String field, final AnnotationEntry entry,
+                                          final String defaultValue) {
+    final ElementValue value = extractValue(field, entry);
+    return value == null ? defaultValue : value.stringifyValue();
+  }
+
+  protected static Map<String, ElementValue> parseValues(final AnnotationEntry entry) {
+    final Map<String, ElementValue> result = new HashMap<>();
+    for (final ElementValuePair p : entry.getElementValuePairs()) {
+      result.put(p.getNameString(), p.getValue());
+    }
+    return result;
+  }
+
+  protected static ElementValue extractValue(final String field, final AnnotationEntry entry) {
+    ElementValue result = null;
+    for (final ElementValuePair p : entry.getElementValuePairs()) {
+      if (field.equals(p.getNameString())) {
+        result = p.getValue();
+        break;
+      }
+    }
+    return result;
+  }
+
+  protected static String addSemicolonIfNeeded(final String text) {
+    return text == null ? null : text.isEmpty() ? text : " : " + text;
+  }
+
+  private void process(final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
+    doProcessing(context, clazz, type, pae, ae);
+  }
+
   private void processMethods(final Context context, final JavaClass clazz, final Method[] methods) {
     int methodIndex = 0;
     for (final Method m : methods) {
-      final int argNumner = m.getArgumentTypes().length;
+      final int argNumber = m.getArgumentTypes().length;
 
       if (isElementTypeAllowed(ElementType.METHOD)) {
         for (final AnnotationEntry ae : m.getAnnotationEntries()) {
@@ -126,7 +154,7 @@ public abstract class AbstractMetaAnnotationProcessor {
       if (isElementTypeAllowed(ElementType.PARAMETER)) {
         int paramIndex = 0;
         for (final ParameterAnnotationEntry pe : m.getParameterAnnotationEntries()) {
-          context.setProcessingItem(clazz, m, (paramIndex++) % argNumner);
+          context.setProcessingItem(clazz, m, (paramIndex++) % argNumber);
           for (final AnnotationEntry ae : pe.getAnnotationEntries()) {
             if (ANNOTATION_TYPE.equals(ae.getAnnotationType())) {
               process(context, clazz, ElementType.PARAMETER, pe, ae);
@@ -136,42 +164,6 @@ public abstract class AbstractMetaAnnotationProcessor {
       }
       methodIndex++;
     }
-  }
-
-  protected static String extractStrValue(final String field, final AnnotationEntry entry, final String dflt) {
-    final ElementValue value = extractValue(field, entry);
-    return value == null ? dflt : value.stringifyValue();
-  }
-
-//  protected static boolean extractBoolValue(final String field, final AnnotationEntry entry, final boolean dflt) {
-//    final SimpleElementValue value = (SimpleElementValue)extractValue(field, entry);
-//    return value == null ? dflt : value.getValueBoolean();
-//  }
-  protected static ElementValue extractValue(final String field, final AnnotationEntry entry) {
-    ElementValue result = null;
-    for (final ElementValuePair p : entry.getElementValuePairs()) {
-      if (field.equals(p.getNameString())) {
-        result = p.getValue();
-        break;
-      }
-    }
-    return result;
-  }
-
-  protected static Map<String, ElementValue> parseValues(final AnnotationEntry entry) {
-    final Map<String, ElementValue> result = new HashMap<String, ElementValue>();
-    for (final ElementValuePair p : entry.getElementValuePairs()) {
-      result.put(p.getNameString(), p.getValue());
-    }
-    return result;
-  }
-
-  private void process(final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
-    doProcessing(context, clazz, type, pae, ae);
-  }
-
-  protected static String addSemicolonIfNeeded(final String text) {
-    return text == null ? text : text.isEmpty() ? text : " : " + text;
   }
 
   protected abstract void doProcessing(Context context, JavaClass clazz, ElementType type, ParameterAnnotationEntry pae, AnnotationEntry ae);

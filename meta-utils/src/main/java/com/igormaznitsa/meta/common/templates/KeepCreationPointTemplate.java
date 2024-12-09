@@ -34,8 +34,10 @@ import javax.annotation.concurrent.ThreadSafe;
 public abstract class KeepCreationPointTemplate implements Serializable {
   
   private static final long serialVersionUID = 2779254573622012575L;
-  
-  private static final Map<KeepCreationPointTemplate,CallTrace> REGISTRY = Collections.synchronizedMap(new WeakHashMap<KeepCreationPointTemplate, CallTrace>());
+
+  private static final Map<KeepCreationPointTemplate, CallTrace> REGISTRY =
+      Collections.synchronizedMap(
+          new WeakHashMap<>());
 
   /**
    * The Constructor.

@@ -15,26 +15,35 @@
  */
 package com.igormaznitsa.meta.checker.jversion;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 public enum JavaVersion {
-  JDK11("1.1", 0x2D),
-  JDK12("1.2", 0x2E),
-  JDK13("1.3", 0x2F),
-  JDK14("1.4", 0x30),
-  JDK50("5.0", 0x31),
-  JDK60("6.0", 0x32),
-  JDK70("7.0", 0x33),
-  JDK80("8.0", 0x34),
-  JDK90("9.0", 0x35),
-  JDK100("10.0", 0x36),
-  JDK110("11.0", 0x37);
+  JDK1_1("1.1", 0x2D),
+  JDK1_2("1.2", 0x2E),
+  JDK1_3("1.3", 0x2F),
+  JDK1_4("1.4", 0x30),
+  JDK5_0("5.0", 0x31),
+  JDK6_0("6.0", 0x32),
+  JDK7_0("7.0", 0x33),
+  JDK8_0("8.0", 0x34),
+  JDK9_0("9.0", 0x35),
+  JDK10("10.0", 0x36),
+  JDK11("11.0", 0x37),
+  JDK12("12.0", 0x38),
+  JDK13("13.0", 0x39),
+  JDK14("14.0", 0x3A),
+  JDK15("15.0", 0x3B),
+  JDK16("16.0", 0x3C),
+  JDK17("17.0", 0x3D),
+  JDK18("18.0", 0x3E),
+  JDK19("19.0", 0x3F),
+  JDK20("20.0", 0x40),
+  JDK21("21.0", 0x41),
+  JDK22("22.0", 0x42),
+  JDK23("23.0", 0x43);
 
   private final String text;
   private final int value;
 
-  private JavaVersion(final String text, final int value) {
+  JavaVersion(final String text, final int value) {
     this.text = text;
     this.value = value;
   }
@@ -47,8 +56,7 @@ public enum JavaVersion {
     return this.text;
   }
 
-  @Nullable
-  public static JavaVersion decode(@Nonnull final String text) {
+  public static JavaVersion decode(final String text) {
     String trimmed = text.trim();
     if (trimmed.indexOf('.') < 0) {
       trimmed += ".0";
@@ -61,7 +69,6 @@ public enum JavaVersion {
     return null;
   }
 
-  @Nullable
   public static JavaVersion decode(final int major) {
     for (final JavaVersion v : values()) {
       if (major == v.getValue()) {

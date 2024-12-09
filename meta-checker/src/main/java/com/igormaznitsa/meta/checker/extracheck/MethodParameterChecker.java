@@ -17,13 +17,15 @@ package com.igormaznitsa.meta.checker.extracheck;
 
 import static com.igormaznitsa.meta.common.utils.Assertions.fail;
 
+import com.igormaznitsa.meta.annotation.MayContainNull;
+import com.igormaznitsa.meta.annotation.MustNotContainNull;
+import com.igormaznitsa.meta.checker.Context;
+import com.igormaznitsa.meta.checker.Utils;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
@@ -31,17 +33,12 @@ import org.apache.bcel.classfile.Method;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
 import org.apache.bcel.generic.Type;
 
-import com.igormaznitsa.meta.annotation.MayContainNull;
-import com.igormaznitsa.meta.annotation.MustNotContainNull;
-import com.igormaznitsa.meta.checker.Context;
-import com.igormaznitsa.meta.checker.Utils;
-
 public final class MethodParameterChecker {
 
   private static final Class<?>[] CLASSES_WHERE_POSSIBLE_NULL = new Class<?>[]{java.util.List.class, java.util.Vector.class, java.util.Queue.class};
 
-  private static final Set<String> CACHED_CLASS_NAMES_POSITIVE_RECOGNIZED = new HashSet<String>();
-  private static final Set<String> CACHED_CLASS_NAMES_NEGATIVE_RECOGNIZED = new HashSet<String>();
+  private static final Set<String> CACHED_CLASS_NAMES_POSITIVE_RECOGNIZED = new HashSet<>();
+  private static final Set<String> CACHED_CLASS_NAMES_NEGATIVE_RECOGNIZED = new HashSet<>();
 
   private static final Set<String> ANNOTATIONS_FOR_OBJECT = classesToNameSet(javax.annotation.Nullable.class, javax.annotation.Nonnull.class, "org.jetbrains.annotations.Nullable", "org.jetbrains.annotations.NotNull");
   private static final Set<String> ANNOTATIONS_FOR_ARRAY_OR_COLLECTION = classesToNameSet(MayContainNull.class, MustNotContainNull.class);
@@ -129,7 +126,7 @@ public final class MethodParameterChecker {
   }
 
   private static Set<String> classesToNameSet(final Object... klazzes) {
-    final Set<String> result = new HashSet<String>();
+    final Set<String> result = new HashSet<>();
     for (final Object k : klazzes) {
       if (k instanceof Class) {
         result.add(Utils.makeSignatureForClass((Class<?>) k));
@@ -144,7 +141,7 @@ public final class MethodParameterChecker {
 
   private static boolean isNullableType(final Type type) {
     final String signature = type.getSignature();
-    return signature.length() > 0 && (signature.charAt(0) == '[' || signature.charAt(0) == 'L');
+    return !signature.isEmpty() && (signature.charAt(0) == '[' || signature.charAt(0) == 'L');
   }
 
   private static boolean isArrayOfObjectsOrCollection(final Context context, final Type type) {
@@ -157,7 +154,7 @@ public final class MethodParameterChecker {
     }
 
     if (signature.endsWith(";")) {
-      if (arrayLastChar >= 0) {
+      if (arrayLastChar == 0) {
         return true;
       }
     } else {
@@ -203,14 +200,14 @@ public final class MethodParameterChecker {
       // it is possible that it is standard class
       final String normalClassName = klazzName.replace('$', '.');
       try {
-        final Class<?> klazz = Class.forName(normalClassName);
-        for (final Class<?> klazzWherePossibleNull : CLASSES_WHERE_POSSIBLE_NULL) {
-          if (klazzWherePossibleNull.isAssignableFrom(klazz)) {
+        final Class<?> foundClass = Class.forName(normalClassName);
+        for (final Class<?> classWhereNullPossible : CLASSES_WHERE_POSSIBLE_NULL) {
+          if (classWhereNullPossible.isAssignableFrom(foundClass)) {
             CACHED_CLASS_NAMES_POSITIVE_RECOGNIZED.add(classTypeInInsideFormat);
             return true;
           }
         }
-      } catch (ClassNotFoundException ex) {
+      } catch (ClassNotFoundException ignored) {
       }
     }
     CACHED_CLASS_NAMES_NEGATIVE_RECOGNIZED.add(classTypeInInsideFormat);

@@ -31,7 +31,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @Weight (Weight.Unit.NORMAL)
 public final class MetaErrorListeners {
 
-  private static final List<MetaErrorListener> ERROR_LISTENERS = new CopyOnWriteArrayList<MetaErrorListener>();
+  private static final List<MetaErrorListener> ERROR_LISTENERS = new CopyOnWriteArrayList<>();
 
   private MetaErrorListeners () {
   }

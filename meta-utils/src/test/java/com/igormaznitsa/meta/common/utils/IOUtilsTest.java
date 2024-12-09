@@ -15,11 +15,14 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class IOUtilsTest {
   
@@ -37,7 +40,7 @@ public class IOUtilsTest {
   }
 
   @Test
-  public void testCloseQuetly(){
+  public void testCloseQuietly() {
     final AtomicInteger callCounter = new AtomicInteger();
     
     final Closeable clb = new Closeable() {
@@ -47,8 +50,8 @@ public class IOUtilsTest {
         throw new NullPointerException("Some error!");
       }
     };
-    
-    IOUtils.closeQuetly(clb);
+
+    IOUtils.closeQuietly(clb);
     assertEquals(1,callCounter.get());
   }
   

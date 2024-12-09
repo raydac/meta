@@ -64,7 +64,7 @@ import java.util.regex.Pattern;
  *
  * <p>
  * <strong>Note:</strong> a pattern and a path must both be absolute or must
- * both be relative in order for the two to match. Therefore it is recommended
+ * both be relative in order for the two to match. Therefore, it is recommended
  * that users of this implementation to sanitize patterns in order to prefix
  * them with "/" as it makes sense in the context in which they're used.
  *
@@ -99,9 +99,8 @@ public class AntPathMatcher {
 
   private volatile Boolean cachePatterns;
 
-  private final Map<String, String[]> tokenizedPatternCache = new ConcurrentHashMap<String, String[]>(256);
-
-  final Map<String, AntPathStringMatcher> stringMatcherCache = new ConcurrentHashMap<String, AntPathStringMatcher>(256);
+  final Map<String, AntPathStringMatcher> stringMatcherCache = new ConcurrentHashMap<>(256);
+  private final Map<String, String[]> tokenizedPatternCache = new ConcurrentHashMap<>(256);
 
   /**
    * Create a new instance with the {@link #DEFAULT_PATH_SEPARATOR}.
@@ -331,20 +330,23 @@ public class AntPathMatcher {
     return true;
   }
 
-  private boolean isPotentialMatch(String path, String[] pattDirs) {
-    if (!this.trimTokens) {
-      int pos = 0;
-      for (String pattDir : pattDirs) {
-        int skipped = skipSeparator(path, pos, this.pathSeparator);
-        pos += skipped;
-        skipped = skipSegment(path, pos, pattDir);
-        if (skipped < pattDir.length()) {
-          return (skipped > 0 || (pattDir.length() > 0 && isWildcardChar(pattDir.charAt(0))));
-        }
-        pos += skipped;
+  private static String[] tokenizeToStringArray(String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
+    if (str == null) {
+      return new String[0];
+    }
+
+    StringTokenizer st = new StringTokenizer(str, delimiters);
+    List<String> tokens = new ArrayList<>();
+    while (st.hasMoreTokens()) {
+      String token = st.nextToken();
+      if (trimTokens) {
+        token = token.trim();
+      }
+      if (!ignoreEmptyTokens || !token.isEmpty()) {
+        tokens.add(token);
       }
     }
-    return true;
+    return toStringArray(tokens);
   }
 
   private int skipSegment(String path, int pos, String prefix) {
@@ -382,36 +384,20 @@ public class AntPathMatcher {
     return false;
   }
 
-  /**
-   * Tokenize the given path pattern into parts, based on this matcher's
-   * settings.
-   * <p>
-   * Performs caching based on {@link #setCachePatterns}, delegating to
-   * {@link #tokenizePath(String)} for the actual tokenization algorithm.
-   *
-   * @param pattern the pattern to tokenize
-   * @return the tokenized pattern parts
-   */
-  protected String[] tokenizePattern(String pattern) {
-    String[] tokenized = null;
-    Boolean cachePatterns = this.cachePatterns;
-    if (cachePatterns == null || cachePatterns.booleanValue()) {
-      tokenized = this.tokenizedPatternCache.get(pattern);
-    }
-    if (tokenized == null) {
-      tokenized = tokenizePath(pattern);
-      if (cachePatterns == null && this.tokenizedPatternCache.size() >= CACHE_TURNOFF_THRESHOLD) {
-        // Try to adapt to the runtime situation that we're encountering:
-        // There are obviously too many different patterns coming in here...
-        // So let's turn off the cache since the patterns are unlikely to be reoccurring.
-        deactivatePatternCache();
-        return tokenized;
-      }
-      if (cachePatterns == null || cachePatterns.booleanValue()) {
-        this.tokenizedPatternCache.put(pattern, tokenized);
+  private boolean isPotentialMatch(String path, String[] pattDirs) {
+    if (!this.trimTokens) {
+      int pos = 0;
+      for (String pattDir : pattDirs) {
+        int skipped = skipSeparator(path, pos, this.pathSeparator);
+        pos += skipped;
+        skipped = skipSegment(path, pos, pattDir);
+        if (skipped < pattDir.length()) {
+          return (skipped > 0 || (!pattDir.isEmpty() && isWildcardChar(pattDir.charAt(0))));
+        }
+        pos += skipped;
       }
     }
-    return tokenized;
+    return true;
   }
 
   /**
@@ -425,23 +411,36 @@ public class AntPathMatcher {
     return tokenizeToStringArray(path, this.pathSeparator, this.trimTokens, true);
   }
 
-  private static String[] tokenizeToStringArray(String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
-    if (str == null) {
-      return new String[0];
+  /**
+   * Tokenize the given path pattern into parts, based on this matcher's
+   * settings.
+   * <p>
+   * Performs caching based on {@link #setCachePatterns}, delegating to
+   * {@link #tokenizePath(String)} for the actual tokenization algorithm.
+   *
+   * @param pattern the pattern to tokenize
+   * @return the tokenized pattern parts
+   */
+  protected String[] tokenizePattern(String pattern) {
+    String[] tokenized = null;
+    Boolean cachePatterns = this.cachePatterns;
+    if (cachePatterns == null || cachePatterns) {
+      tokenized = this.tokenizedPatternCache.get(pattern);
     }
-
-    StringTokenizer st = new StringTokenizer(str, delimiters);
-    List<String> tokens = new ArrayList<String>();
-    while (st.hasMoreTokens()) {
-      String token = st.nextToken();
-      if (trimTokens) {
-        token = token.trim();
+    if (tokenized == null) {
+      tokenized = tokenizePath(pattern);
+      if (cachePatterns == null && this.tokenizedPatternCache.size() >= CACHE_TURNOFF_THRESHOLD) {
+        // Try to adapt to the runtime situation that we're encountering:
+        // There are obviously too many different patterns coming in here...
+        // So let's turn off the cache since the patterns are unlikely to be reoccurring.
+        deactivatePatternCache();
+        return tokenized;
       }
-      if (!ignoreEmptyTokens || token.length() > 0) {
-        tokens.add(token);
+      if (cachePatterns == null || cachePatterns) {
+        this.tokenizedPatternCache.put(pattern, tokenized);
       }
     }
-    return toStringArray(tokens);
+    return tokenized;
   }
 
   private static String[] toStringArray(Collection<String> collection) {
@@ -449,7 +448,7 @@ public class AntPathMatcher {
   }
 
   /**
-   * Test whether or not a string matches against a pattern.
+   * Test whether a string matches against a pattern.
    *
    * @param pattern the pattern to match against (never {@code null})
    * @param str the String which must be matched against the pattern (never
@@ -484,7 +483,7 @@ public class AntPathMatcher {
   protected AntPathStringMatcher getStringMatcher(String pattern) {
     AntPathStringMatcher matcher = null;
     Boolean cachePatterns = this.cachePatterns;
-    if (cachePatterns == null || cachePatterns.booleanValue()) {
+    if (cachePatterns == null || cachePatterns) {
       matcher = this.stringMatcherCache.get(pattern);
     }
     if (matcher == null) {
@@ -496,7 +495,7 @@ public class AntPathMatcher {
         deactivatePatternCache();
         return matcher;
       }
-      if (cachePatterns == null || cachePatterns.booleanValue()) {
+      if (cachePatterns == null || cachePatterns) {
         this.stringMatcherCache.put(pattern, matcher);
       }
     }
@@ -550,7 +549,7 @@ public class AntPathMatcher {
   }
 
   public Map<String, String> extractUriTemplateVariables(String pattern, String path) {
-    Map<String, String> variables = new LinkedHashMap<String, String>();
+    Map<String, String> variables = new LinkedHashMap<>();
     boolean result = doMatch(pattern, path, true, variables);
     if (!result) {
       throw new IllegalStateException("Pattern \"" + pattern + "\" is not a match for \"" + path + "\"");
@@ -691,7 +690,7 @@ public class AntPathMatcher {
   }
 
   /**
-   * Tests whether or not a string matches against a pattern via a
+   * Tests whether a string matches against a pattern via a
    * {@link Pattern}.
    * <p>
    * The pattern may contain special characters: '*' means zero or more
@@ -706,7 +705,7 @@ public class AntPathMatcher {
 
     private final Pattern pattern;
 
-    private final List<String> variableNames = new LinkedList<String>();
+    private final List<String> variableNames = new LinkedList<>();
 
     public AntPathStringMatcher(String pattern) {
       this(pattern, true);

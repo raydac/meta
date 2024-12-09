@@ -15,9 +15,6 @@
  */
 package com.igormaznitsa.meta.checker.jversion;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.igormaznitsa.meta.checker.jversion.comparators.AbstractCompareLongAction;
 import com.igormaznitsa.meta.checker.jversion.comparators.ComparatorLongEQU;
 import com.igormaznitsa.meta.checker.jversion.comparators.ComparatorLongEQUGT;
@@ -26,8 +23,8 @@ import com.igormaznitsa.meta.checker.jversion.comparators.ComparatorLongGT;
 import com.igormaznitsa.meta.checker.jversion.comparators.ComparatorLongLESS;
 
 public enum LongComparator {
-  LESSEQU("<=", new ComparatorLongEQULESS()),
-  GTEQU(">=", new ComparatorLongEQUGT()),
+  LESS_EQU("<=", new ComparatorLongEQULESS()),
+  GT_EQU(">=", new ComparatorLongEQUGT()),
   EQU("=", new ComparatorLongEQU()),
   LESS("<", new ComparatorLongLESS()),
   GT(">", new ComparatorLongGT());
@@ -35,7 +32,7 @@ public enum LongComparator {
   private final String text;
   private final AbstractCompareLongAction action;
 
-  private LongComparator(final String text, final AbstractCompareLongAction action) {
+  LongComparator(final String text, final AbstractCompareLongAction action) {
     this.text = text;
     this.action = action;
   }
@@ -48,9 +45,11 @@ public enum LongComparator {
     return this.action.compare(value1, value2);
   }
 
-  @Nullable
-  public static LongComparator find(@Nonnull final String text) {
-    final String trimmed = text;
+  public static LongComparator find(final String text) {
+    if (text == null) {
+      return null;
+    }
+    final String trimmed = text.trim();
     for (final LongComparator op : values()) {
       if (trimmed.startsWith(op.text)) {
         return op;

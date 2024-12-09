@@ -15,11 +15,11 @@
  */
 package com.igormaznitsa.meta.checker;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-
 import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.FieldOrMethod;
 import org.apache.bcel.classfile.JavaClass;
@@ -29,22 +29,9 @@ import org.apache.bcel.classfile.LocalVariableTable;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.classfile.Utility;
 import org.apache.bcel.generic.Type;
-import org.joda.time.Duration;
-import org.joda.time.Period;
-import org.joda.time.PeriodType;
-import org.joda.time.format.PeriodFormatter;
-import org.joda.time.format.PeriodFormatterBuilder;
 
 public abstract class Utils {
 
-  private static final PeriodFormatter TIME_FORMATTER = new PeriodFormatterBuilder()
-      .printZeroAlways()
-      .minimumPrintedDigits(2)
-      .appendHours().appendSeparator(":")
-      .appendMinutes().appendSeparator(":")
-      .appendSeconds().appendSeparator(".")
-      .minimumPrintedDigits(3)
-      .appendMillis().toFormatter();
 
   public static String extractClassName(final String className) {
     if (className == null) {
@@ -57,10 +44,13 @@ public abstract class Utils {
   private Utils() {
   }
 
-  public static String printTimeDelay(final long timeInMilliseconds) {
-    final Duration duration = new Duration(timeInMilliseconds);
-    final Period period = duration.toPeriod().normalizedStandard(PeriodType.time());
-    return TIME_FORMATTER.print(period);
+  public static String printTimeDelay(final Duration duration) {
+    long hours = duration.toHours();
+    long minutes = duration.toMinutes() % 60;
+    long seconds = duration.getSeconds() % 60;
+    long millis = duration.toMillis() % 1000;
+
+    return String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, millis);
   }
 
   public static String extractShortNameOfClass(final String canonicalClassName) {
@@ -89,11 +79,7 @@ public abstract class Utils {
   }
 
   public static String makeStr(final int len, final char ch) {
-    final StringBuilder result = new StringBuilder(len);
-    for (int i = 0; i < len; i++) {
-      result.append(ch);
-    }
-    return result.toString();
+    return String.valueOf(ch).repeat(Math.max(0, len));
   }
 
   public static String normalizeClassNameAndRemoveSubclassName(final String canonicalClassName) {
@@ -134,7 +120,7 @@ public abstract class Utils {
           type += ' ';
         }
 
-        final String args[] = Utility.methodSignatureArgumentTypes(method.getSignature());
+        final String[] args = Utility.methodSignatureArgumentTypes(method.getSignature());
         final LocalVariableTable locVars = method.getLocalVariableTable();
 
         result.append(type).append(name).append('(');
@@ -163,7 +149,7 @@ public abstract class Utils {
 
   public static int findLineNumber(final FieldOrMethod fieldOrMethod) {
     int result = -1;
-    if (fieldOrMethod != null && fieldOrMethod instanceof Method) {
+    if (fieldOrMethod instanceof Method) {
       final Method method = (Method) fieldOrMethod;
       final LineNumberTable lineTable = method.getLineNumberTable();
       if (lineTable != null && lineTable.getTableLength() > 0) {
@@ -177,16 +163,16 @@ public abstract class Utils {
   }
 
   public static List<String> splitToLines(final String str) {
-    if (str == null || str.length() == 0) {
-      return Collections.<String>emptyList();
+    if (str == null || str.isEmpty()) {
+      return Collections.emptyList();
     }
 
-    final String[] strarray = str.split("\\n");
-    for (int i = 0; i < strarray.length; i++) {
-      strarray[i] = strarray[i].replace("\t", "    ");
+    final String[] splitArray = str.split("\\n");
+    for (int i = 0; i < splitArray.length; i++) {
+      splitArray[i] = splitArray[i].replace("\t", "    ");
     }
 
-    return Arrays.asList(strarray);
+    return Arrays.asList(splitArray);
   }
 
   public static String escapeRegexToWildCat(final String text) {

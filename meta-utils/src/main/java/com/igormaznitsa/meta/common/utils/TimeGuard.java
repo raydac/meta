@@ -15,21 +15,22 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
+import static com.igormaznitsa.meta.common.utils.Assertions.assertNotNull;
+
+import com.igormaznitsa.meta.annotation.Constraint;
+import com.igormaznitsa.meta.annotation.MustNotContainNull;
+import com.igormaznitsa.meta.annotation.Weight;
+import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
+import com.igormaznitsa.meta.common.exceptions.TimeViolationError;
+import com.igormaznitsa.meta.common.exceptions.UnexpectedProcessingError;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import com.igormaznitsa.meta.annotation.MustNotContainNull;
-import com.igormaznitsa.meta.common.exceptions.UnexpectedProcessingError;
-import com.igormaznitsa.meta.annotation.Weight;
-import com.igormaznitsa.meta.common.exceptions.TimeViolationError;
-import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
-import com.igormaznitsa.meta.annotation.Constraint;
-import static com.igormaznitsa.meta.common.utils.Assertions.assertNotNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Allows to detect violations of execution time for code blocks or just measure time for them. It works separately for every Thread through ThreadLocal and check stack depth to be
@@ -207,12 +208,8 @@ public final class TimeGuard {
    * @since 1.0
    */
   @MustNotContainNull
-  private static final ThreadLocal<List<TimeData>> REGISTRY = new ThreadLocal<List<TimeData>>() {
-    @Override
-    protected List<TimeData> initialValue() {
-      return new ArrayList<TimeData>();
-    }
-  };
+  private static final ThreadLocal<List<TimeData>> REGISTRY =
+      ThreadLocal.withInitial(ArrayList::new);
 
   /**
    * Add a time watcher. As target of notification meta error listeners will be used.
@@ -266,7 +263,7 @@ public final class TimeGuard {
       final TimeData timeWatchItem = iterator.next();
 
       if (timeWatchItem.isTimePoint() && timeWatchItem.getDetectedStackDepth() >= stackDepth && timePointName.equals(timeWatchItem.getAlertMessage())) {
-        detected |= true;
+        detected = true;
         final long detectedDelay = time - timeWatchItem.getCreationTimeInMilliseconds();
         try {
           timeWatchItem.getAlertListener().onTimeAlert(detectedDelay, timeWatchItem);
@@ -284,7 +281,7 @@ public final class TimeGuard {
   }
 
   /**
-   * Process all time points for the current stack level.
+   * Process all-time points for the current stack level.
    *
    * @since 1.0
    */
@@ -360,14 +357,8 @@ public final class TimeGuard {
     final int stackDepth = ThreadUtils.stackDepth();
 
     final List<TimeData> list = REGISTRY.get();
-    final Iterator<TimeData> iterator = list.iterator();
 
-    while (iterator.hasNext()) {
-      final TimeData timeWatchItem = iterator.next();
-      if (timeWatchItem.getDetectedStackDepth() >= stackDepth) {
-        iterator.remove();
-      }
-    }
+    list.removeIf(timeWatchItem -> timeWatchItem.getDetectedStackDepth() >= stackDepth);
     if (list.isEmpty()) {
       REGISTRY.remove();
     }

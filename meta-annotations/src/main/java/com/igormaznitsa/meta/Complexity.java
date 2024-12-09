@@ -176,7 +176,7 @@ public enum Complexity {
 
   private final String formula;
 
-  private Complexity(@Nonnull final String formula) {
+  Complexity(@Nonnull final String formula) {
     this.formula = formula;
   }
 

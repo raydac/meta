@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.checker;
 
 import com.igormaznitsa.meta.checker.jversion.JavaVersion;
@@ -52,10 +53,10 @@ import org.springframework.util.AntPathMatcher;
 public class JarCheckerMojo extends AbstractMojo {
 
   /**
-   * Restrict compiled class format version. Also
+   * Restrict compiled class format version. Also,
    * '=','&lt;=','&gt;=','&lt;','&gt;' can be used. Java version can be
    * '1.1','1.2','1.3','1.4','5','6','7','8','5.0','6.0','7.0','8.0','9.0','10.0','11.0'.
-   *
+   * <p>
    * <code>
    * &lt;restrictClassFormat&gt;&lt;![CDATA[&lt;8]]&gt;&lt;/restrictClassFormat&gt;
    * </code>
@@ -77,38 +78,38 @@ public class JarCheckerMojo extends AbstractMojo {
    * List of ANT path patterns for files to be excluded.
    */
   @Parameter(name = "exclude")
-  private List<String> exclude = new ArrayList<String>();
+  private List<String> exclude = new ArrayList<>();
 
   /**
    * List of ANT path patterns for files to be included.
    */
   @Parameter(name = "include")
-  private List<String> include = new ArrayList<String>();
+  private List<String> include = new ArrayList<>();
 
   /**
    * ANT path patterns to detect resources which must be presented in archive.
    */
   @Parameter(name = "expected")
-  private List<String> expected = new ArrayList<String>();
+  private List<String> expected = new ArrayList<>();
 
   /**
    * ANT path patterns to detect resources which must NOT be presented in
    * archive.
    */
   @Parameter(name = "unexpected")
-  private List<String> unexpected = new ArrayList<String>();
+  private List<String> unexpected = new ArrayList<>();
 
   /**
    * Expected keys in manifest.
    */
   @Parameter(name = "manifestHas")
-  private List<String> manifestHas = new ArrayList<String>();
+  private List<String> manifestHas = new ArrayList<>();
 
   /**
    * Unexpected keys in manifest.
    */
   @Parameter(name = "manifestHasNot")
-  private List<String> manifestHasNot = new ArrayList<String>();
+  private List<String> manifestHasNot = new ArrayList<>();
 
   public String getRestrictClassFormat() {
     return this.restrictClassFormat;
@@ -160,203 +161,210 @@ public class JarCheckerMojo extends AbstractMojo {
       log.info("Check archive: " + archiveFile);
     }
 
-    final JarFile jarFile;
-    try {
-      jarFile = new JarFile(archiveFile);
-    } catch (IOException ex) {
-      throw new MojoExecutionException("Can't open archive file: " + archiveFile, ex);
-    }
+    try (final JarFile jarFile = new JarFile(archiveFile)) {
+      final AtomicInteger classCounter = new AtomicInteger();
 
-    final AtomicInteger classCounter = new AtomicInteger();
+      LongComparator javaVersionComparator;
+      final JavaVersion javaVersion;
 
-    LongComparator javaVersionComparator;
-    final JavaVersion javaVersion;
+      if (this.restrictClassFormat != null) {
 
-    if (this.restrictClassFormat != null) {
+        String javaClassVersion = this.restrictClassFormat.trim();
 
-      String javaClassVersion = this.restrictClassFormat.trim();
+        if (javaClassVersion.isEmpty()) {
+          throw new IllegalArgumentException("Detected empty value for 'restrictClassFormat'");
+        }
 
-      if (javaClassVersion.isEmpty()) {
-        throw new IllegalArgumentException("Detected empty value for 'restrictClassFormat'");
-      }
+        javaVersionComparator = LongComparator.find(javaClassVersion);
 
-      javaVersionComparator = LongComparator.find(javaClassVersion);
-
-      final int versionOffset;
-      if (javaVersionComparator == null) {
-        if (Character.isDigit(javaClassVersion.charAt(0))) {
+        final int versionOffset;
+        if (javaVersionComparator == null) {
           javaVersionComparator = LongComparator.EQU;
-        }
-        versionOffset = 0;
-      } else {
-        versionOffset = javaVersionComparator.getText().length();
-      }
-      javaClassVersion = javaClassVersion.substring(versionOffset).trim();
-
-      javaVersion = JavaVersion.decode(javaClassVersion);
-      if (javaVersion == null) {
-        throw new IllegalArgumentException("Illegal java version in 'restrictClassFormat': " + javaClassVersion);
-      }
-
-      log.info("Class version restriction: " + javaVersionComparator.getText() + ' ' + javaVersion.getText());
-
-    } else {
-      javaVersionComparator = null;
-      javaVersion = null;
-    }
-
-    final LongComparator finalJavaVersionComparator = javaVersionComparator;
-    final AtomicInteger errorCounter = new AtomicInteger();
-    final int MAX_SHOWN_ERRORS = 48;
-
-    if (!this.manifestHas.isEmpty() || !this.manifestHasNot.isEmpty()) {
-      try {
-        final Manifest manifest = jarFile.getManifest();
-
-        if (manifest == null) {
-          log.error("Java can't find MANIFEST.MF in the archive");
-          errorCounter.incrementAndGet();
+          versionOffset = 0;
         } else {
+          versionOffset = javaVersionComparator.getText().length();
+        }
+        javaClassVersion = javaClassVersion.substring(versionOffset).trim();
 
-          log.debug("Detected manifest entries: " + manifest.getEntries().keySet());
-          log.debug("Detected manifest main attributes: " + manifest.getMainAttributes().keySet());
+        javaVersion = JavaVersion.decode(javaClassVersion);
+        if (javaVersion == null) {
+          throw new IllegalArgumentException(
+              "Illegal java version in 'restrictClassFormat': " + javaClassVersion);
+        }
 
-          for (final String key : this.manifestHas) {
-            final Attributes.Name keyName = new Attributes.Name(key);
-            if (manifest.getAttributes(key) == null && !manifest.getMainAttributes().containsKey(keyName)) {
-              log.error("Can't find key '" + key + "' in MANIFEST.MF");
-              errorCounter.incrementAndGet();
+        log.info("Class version restriction: " + javaVersionComparator.getText() + ' ' +
+            javaVersion.getText());
+
+      } else {
+        javaVersionComparator = null;
+        javaVersion = null;
+      }
+
+      final LongComparator finalJavaVersionComparator = javaVersionComparator;
+      final AtomicInteger errorCounter = new AtomicInteger();
+      final int MAX_SHOWN_ERRORS = 48;
+
+      if (!this.manifestHas.isEmpty() || !this.manifestHasNot.isEmpty()) {
+        try {
+          final Manifest manifest = jarFile.getManifest();
+
+          if (manifest == null) {
+            log.error("Java can't find MANIFEST.MF in the archive");
+            errorCounter.incrementAndGet();
+          } else {
+
+            log.debug("Detected manifest entries: " + manifest.getEntries().keySet());
+            log.debug(
+                "Detected manifest main attributes: " + manifest.getMainAttributes().keySet());
+
+            for (final String key : this.manifestHas) {
+              final Attributes.Name keyName = new Attributes.Name(key);
+              if (manifest.getAttributes(key) == null &&
+                  !manifest.getMainAttributes().containsKey(keyName)) {
+                log.error("Can't find key '" + key + "' in MANIFEST.MF");
+                errorCounter.incrementAndGet();
+              }
+            }
+
+            for (final String key : this.manifestHasNot) {
+              final Attributes.Name keyName = new Attributes.Name(key);
+              if (manifest.getAttributes(key) != null ||
+                  manifest.getMainAttributes().containsKey(keyName)) {
+                log.error("Detected key '" + key + "' in MANIFEST.MF");
+                errorCounter.incrementAndGet();
+              }
             }
           }
+        } catch (IOException ex) {
+          log.error("Can't read manifest file from the archive", ex);
+          errorCounter.incrementAndGet();
+        }
+      }
 
-          for (final String key : this.manifestHasNot) {
-            final Attributes.Name keyName = new Attributes.Name(key);
-            if (manifest.getAttributes(key) != null || manifest.getMainAttributes().containsKey(keyName)) {
-              log.error("Detected key '" + key + "' in MANIFEST.MF");
+      final ClassVisitor classVisitor = new ClassVisitor(Opcodes.ASM9) {
+        @Override
+        public void visit(final int version, final int access, final String name,
+                          final String signature, final String superName,
+                          final String[] interfaces) {
+          if (finalJavaVersionComparator != null) {
+            if (!finalJavaVersionComparator.compare(version & 0xFFFF, javaVersion.getValue())) {
+              final int errorNum = errorCounter.getAndIncrement();
+              if (errorNum < MAX_SHOWN_ERRORS) {
+                final JavaVersion classVersion = JavaVersion.decode(version & 0xFFFF);
+                log.error("Detected illegal class version " +
+                    (classVersion == null ? "UNKNOWN" : classVersion.getText()) + " : " + name);
+              } else if (errorNum == MAX_SHOWN_ERRORS) {
+                log.error("...");
+              }
+            }
+          }
+        }
+      };
+
+      final AntPathMatcher antPathMatcher = new AntPathMatcher();
+
+      final Enumeration<JarEntry> entries = jarFile.entries();
+
+      final List<String> resourcesExpected = new ArrayList<>(this.expected);
+      final List<String> resourcesUnexpected = new ArrayList<>(this.unexpected);
+      final List<String> detectedUnexpectedPattern = new ArrayList<>();
+
+      while (entries.hasMoreElements() && !Thread.currentThread().isInterrupted()) {
+        final JarEntry entry = entries.nextElement();
+
+        final String path = entry.getName();
+
+        if (!resourcesExpected.isEmpty()) {
+          final Iterator<String> iter = resourcesExpected.iterator();
+          while (iter.hasNext()) {
+            final String pattern = iter.next();
+            if (antPathMatcher.match(pattern, path)) {
+              log.info("Contains " + path + " (pattern: " + pattern + ")");
+              iter.remove();
+            }
+          }
+        }
+
+        if (!resourcesUnexpected.isEmpty()) {
+          final Iterator<String> iter = resourcesUnexpected.iterator();
+          while (iter.hasNext()) {
+            final String pattern = iter.next();
+            if (antPathMatcher.match(pattern, path)) {
+              detectedUnexpectedPattern.add(pattern);
+              log.error("Detected unexpected " + path + " (pattern: " + pattern + ")");
+              iter.remove();
               errorCounter.incrementAndGet();
             }
           }
         }
-      } catch (IOException ex) {
-        log.error("Can't read manifest file from the archive", ex);
-        errorCounter.incrementAndGet();
-      }
-    }
 
-    final ClassVisitor classVisitor = new ClassVisitor(Opcodes.ASM7) {
-      @Override
-      public void visit(final int version, final int access, final String name, final String signature, final String superName, final String[] interfaces) {
-        if (finalJavaVersionComparator != null) {
-          if (!finalJavaVersionComparator.compare(version & 0xFFFF, javaVersion.getValue())) {
-            final int errorNum = errorCounter.getAndIncrement();
-            if (errorNum < MAX_SHOWN_ERRORS) {
-              final JavaVersion classVersion = JavaVersion.decode(version & 0xFFFF);
-              log.error("Detected illegal class version " + (classVersion == null ? "UNKNOWN" : classVersion.getText()) + " : " + name);
-            } else if (errorNum == MAX_SHOWN_ERRORS) {
-              log.error("...");
+        boolean process = true;
+
+        if (!this.include.isEmpty()) {
+          process = false;
+          for (final String s : this.include) {
+            if (antPathMatcher.match(s, path)) {
+              log.debug(path + " included by pattern " + s);
+              process = true;
+              break;
             }
           }
         }
+
+        if (process) {
+          for (final String s : this.exclude) {
+            if (antPathMatcher.match(s, path)) {
+              log.debug(path + " excluded by pattern " + s);
+              process = false;
+              break;
+            }
+          }
+        }
+
+        if (!process || entry.isDirectory() ||
+            !entry.getName().toLowerCase(Locale.ENGLISH).endsWith(".class")) {
+          continue;
+        }
+
+        classCounter.incrementAndGet();
+
+        try {
+          new ClassReader(
+              IOUtils.readFully(jarFile.getInputStream(entry), (int) entry.getSize())).accept(
+              classVisitor,
+              ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+        } catch (IOException ex) {
+          throw new MojoExecutionException("Can't parse JAR item: " + entry.getName(), ex);
+        }
       }
-    };
 
-    final AntPathMatcher antPathMatcher = new AntPathMatcher();
-
-    final Enumeration<JarEntry> entries = jarFile.entries();
-
-    final List<String> resourcesExpected = new ArrayList<String>(this.expected);
-    final List<String> resourcesUnexpected = new ArrayList<String>(this.unexpected);
-    final List<String> detectedUnexpectedPattern = new ArrayList<String>();
-
-    while (entries.hasMoreElements() && !Thread.currentThread().isInterrupted()) {
-      final JarEntry entry = entries.nextElement();
-
-      final String path = entry.getName();
+      if (Thread.currentThread().isInterrupted()) {
+        log.warn("Interrupted...");
+        return;
+      }
 
       if (!resourcesExpected.isEmpty()) {
-        final Iterator<String> iter = resourcesExpected.iterator();
-        while (iter.hasNext()) {
-          final String pattern = iter.next();
-          if (antPathMatcher.match(pattern, path)) {
-            log.info("Contains " + path + " (pattern: " + pattern + ")");
-            iter.remove();
-          }
+        for (final String s : resourcesExpected) {
+          log.error("Can't find resource for pattern: " + s);
+          errorCounter.incrementAndGet();
         }
       }
 
-      if (!resourcesUnexpected.isEmpty()) {
-        final Iterator<String> iter = resourcesUnexpected.iterator();
-        while (iter.hasNext()) {
-          final String pattern = iter.next();
-          if (antPathMatcher.match(pattern, path)) {
-            detectedUnexpectedPattern.add(pattern);
-            log.error("Detected unexpected " + path + " (pattern: " + pattern + ")");
-            iter.remove();
-            errorCounter.incrementAndGet();
-          }
+      if (!detectedUnexpectedPattern.isEmpty()) {
+        for (final String s : detectedUnexpectedPattern) {
+          log.error("Detected unexpected resource for pattern: " + s);
         }
       }
 
-      boolean process = true;
+      log.info("Processed " + classCounter.get() + " class(es)");
 
-      if (!this.include.isEmpty()) {
-        process = false;
-        for (final String s : this.include) {
-          if (antPathMatcher.match(s, path)) {
-            log.debug(path + " included by pattern " + s);
-            process = true;
-            break;
-          }
-        }
+      if (errorCounter.get() != 0) {
+        throw new MojoFailureException("Detected " + errorCounter.get() + " error(s)");
       }
-
-      if (process) {
-        for (final String s : this.exclude) {
-          if (antPathMatcher.match(s, path)) {
-            log.debug(path + " excluded by pattern " + s);
-            process = false;
-            break;
-          }
-        }
-      }
-
-      if (!process || entry.isDirectory() || !entry.getName().toLowerCase(Locale.ENGLISH).endsWith(".class")) {
-        continue;
-      }
-
-      classCounter.incrementAndGet();
-
-      try {
-        new ClassReader(IOUtils.readFully(jarFile.getInputStream(entry), (int) entry.getSize())).accept(classVisitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
-      } catch (IOException ex) {
-        throw new MojoExecutionException("Can't parse JAR item: " + entry.getName(), ex);
-      }
+    } catch (IOException ex) {
+      throw new MojoExecutionException("IO Error during archive file processing: " + archiveFile,
+          ex);
     }
-
-    if (Thread.currentThread().isInterrupted()) {
-      log.warn("Interrupted...");
-      return;
-    }
-
-    if (!resourcesExpected.isEmpty()) {
-      for (final String s : resourcesExpected) {
-        log.error("Can't find resource for pattern: " + s);
-        errorCounter.incrementAndGet();
-      }
-    }
-
-    if (!detectedUnexpectedPattern.isEmpty()) {
-      for (final String s : detectedUnexpectedPattern) {
-        log.error("Detected unexpected resource for pattern: " + s);
-      }
-    }
-
-    log.info("Processed " + classCounter.get() + " class(es)");
-
-    if (errorCounter.get() != 0) {
-      throw new MojoFailureException("Detected " + errorCounter.get() + " error(s)");
-    }
-
   }
 
 }

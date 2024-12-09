@@ -15,20 +15,16 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
+import com.igormaznitsa.meta.annotation.MayContainNull;
 import com.igormaznitsa.meta.annotation.Weight;
-
-import java.util.Collection;
-
 import com.igormaznitsa.meta.common.exceptions.AlreadyDisposedError;
-import com.igormaznitsa.meta.common.interfaces.Disposable;
+import com.igormaznitsa.meta.common.exceptions.InvalidObjectError;
 import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
-
+import com.igormaznitsa.meta.common.interfaces.Disposable;
+import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
-
-import com.igormaznitsa.meta.annotation.MayContainNull;
-import com.igormaznitsa.meta.common.exceptions.InvalidObjectError;
 
 /**
  * Set of auxiliary methods for assertion.
@@ -50,10 +46,11 @@ public final class Assertions {
    * @throws AssertionError will be thrown
    * @since 1.0
    */
+  @SuppressWarnings("ConstantValue")
   @Nonnull
   public static Error fail(@Nullable final String message) {
     final AssertionError error = new AssertionError(GetUtils.ensureNonNull(message, "failed"));
-    MetaErrorListeners.fireError("Asserion error", error);
+    MetaErrorListeners.fireError("Assertion error", error);
     if (true) {
       throw error;
     }
@@ -84,6 +81,7 @@ public final class Assertions {
    * @throws AssertionError it will be thrown if the value is not null
    * @since 1.1.0
    */
+  @SuppressWarnings("SameReturnValue")
   public static <T> T assertNull(@Nullable final String failMessage, @Nullable final T object) {
     if (object != null) {
       final String txt = failMessage == null ? "Object must be NULL" : failMessage;
@@ -91,7 +89,7 @@ public final class Assertions {
       MetaErrorListeners.fireError(txt, error);
       throw error;
     }
-    return object;
+    return null;
   }
 
   /**
@@ -236,7 +234,7 @@ public final class Assertions {
   public static <T extends Disposable> T assertNotDisposed(@Nonnull final T disposable) {
     if (disposable.isDisposed()) {
       final AlreadyDisposedError error = new AlreadyDisposedError("Object already disposed");
-      MetaErrorListeners.fireError("Asserion error", error);
+      MetaErrorListeners.fireError("Assertion error", error);
       throw error;
     }
     return disposable;
@@ -252,12 +250,13 @@ public final class Assertions {
    * @throws AssertionError if object is not found among defined ones
    * @since 1.0.2
    */
+  @SafeVarargs
   @Nullable
   public static <T> T assertAmong(@Nullable T obj, @MayContainNull @Nonnull final T... list) {
     if (obj == null) {
       for (final T i : assertNotNull(list)) {
         if (i == null) {
-          return i;
+          return null;
         }
       }
     } else {
@@ -269,7 +268,7 @@ public final class Assertions {
       }
     }
     final AssertionError error = new AssertionError("Object is not found among elements");
-    MetaErrorListeners.fireError("Asserion error", error);
+    MetaErrorListeners.fireError("Assertion error", error);
     throw error;
   }
 

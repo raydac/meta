@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Allows mark method result if the method returns link to the original object and you want notify a method user that it should be changed carefully.
+ * Allows mark method result if the method returns link to the original object, and you want notify a method user that it should be changed carefully.
  * @since 1.0
  */
 @Documented

@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 
 /**
  * Allows to define computational weight of an entity, in fuzzy human-subjective relative units.
- * Also it can mark interface methods as their desired weight. For instance it makes easier to understand should implementation process something in the same thread or in another thread.
+ * Also, it can mark interface methods as their desired weight. For instance, it makes easier to understand should implementation process something in the same thread or in another thread.
  * @since 1.0
  */
 @Documented
@@ -46,7 +46,7 @@ public @interface Weight {
      */
     VARIABLE,
     /**
-     * Very very extra light.
+     * Very, very extra light.
      * @since 1.0
      */
     FLUFF,

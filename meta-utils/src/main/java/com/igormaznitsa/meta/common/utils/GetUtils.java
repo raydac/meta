@@ -18,13 +18,11 @@ package com.igormaznitsa.meta.common.utils;
 import static com.igormaznitsa.meta.common.utils.Assertions.assertFalse;
 import static com.igormaznitsa.meta.common.utils.Assertions.assertNotNull;
 
+import com.igormaznitsa.meta.annotation.Constraint;
 import com.igormaznitsa.meta.annotation.Weight;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
-
-import com.igormaznitsa.meta.annotation.Constraint;
 
 /**
  * Auxiliary methods to get values.
@@ -72,11 +70,12 @@ public final class GetUtils {
    *
    * @param <T> type of value
    * @param objects array to find value
-   * @throws AssertionError if the array is null or it doesn't contain a
+   * @throws AssertionError if the array is null, or it doesn't contain a
    * non-null value
    * @return the first non-null value from the array
    * @since 1.0
    */
+  @SafeVarargs
   @Nonnull
   public static <T> T findFirstNonNull (@Nonnull final T... objects) {
     for (final T obj : ensureNonNull(objects)) {
@@ -90,16 +89,19 @@ public final class GetUtils {
   /**
    * Get non-null non-empty string.
    * @param value a base string
-   * @param dflt default string to be provided if value is null or empty
+   * @param defaultValue default string to be provided if value is null or empty
    * @return non-nullable non-empty string
    * @since 1.1.1
    */
   @Nonnull
-  public static String ensureNonNullAndNonEmpty(@Nullable final String value, @Nonnull @Constraint("notEmpty(X)") final String dflt) {
+  public static String ensureNonNullAndNonEmpty(@Nullable final String value,
+                                                @Nonnull @Constraint("notEmpty(X)")
+                                                final String defaultValue) {
     String result = value;
     if (result == null || result.isEmpty()) {
-      assertFalse("Default value must not be empty",assertNotNull("Default value must not be null",dflt).isEmpty());
-      result = dflt;
+      assertFalse("Default value must not be empty",
+          assertNotNull("Default value must not be null", defaultValue).isEmpty());
+      result = defaultValue;
     }
     return result;
   }

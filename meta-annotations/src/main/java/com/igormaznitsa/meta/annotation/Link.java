@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Allows provide some link in text form for an entity. It can be url or something else. It is provided just for information.
+ * Allows to provide some link in text form for an entity. It can be url or something else. It is provided just for information.
  * @since 1.0
  */
 @Documented

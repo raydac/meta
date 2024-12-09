@@ -15,9 +15,9 @@
  */
 package com.igormaznitsa.meta.common.utils;
 
+import com.igormaznitsa.meta.annotation.MayContainNull;
 import com.igormaznitsa.meta.annotation.Weight;
 import java.lang.reflect.Array;
-import com.igormaznitsa.meta.annotation.MayContainNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -91,6 +91,7 @@ public final class ArrayUtils {
    * @return all joined arrays as single array
    * @since 1.0
    */
+  @SafeVarargs
   @Nonnull
   @MayContainNull
   @Weight(Weight.Unit.NORMAL)
@@ -142,6 +143,7 @@ public final class ArrayUtils {
    * @return new array where elements are placed in the end
    * @since 1.1.3
    */
+  @SafeVarargs
   @Nonnull
   @MayContainNull
   @Weight(Weight.Unit.NORMAL)

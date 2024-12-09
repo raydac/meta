@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>meta</artifactId>
-  <version>1.1.4-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   
   <modules>
@@ -12,17 +12,14 @@
     <module>meta-checker</module>
   </modules>
 
-  <prerequisites>
-    <maven>3.0</maven>
-  </prerequisites>
-  
   <url>https://github.com/raydac/meta</url>
   
   <properties>
     <findbugs.version>3.0.2</findbugs.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.6</maven.compiler.source>
-    <maven.compiler.target>1.6</maven.compiler.target>
+    <maven.compiler.release>11</maven.compiler.release>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
   </properties>
@@ -69,13 +66,13 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.12</version>
+        <version>4.13.2</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.powermock</groupId>
-        <artifactId>powermock-api-mockito</artifactId>
-        <version>1.7.4</version>
+        <artifactId>powermock-api-mockito2</artifactId>
+        <version>2.0.9</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -97,60 +94,84 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
-          <version>1.6</version>
+          <version>3.2.7</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
-          <version>3.0.1</version>
+          <version>3.3.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.7.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
+          <version>3.4.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>3.5.0</version>
         </plugin>
       </plugins>
     </pluginManagement>
+
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>animal-sniffer-maven-plugin</artifactId>
-        <version>1.17</version>
-        <configuration>
-          <signature>
-            <groupId>org.codehaus.mojo.signature</groupId>
-            <artifactId>java16-sun</artifactId>
-            <version>1.1</version>
-          </signature>
-        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
           <execution>
-            <id>ensure-java-1.6-class-library</id>
-            <phase>test</phase>
+            <id>enforce</id>
+            <configuration>
+              <rules>
+                <dependencyConvergence/>
+                <banCircularDependencies/>
+                <reactorModuleConvergence/>
+                <enforceBytecodeVersion>
+                  <maxJdkVersion>${maven.compiler.release}</maxJdkVersion>
+                  <ignoredScopes>
+                    <ignoredScope>test</ignoredScope>
+                    <ignoredScope>system</ignoredScope>
+                  </ignoredScopes>
+                </enforceBytecodeVersion>
+                <requireJavaVersion>
+                  <version>${maven.compiler.target}</version>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
             <goals>
-              <goal>check</goal>
+              <goal>enforce</goal>
             </goals>
           </execution>
         </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>extra-enforcer-rules</artifactId>
+            <version>1.8.0</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.0</version>
+        <version>3.13.0</version>
         <configuration>
           <showWarnings>true</showWarnings>
           <showDeprecation>true</showDeprecation>
+          <release>${maven.compiler.release}</release>
+          <target>${maven.compiler.target}</target>
+          <source>${maven.compiler.source}</source>
         </configuration>
       </plugin>
       <plugin>
         <groupId>com.igormaznitsa</groupId>
         <artifactId>uber-pom</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.3</version>
         <configuration>
           <remove>
             <section>parent</section>

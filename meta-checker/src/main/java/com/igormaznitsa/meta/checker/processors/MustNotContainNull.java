@@ -18,10 +18,8 @@ package com.igormaznitsa.meta.checker.processors;
 import static com.igormaznitsa.meta.checker.Utils.isObjectType;
 
 import com.igormaznitsa.meta.checker.Context;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
-
 import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
@@ -32,11 +30,8 @@ public class MustNotContainNull extends AbstractMetaAnnotationProcessor {
 
   @Override
   protected void doProcessing(final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
-
-    boolean error = false;
-
-    String name = "";
-
+    final String name;
+    final boolean error;
     switch (type) {
       case FIELD: {
         final Field method = (Field) context.getNode();

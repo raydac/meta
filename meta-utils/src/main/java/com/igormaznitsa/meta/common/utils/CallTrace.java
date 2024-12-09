@@ -18,6 +18,7 @@ package com.igormaznitsa.meta.common.utils;
 import com.igormaznitsa.meta.annotation.Weight;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -34,7 +35,7 @@ public class CallTrace implements Serializable {
 
   private static final long serialVersionUID = -3908621401136825952L;
 
-  private static final Charset UTF8 = Charset.forName("UTF-8");
+  private static final Charset UTF8 = StandardCharsets.UTF_8;
 
   /**
    * Default end-of-line for linux.
@@ -69,7 +70,7 @@ public class CallTrace implements Serializable {
    * The Constructor allows to create call trace history with defined end-of-line symbol and since needed stack item position.
    *
    * @param skipConstructors flag to skip first calls from constructors in the stack.
-   * @param pack flag shows that string data must be packed, false if should not be packed
+   * @param pack flag shows that string data must be packed, false if it should not be packed
    * @param eol string shows which end-of-line should be used
    *
    * @since 1.0.2

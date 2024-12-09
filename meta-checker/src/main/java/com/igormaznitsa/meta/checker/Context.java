@@ -16,12 +16,8 @@
 package com.igormaznitsa.meta.checker;
 
 import java.io.File;
-
 import org.apache.bcel.classfile.FieldOrMethod;
 import org.apache.bcel.classfile.JavaClass;
-
-import com.igormaznitsa.meta.Complexity;
-import com.igormaznitsa.meta.annotation.Weight;
 
 public interface Context {
 

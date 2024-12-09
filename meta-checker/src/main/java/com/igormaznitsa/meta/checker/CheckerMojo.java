@@ -15,11 +15,17 @@
  */
 package com.igormaznitsa.meta.checker;
 
-import com.igormaznitsa.meta.checker.jversion.LongComparator;
+import com.igormaznitsa.meta.Complexity;
+import com.igormaznitsa.meta.annotation.Weight;
+import com.igormaznitsa.meta.checker.extracheck.MethodParameterChecker;
 import com.igormaznitsa.meta.checker.jversion.JavaVersion;
-
+import com.igormaznitsa.meta.checker.jversion.LongComparator;
+import com.igormaznitsa.meta.common.utils.Assertions;
+import com.igormaznitsa.meta.common.utils.GetUtils;
+import com.igormaznitsa.meta.common.utils.StrUtils;
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,11 +34,16 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
-
+import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.ClassFormatException;
 import org.apache.bcel.classfile.ClassParser;
+import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.FieldOrMethod;
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.classfile.Method;
+import org.apache.bcel.classfile.ParameterAnnotationEntry;
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -40,19 +51,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.bcel.classfile.AnnotationEntry;
-import org.apache.bcel.classfile.Field;
-import org.apache.bcel.classfile.JavaClass;
-import org.apache.bcel.classfile.Method;
-import org.apache.bcel.classfile.ParameterAnnotationEntry;
-
-import com.igormaznitsa.meta.Complexity;
-import com.igormaznitsa.meta.annotation.Weight;
-import com.igormaznitsa.meta.checker.extracheck.MethodParameterChecker;
-import com.igormaznitsa.meta.common.utils.Assertions;
-import com.igormaznitsa.meta.common.utils.GetUtils;
-import com.igormaznitsa.meta.common.utils.StrUtils;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 
 @Mojo(name = "check", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE)
@@ -92,7 +90,7 @@ public class CheckerMojo extends AbstractMojo {
   /**
    * Restrict compiled class format version. Also '=','&lt;=','&gt;=','&lt;','&gt;' can be used. Java version can be
    * '1.1','1.2','1.3','1.4','5','6','7','8','5.0','6.0','7.0','8.0'.
-   *
+   * <p>
    * <code>
    * &lt;restrictClassFormat&gt;&lt;![CDATA[&lt;8]]&gt;&lt;/restrictClassFormat&gt;
    * </code>
@@ -103,7 +101,8 @@ public class CheckerMojo extends AbstractMojo {
   private String restrictClassFormat;
 
   /**
-   * List of annotations in full canonical or short form. If checker met annotation from the list then it will be recognized as error. NB! Annotation names are case insensitive.
+   * List of annotations in full canonical or short form. If checker met annotation from the list then it will be recognized as error.
+   * NB! Annotation names are case-insensitive.
    */
   @Parameter(name = "failForAnnotations")
   private String[] failForAnnotations;
@@ -262,7 +261,7 @@ public class CheckerMojo extends AbstractMojo {
       }
     }
 
-    final Map<String, AtomicInteger> counters = new HashMap<String, AtomicInteger>();
+    final Map<String, AtomicInteger> counters = new HashMap<>();
 
     final AtomicInteger counterWarings = new AtomicInteger();
     final AtomicInteger counterErrors = new AtomicInteger();
@@ -404,11 +403,8 @@ public class CheckerMojo extends AbstractMojo {
 
       @Override
       public void countDetectedAnnotation(final String annotationClassName) {
-        AtomicInteger counter = counters.get(annotationClassName);
-        if (counter == null) {
-          counter = new AtomicInteger();
-          counters.put(annotationClassName, counter);
-        }
+        AtomicInteger counter =
+            counters.computeIfAbsent(annotationClassName, k -> new AtomicInteger());
         counter.incrementAndGet();
       }
     };
@@ -506,7 +502,8 @@ public class CheckerMojo extends AbstractMojo {
       }
 
       getLog().info(DELIMITER);
-      getLog().info(String.format("Total spent time : %s", Utils.printTimeDelay(System.currentTimeMillis() - startTime)));
+      getLog().info(String.format("Total spent time : %s",
+          Utils.printTimeDelay(Duration.ofMillis(System.currentTimeMillis() - startTime))));
     }
 
     if (counterErrors.get() > 0) {

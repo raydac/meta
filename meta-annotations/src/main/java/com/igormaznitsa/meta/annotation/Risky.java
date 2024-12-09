@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks entity as risky one. Anyone should use its for its own risk.
+ * Marks entity as risky one. Anyone should use it for own risk.
  * @since 1.0
  */
 @Documented

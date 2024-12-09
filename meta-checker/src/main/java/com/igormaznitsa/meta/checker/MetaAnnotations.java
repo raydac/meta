@@ -18,8 +18,24 @@ package com.igormaznitsa.meta.checker;
 import com.igormaznitsa.meta.checker.processors.AbstractMetaAnnotationProcessor;
 import com.igormaznitsa.meta.checker.processors.Constraint;
 import com.igormaznitsa.meta.checker.processors.Determined;
-import com.igormaznitsa.meta.checker.processors.*;
+import com.igormaznitsa.meta.checker.processors.Experimental;
+import com.igormaznitsa.meta.checker.processors.ImplementationNote;
+import com.igormaznitsa.meta.checker.processors.LazyInited;
 import com.igormaznitsa.meta.checker.processors.Link;
+import com.igormaznitsa.meta.checker.processors.MayContainNull;
+import com.igormaznitsa.meta.checker.processors.MemoryComplexity;
+import com.igormaznitsa.meta.checker.processors.MustNotContainNull;
+import com.igormaznitsa.meta.checker.processors.NeedsRefactoring;
+import com.igormaznitsa.meta.checker.processors.NonDetermined;
+import com.igormaznitsa.meta.checker.processors.OneWayChange;
+import com.igormaznitsa.meta.checker.processors.ReturnsOriginal;
+import com.igormaznitsa.meta.checker.processors.Risky;
+import com.igormaznitsa.meta.checker.processors.ThrowsRuntimeException;
+import com.igormaznitsa.meta.checker.processors.ThrowsRuntimeExceptions;
+import com.igormaznitsa.meta.checker.processors.TimeComplexity;
+import com.igormaznitsa.meta.checker.processors.ToDo;
+import com.igormaznitsa.meta.checker.processors.Warning;
+import com.igormaznitsa.meta.checker.processors.Weight;
 
 public enum MetaAnnotations {
   CONSTRAINT(new Constraint()),
@@ -48,8 +64,8 @@ public enum MetaAnnotations {
   public AbstractMetaAnnotationProcessor getInstance(){
     return this.INSTANCE;
   }
-  
-  private MetaAnnotations(final AbstractMetaAnnotationProcessor instance){
+
+  MetaAnnotations(final AbstractMetaAnnotationProcessor instance) {
     this.INSTANCE = instance;
   }
 
