@@ -16,12 +16,13 @@
 package com.igormaznitsa.meta.checker.processors;
 
 import java.lang.annotation.Annotation;
+import java.util.List;
 
 public class MayContainNull extends MustNotContainNull {
 
   @Override
-  public Class<? extends Annotation> getAnnotationClass () {
-    return com.igormaznitsa.meta.annotation.MayContainNull.class;
+  public List<Class<? extends Annotation>> getProcessedAnnotationClasses() {
+    return List.of(com.igormaznitsa.meta.annotation.MayContainNull.class);
   }
   
 }

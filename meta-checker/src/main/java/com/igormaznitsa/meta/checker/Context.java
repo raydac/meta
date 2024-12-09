@@ -43,8 +43,6 @@ public interface Context {
   
   File getTargetDirectoryFolder();
   
-  void countDetectedAnnotation(final String annotationType);
-  
   com.igormaznitsa.meta.annotation.Weight.Unit getMaxAllowedWeightLevel();
   
   com.igormaznitsa.meta.Complexity getMaxAllowedTimeComplexity();

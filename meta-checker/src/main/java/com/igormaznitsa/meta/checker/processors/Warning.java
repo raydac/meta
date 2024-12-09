@@ -18,6 +18,7 @@ package com.igormaznitsa.meta.checker.processors;
 import com.igormaznitsa.meta.checker.Context;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
+import java.util.List;
 import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
@@ -25,14 +26,18 @@ import org.apache.bcel.classfile.ParameterAnnotationEntry;
 public class Warning extends AbstractMetaAnnotationProcessor {
 
   @Override
-  protected void doProcessing (final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
-    final String text = extractStrValue("value", ae, "");
+  protected int doProcessing(final Context context, final JavaClass javaClass,
+                             final ElementType type,
+                             final ParameterAnnotationEntry parameterAnnotationEntry,
+                             final AnnotationEntry annotationEntry) {
+    final String text = extractStringValue("value", annotationEntry, "");
     context.warning("!!! " + text, true);
+    return 1;
   }
 
   @Override
-  public Class<? extends Annotation> getAnnotationClass () {
-    return com.igormaznitsa.meta.annotation.Warning.class;
+  public List<Class<? extends Annotation>> getProcessedAnnotationClasses() {
+    return List.of(com.igormaznitsa.meta.annotation.Warning.class);
   }
   
 }

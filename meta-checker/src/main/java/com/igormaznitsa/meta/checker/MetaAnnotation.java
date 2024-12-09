@@ -31,13 +31,16 @@ import com.igormaznitsa.meta.checker.processors.OneWayChange;
 import com.igormaznitsa.meta.checker.processors.ReturnsOriginal;
 import com.igormaznitsa.meta.checker.processors.Risky;
 import com.igormaznitsa.meta.checker.processors.ThrowsRuntimeException;
-import com.igormaznitsa.meta.checker.processors.ThrowsRuntimeExceptions;
 import com.igormaznitsa.meta.checker.processors.TimeComplexity;
 import com.igormaznitsa.meta.checker.processors.ToDo;
 import com.igormaznitsa.meta.checker.processors.Warning;
 import com.igormaznitsa.meta.checker.processors.Weight;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public enum MetaAnnotations {
+public enum MetaAnnotation {
   CONSTRAINT(new Constraint()),
   DETERMINED(new Determined()),
   LAZYINITED(new LazyInited()),
@@ -55,21 +58,36 @@ public enum MetaAnnotations {
   IMPLSPECIFIC(new ImplementationNote()),
   WEIGHT(new Weight()),
   THROWSRE(new ThrowsRuntimeException()),
-  THROWSREs(new ThrowsRuntimeExceptions()),
   TIMECOMPLEXITY(new TimeComplexity()),
   MEMORYCOMPLEXITY(new MemoryComplexity());
-  
-  private final AbstractMetaAnnotationProcessor INSTANCE;
 
-  public AbstractMetaAnnotationProcessor getInstance(){
-    return this.INSTANCE;
+  public static final List<MetaAnnotation> VALUES = List.of(MetaAnnotation.values());
+  private final AbstractMetaAnnotationProcessor processor;
+  private final Set<String> canonicalClassNames;
+
+  MetaAnnotation(final AbstractMetaAnnotationProcessor instance) {
+    this.processor = instance;
+    this.canonicalClassNames = this.processor.getProcessedAnnotationClasses().stream().map(
+        Class::getCanonicalName).collect(
+        Collectors.toSet());
   }
 
-  MetaAnnotations(final AbstractMetaAnnotationProcessor instance) {
-    this.INSTANCE = instance;
+  public AbstractMetaAnnotationProcessor getProcessor() {
+    return this.processor;
   }
 
-  public String getAnnotationClassName () {
-    return this.INSTANCE.getAnnotationClass().getName();
+  public boolean isAmongClassNames(final String name) {
+    final String trimmed = name.trim();
+    if (trimmed.contains(".")) {
+      // canonical form
+      return this.canonicalClassNames.stream()
+          .anyMatch(x -> x.toLowerCase(Locale.ENGLISH).equalsIgnoreCase(trimmed));
+    } else {
+      // short form
+      final String shortForm = ('.' + trimmed).toLowerCase(Locale.ENGLISH);
+      return this.canonicalClassNames.stream()
+          .anyMatch(x -> x.toLowerCase(Locale.ENGLISH).endsWith(shortForm));
+    }
   }
+
 }

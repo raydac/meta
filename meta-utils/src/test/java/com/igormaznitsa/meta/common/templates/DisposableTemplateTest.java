@@ -15,12 +15,16 @@
  */
 package com.igormaznitsa.meta.common.templates;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import com.igormaznitsa.meta.common.exceptions.AlreadyDisposedError;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class DisposableTemplateTest {
 
@@ -54,13 +58,12 @@ public class DisposableTemplateTest {
     try {
       impl.assertNotDisposed();
       fail("Must throw error");
-    }
-    catch (AlreadyDisposedError ex) {
+    } catch (AlreadyDisposedError ignored) {
     }
   }
 
   @Test
-  public void testCalldoDisposed () {
+  public void testCallDoDispose() {
     final AtomicInteger counter = new AtomicInteger();
     
     final DisposableTemplate impl = new DisposableTemplate() {

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.checker;
 
 import java.time.Duration;
@@ -37,7 +38,8 @@ public abstract class Utils {
     if (className == null) {
       return null;
     }
-    final String normalized = className.indexOf('/') >= 0 ? classNameToNormalView(className) : className;
+    final String normalized =
+        className.indexOf('/') >= 0 ? classNameToCanonical(className) : className;
     return extractShortNameOfClass(normalized);
   }
 
@@ -61,25 +63,20 @@ public abstract class Utils {
     return text;
   }
 
-  public static String classNameToNormalView(final String className) {
+  public static String classNameToCanonical(final String className) {
     if (className.startsWith("L") && className.endsWith(";")) {
       return className.substring(1, className.length() - 1).replace('/', '.');
-    }
-    else {
+    } else {
       return className;
     }
   }
 
-  public static String makeSignatureForClass(final Class<?> klazz) {
-    return makeSignatureForClass(klazz.getName());
+  public static String makeSignatureForClass(final Class<?> javaClass) {
+    return makeSignatureForClass(javaClass.getName());
   }
 
   public static String makeSignatureForClass(final String name) {
     return 'L' + name.replace('.', '/') + ';';
-  }
-
-  public static String makeStr(final int len, final char ch) {
-    return String.valueOf(ch).repeat(Math.max(0, len));
   }
 
   public static String normalizeClassNameAndRemoveSubclassName(final String canonicalClassName) {
@@ -92,12 +89,12 @@ public abstract class Utils {
   public static String extractOuterClassName(final String jvmInnerClassName) {
     final int lastDelimiter = jvmInnerClassName.lastIndexOf('$');
     String result = "";
-    if (lastDelimiter>=0){
+    if (lastDelimiter >= 0) {
       result = jvmInnerClassName.substring(0, lastDelimiter).replace('.', '/');
     }
     return result;
   }
-  
+
   public static String asString(final JavaClass clazz, final FieldOrMethod item) {
     final StringBuilder result = new StringBuilder();
     if (item != null) {
@@ -106,8 +103,7 @@ public abstract class Utils {
         final String type = Utility.signatureToString(field.getSignature());
         final String name = field.getName();
         result.append(type).append(' ').append(name);
-      }
-      else {
+      } else {
         final Method method = (Method) item;
         String type = Utility.methodSignatureReturnType(method.getSignature());
 
@@ -115,8 +111,7 @@ public abstract class Utils {
         if (name.equals("<init>")) {
           name = Utils.extractClassName(clazz.getClassName());
           type = "";
-        }
-        else {
+        } else {
           type += ' ';
         }
 

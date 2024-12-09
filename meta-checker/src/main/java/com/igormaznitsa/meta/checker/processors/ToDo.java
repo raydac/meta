@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.checker.processors;
 
 import com.igormaznitsa.meta.checker.Context;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
+import java.util.List;
 import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
@@ -25,14 +27,29 @@ import org.apache.bcel.classfile.ParameterAnnotationEntry;
 public class ToDo extends AbstractMetaAnnotationProcessor {
 
   @Override
-  protected void doProcessing (final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
-    final String text = extractStrValue("value", ae, "");
-    context.info("TO-DO" + addSemicolonIfNeeded(text), true);
+  protected int doProcessing(
+      final Context context,
+      final JavaClass javaClass,
+      final ElementType type,
+      final ParameterAnnotationEntry parameterAnnotationEntry,
+      final AnnotationEntry annotationEntry
+  ) {
+    final List<AnnotationEntry> entries = extractsAnnotationsIfRepeatable(
+        context,
+        annotationEntry,
+        com.igormaznitsa.meta.annotation.ToDos.class
+    );
+    entries.forEach(annotation -> {
+      final String text = extractStringValue("value", annotation, "");
+      context.info("TO-DO" + addSemicolonIfNeeded(text), true);
+    });
+    return entries.size();
   }
 
   @Override
-  public Class<? extends Annotation> getAnnotationClass () {
-    return com.igormaznitsa.meta.annotation.ToDo.class;
+  public List<Class<? extends Annotation>> getProcessedAnnotationClasses() {
+    return List.of(com.igormaznitsa.meta.annotation.ToDo.class,
+        com.igormaznitsa.meta.annotation.ToDos.class);
   }
-  
+
 }

@@ -13,19 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.checker.processors;
+
+import static com.igormaznitsa.meta.checker.Utils.classNameToCanonical;
 
 import com.igormaznitsa.meta.checker.Context;
 import com.igormaznitsa.meta.checker.Utils;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import org.apache.bcel.classfile.AnnotationElementValue;
 import org.apache.bcel.classfile.AnnotationEntry;
+import org.apache.bcel.classfile.ArrayElementValue;
 import org.apache.bcel.classfile.ElementValue;
 import org.apache.bcel.classfile.ElementValuePair;
 import org.apache.bcel.classfile.Field;
@@ -35,78 +42,70 @@ import org.apache.bcel.classfile.ParameterAnnotationEntry;
 
 public abstract class AbstractMetaAnnotationProcessor {
 
-  private final Set<ElementType> ALLOWED_ELEMENTS = EnumSet.noneOf(ElementType.class);
-  private final String ANNOTATION_TYPE;
-  private final boolean alertable;
+  private final Set<ElementType> allowedElements = EnumSet.noneOf(ElementType.class);
+  private final Set<String> annotationTypes;
+  private final boolean containsAlert;
 
   public AbstractMetaAnnotationProcessor() {
     super();
-    final Class<? extends Annotation> theKlazz = getAnnotationClass();
-    this.ANNOTATION_TYPE = Utils.makeSignatureForClass(theKlazz);
-    Collections.addAll(ALLOWED_ELEMENTS, theKlazz.getAnnotation(Target.class).value());
-
-    boolean hasAlertField = false;
-    try {
-      final java.lang.reflect.Method alert = theKlazz.getMethod("alert");
-      hasAlertField = alert.getReturnType() == boolean.class;
-    } catch (NoSuchMethodException ignored) {
-    }
-    catch (SecurityException ex) {
-      throw new Error("Unexpected security error", ex);
-    }
-    this.alertable = hasAlertField;
-  }
-
-  public boolean isAlertable() {
-    return this.alertable;
-  }
-
-  public final boolean isElementTypeAllowed(final ElementType type) {
-    return this.ALLOWED_ELEMENTS.contains(type);
-  }
-
-  public final void processClass(final Context context, final JavaClass clazz, final int itemIndex) {
-    context.setProcessingItem(clazz, null, itemIndex);
-
-    if (isElementTypeAllowed(ElementType.TYPE)) {
-      processType(context, clazz, clazz.getAnnotationEntries());
-    }
-
-    context.setProcessingItem(clazz, null, itemIndex);
-    if (isElementTypeAllowed(ElementType.FIELD)) {
-      processFields(context, clazz, clazz.getFields());
-    }
-
-    context.setProcessingItem(clazz, null, itemIndex);
-    if (isElementTypeAllowed(ElementType.METHOD) || isElementTypeAllowed(ElementType.PARAMETER)) {
-      processMethods(context, clazz, clazz.getMethods());
-    }
-
-    context.setProcessingItem(clazz, null, itemIndex);
-  }
-
-  private void processType(final Context context, final JavaClass clazz, final AnnotationEntry[] annotations) {
-    for (final AnnotationEntry ae : annotations) {
-      if (ANNOTATION_TYPE.equals(ae.getAnnotationType())) {
-        process(context, clazz, ElementType.TYPE, null, ae);
+    final List<Class<? extends Annotation>> annotationClasses = getProcessedAnnotationClasses();
+    this.annotationTypes = annotationClasses.stream().map(Utils::makeSignatureForClass).collect(
+        Collectors.toSet());
+    annotationClasses.forEach(x -> {
+      final Target annotation = x.getAnnotation(Target.class);
+      if (annotation != null) {
+        this.allowedElements.addAll(List.of(annotation.value()));
       }
-    }
-  }
+    });
 
-  private void processFields(final Context context, final JavaClass clazz, final Field[] fields) {
-    int index = 0;
-    for (final Field f : fields) {
-      context.setProcessingItem(clazz, f, index++);
-      for (final AnnotationEntry ae : f.getAnnotationEntries()) {
-        if (ANNOTATION_TYPE.equals(ae.getAnnotationType())) {
-          process(context, clazz, ElementType.FIELD, null, ae);
+    this.containsAlert = annotationClasses.stream().anyMatch(x -> {
+      try {
+        final java.lang.reflect.Method method = x.getMethod("alert");
+        if (method.getReturnType() == boolean.class || method.getReturnType() == Boolean.class) {
+          return true;
+        }
+      } catch (NoSuchMethodException | SecurityException ex) {
+        if (ex instanceof SecurityException) {
+          throw new Error("Unexpected security error", ex);
         }
       }
-    }
+      return false;
+    });
   }
 
-  protected static String extractStrValue(final String field, final AnnotationEntry entry,
-                                          final String defaultValue) {
+  protected static List<AnnotationEntry> extractsAnnotationsIfRepeatable(
+      final Context context,
+      final AnnotationEntry annotationEntry,
+      final Class<? extends Annotation> repeatable
+  ) {
+    final List<AnnotationEntry> entries;
+
+    final String canonicalAnnotationEntryClassName =
+        classNameToCanonical(annotationEntry.getAnnotationType());
+
+    if (canonicalAnnotationEntryClassName.equals(repeatable.getCanonicalName())) {
+      final ElementValue elementValue = extractValue("value", annotationEntry);
+      if (elementValue instanceof ArrayElementValue) {
+        entries = Arrays.stream(((ArrayElementValue) elementValue).getElementValuesArray())
+            .filter(x -> x instanceof AnnotationElementValue)
+            .map(x -> ((AnnotationElementValue) x).getAnnotationEntry())
+            .collect(Collectors.toList());
+      } else {
+        context.error(
+            "Detected annotation " + canonicalAnnotationEntryClassName + " without value", true);
+        entries = List.of();
+      }
+    } else {
+      entries = List.of(annotationEntry);
+    }
+    return entries;
+  }
+
+  protected static String extractStringValue(
+      final String field,
+      final AnnotationEntry entry,
+      final String defaultValue
+  ) {
     final ElementValue value = extractValue(field, entry);
     return value == null ? defaultValue : value.stringifyValue();
   }
@@ -134,11 +133,71 @@ public abstract class AbstractMetaAnnotationProcessor {
     return text == null ? null : text.isEmpty() ? text : " : " + text;
   }
 
-  private void process(final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
-    doProcessing(context, clazz, type, pae, ae);
+  public boolean hasAlert() {
+    return this.containsAlert;
   }
 
-  private void processMethods(final Context context, final JavaClass clazz, final Method[] methods) {
+  public final boolean isElementTypeAllowed(final ElementType type) {
+    return this.allowedElements.contains(type);
+  }
+
+  public final int processClass(final Context context, final JavaClass clazz,
+                                final int itemIndex) {
+    context.setProcessingItem(clazz, null, itemIndex);
+
+    int processed = 0;
+
+    if (isElementTypeAllowed(ElementType.TYPE)) {
+      processed += processType(context, clazz, clazz.getAnnotationEntries());
+    }
+
+    context.setProcessingItem(clazz, null, itemIndex);
+    if (isElementTypeAllowed(ElementType.FIELD)) {
+      processed += processFields(context, clazz, clazz.getFields());
+    }
+
+    context.setProcessingItem(clazz, null, itemIndex);
+    if (isElementTypeAllowed(ElementType.METHOD) || isElementTypeAllowed(ElementType.PARAMETER)) {
+      processed += processMethods(context, clazz, clazz.getMethods());
+    }
+    context.setProcessingItem(clazz, null, itemIndex);
+
+    return processed;
+  }
+
+  private int processType(final Context context, final JavaClass clazz,
+                          final AnnotationEntry[] annotations) {
+    int processed = 0;
+    for (final AnnotationEntry entry : annotations) {
+      if (annotationTypes.contains(entry.getAnnotationType())) {
+        processed += process(context, clazz, ElementType.TYPE, null, entry);
+      }
+    }
+    return processed;
+  }
+
+  private int processFields(final Context context, final JavaClass clazz, final Field[] fields) {
+    int processed = 0;
+    int index = 0;
+    for (final Field f : fields) {
+      context.setProcessingItem(clazz, f, index++);
+      for (final AnnotationEntry ae : f.getAnnotationEntries()) {
+        if (annotationTypes.contains(ae.getAnnotationType())) {
+          processed += process(context, clazz, ElementType.FIELD, null, ae);
+        }
+      }
+    }
+    return processed;
+  }
+
+  private int process(final Context context, final JavaClass clazz, final ElementType type,
+                      final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
+    return this.doProcessing(context, clazz, type, pae, ae);
+  }
+
+  private int processMethods(final Context context, final JavaClass clazz,
+                             final Method[] methods) {
+    int processed = 0;
     int methodIndex = 0;
     for (final Method m : methods) {
       final int argNumber = m.getArgumentTypes().length;
@@ -146,8 +205,8 @@ public abstract class AbstractMetaAnnotationProcessor {
       if (isElementTypeAllowed(ElementType.METHOD)) {
         for (final AnnotationEntry ae : m.getAnnotationEntries()) {
           context.setProcessingItem(clazz, m, methodIndex);
-          if (ANNOTATION_TYPE.equals(ae.getAnnotationType())) {
-            process(context, clazz, ElementType.METHOD, null, ae);
+          if (annotationTypes.contains(ae.getAnnotationType())) {
+            processed += process(context, clazz, ElementType.METHOD, null, ae);
           }
         }
       }
@@ -156,17 +215,24 @@ public abstract class AbstractMetaAnnotationProcessor {
         for (final ParameterAnnotationEntry pe : m.getParameterAnnotationEntries()) {
           context.setProcessingItem(clazz, m, (paramIndex++) % argNumber);
           for (final AnnotationEntry ae : pe.getAnnotationEntries()) {
-            if (ANNOTATION_TYPE.equals(ae.getAnnotationType())) {
-              process(context, clazz, ElementType.PARAMETER, pe, ae);
+            if (annotationTypes.contains(ae.getAnnotationType())) {
+              processed += process(context, clazz, ElementType.PARAMETER, pe, ae);
             }
           }
         }
       }
       methodIndex++;
     }
+    return processed;
   }
 
-  protected abstract void doProcessing(Context context, JavaClass clazz, ElementType type, ParameterAnnotationEntry pae, AnnotationEntry ae);
+  protected abstract int doProcessing(
+      Context context,
+      JavaClass javaClass,
+      ElementType type,
+      ParameterAnnotationEntry parameterAnnotationEntry,
+      AnnotationEntry annotationEntry
+  );
 
-  public abstract Class<? extends Annotation> getAnnotationClass();
+  public abstract List<Class<? extends Annotation>> getProcessedAnnotationClasses();
 }

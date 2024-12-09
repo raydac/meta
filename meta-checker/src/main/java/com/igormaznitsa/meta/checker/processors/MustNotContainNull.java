@@ -18,8 +18,10 @@ package com.igormaznitsa.meta.checker.processors;
 import static com.igormaznitsa.meta.checker.Utils.isObjectType;
 
 import com.igormaznitsa.meta.checker.Context;
+import com.igormaznitsa.meta.checker.Utils;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
+import java.util.List;
 import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
@@ -29,7 +31,10 @@ import org.apache.bcel.classfile.ParameterAnnotationEntry;
 public class MustNotContainNull extends AbstractMetaAnnotationProcessor {
 
   @Override
-  protected void doProcessing(final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
+  protected int doProcessing(final Context context, final JavaClass javaClass,
+                             final ElementType type,
+                             final ParameterAnnotationEntry parameterAnnotationEntry,
+                             final AnnotationEntry annotationEntry) {
     final String name;
     final boolean error;
     switch (type) {
@@ -56,14 +61,16 @@ public class MustNotContainNull extends AbstractMetaAnnotationProcessor {
     }
 
     if (error) {
-      context.error(name + " is marked by @" + getAnnotationClass().getName(), true);
+      context.error(name + " is marked by @" +
+          Utils.classNameToCanonical(annotationEntry.getAnnotationType()), true);
     }
 
+    return 1;
   }
 
   @Override
-  public Class<? extends Annotation> getAnnotationClass() {
-    return com.igormaznitsa.meta.annotation.MustNotContainNull.class;
+  public List<Class<? extends Annotation>> getProcessedAnnotationClasses() {
+    return List.of(com.igormaznitsa.meta.annotation.MustNotContainNull.class);
   }
 
 }

@@ -13,28 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Allows to mark entities for future works.
- * @since 1.0
+ * Allows multiple to do annotations.
+ *
+ * @see ToDo
+ * @since 1.2.0
  */
 @Documented
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.CONSTRUCTOR, ElementType.PACKAGE, ElementType.ANNOTATION_TYPE})
-@Repeatable(ToDos.class)
-@Retention (RetentionPolicy.CLASS)
-public @interface ToDo {
+@Target({
+    ElementType.TYPE,
+    ElementType.FIELD,
+    ElementType.METHOD,
+    ElementType.PARAMETER,
+    ElementType.CONSTRUCTOR,
+    ElementType.PACKAGE,
+    ElementType.ANNOTATION_TYPE
+})
+@Retention(RetentionPolicy.CLASS)
+public @interface ToDos {
   /**
    * Text note.
+   *
    * @return text description
    * @since 1.0
    */
-  String value() default "";
+  ToDo[] value();
 }

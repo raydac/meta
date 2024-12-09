@@ -16,10 +16,9 @@
 package com.igormaznitsa.meta.checker.processors;
 
 import com.igormaznitsa.meta.checker.Context;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
-
+import java.util.List;
 import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.ElementValue;
 import org.apache.bcel.classfile.JavaClass;
@@ -28,10 +27,14 @@ import org.apache.bcel.classfile.ParameterAnnotationEntry;
 public class MemoryComplexity extends AbstractMetaAnnotationProcessor {
 
   @Override
-  protected void doProcessing (final Context context, final JavaClass clazz, final ElementType type, final ParameterAnnotationEntry pae, final AnnotationEntry ae) {
-    final ElementValue element = extractValue("value", ae);
+  protected int doProcessing(final Context context, final JavaClass javaClass,
+                             final ElementType type,
+                             final ParameterAnnotationEntry parameterAnnotationEntry,
+                             final AnnotationEntry annotationEntry) {
+    final ElementValue element = extractValue("value", annotationEntry);
     if (element == null) {
-      context.error("Can't find value int " + getAnnotationClass().getCanonicalName() + " annotation", true);
+      context.error("Can't find value int " + annotationEntry.getAnnotationType() + " annotation",
+          true);
     }
     else {
       try {
@@ -44,14 +47,16 @@ public class MemoryComplexity extends AbstractMetaAnnotationProcessor {
         }
       }
       catch (Exception ex) {
-        context.error("Can't get information about complexity from annotation " + getAnnotationClass().getCanonicalName() + " [" + element.stringifyValue() + "]", true);
+        context.error("Can't get information about complexity from annotation " +
+            annotationEntry.getAnnotationType() + " [" + element.stringifyValue() + "]", true);
       }
     }
+    return 1;
   }
 
   @Override
-  public Class<? extends Annotation> getAnnotationClass () {
-    return com.igormaznitsa.meta.annotation.MemoryComplexity.class;
+  public List<Class<? extends Annotation>> getProcessedAnnotationClasses() {
+    return List.of(com.igormaznitsa.meta.annotation.MemoryComplexity.class);
   }
   
 }

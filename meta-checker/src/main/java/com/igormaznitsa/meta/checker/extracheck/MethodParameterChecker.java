@@ -172,7 +172,7 @@ public final class MethodParameterChecker {
   }
 
   private static boolean investigateClassThatCanContainNull(final Context context, final String classTypeInInsideFormat) {
-    final String klazzName = Utils.classNameToNormalView(classTypeInInsideFormat);
+    final String klazzName = Utils.classNameToCanonical(classTypeInInsideFormat);
     final File classFile = new File(context.getTargetDirectoryFolder(), klazzName.replace('.', '/') + ".class");
     if (classFile.isFile()) {
       try {
