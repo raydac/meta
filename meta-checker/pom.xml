@@ -14,10 +14,6 @@
   <name>meta-checker</name>
   <description>Maven plugin to make check of compiled classes contain annotations from meta-annotations module and print some useful info (it doesn't check jr-305 annotations, use FindBugs plugin!).</description>
 
-  <properties>
-    <min.maven.version>3.2.5</min.maven.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.commons</groupId>

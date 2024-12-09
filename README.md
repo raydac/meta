@@ -15,7 +15,7 @@ It is a small general-purpose library includes:
 
 - __1.2.0 (SNAPSHOT)__
  - __minimal JDK 11__
- - __minimal Maven 3.2.3__
+ - __minimal Maven 3.8.1__
  - updated dependencies
  - minor refactoring and typo fixing
 

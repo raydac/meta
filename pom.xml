@@ -15,6 +15,7 @@
   <url>https://github.com/raydac/meta</url>
   
   <properties>
+    <min.maven.version>3.8.1</min.maven.version>
     <findbugs.version>3.0.2</findbugs.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>11</maven.compiler.release>
