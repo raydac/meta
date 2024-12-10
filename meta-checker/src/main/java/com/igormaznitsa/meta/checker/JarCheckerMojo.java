@@ -81,6 +81,22 @@ public class JarCheckerMojo extends AbstractMojo {
   private List<String> exclude = new ArrayList<>();
 
   /**
+   * Limit total error messages to show in log.
+   *
+   * @since 1.2.0
+   */
+  @Parameter(name = "limitOutputErrors", defaultValue = "65534")
+  private int limitOutputErrors = 65534;
+
+  /**
+   * Limit list of error for JDK version to show in log.
+   *
+   * @since 1.2.0
+   */
+  @Parameter(name = "limitIllegalClassVersionErrors", defaultValue = "52")
+  private int limitIllegalClassVersionErrors = 52;
+
+  /**
    * List of ANT path patterns for files to be included.
    */
   @Parameter(name = "include")
@@ -113,6 +129,22 @@ public class JarCheckerMojo extends AbstractMojo {
 
   public String getRestrictClassFormat() {
     return this.restrictClassFormat;
+  }
+
+  public int getLimitOutputErrors() {
+    return limitOutputErrors;
+  }
+
+  public void setLimitOutputErrors(int value) {
+    this.limitOutputErrors = value;
+  }
+
+  public int getLimitIllegalClassVersionErrors() {
+    return limitIllegalClassVersionErrors;
+  }
+
+  public void setLimitIllegalClassVersionErrors(int value) {
+    this.limitIllegalClassVersionErrors = value;
   }
 
   public String getArchive() {
@@ -202,15 +234,18 @@ public class JarCheckerMojo extends AbstractMojo {
 
       final LongComparator finalJavaVersionComparator = javaVersionComparator;
       final AtomicInteger errorCounter = new AtomicInteger();
-      final int MAX_SHOWN_ERRORS = 48;
 
       if (!this.manifestHas.isEmpty() || !this.manifestHasNot.isEmpty()) {
         try {
           final Manifest manifest = jarFile.getManifest();
 
           if (manifest == null) {
-            log.error("Java can't find MANIFEST.MF in the archive");
-            errorCounter.incrementAndGet();
+            final int errors = errorCounter.incrementAndGet();
+            if (errors <= this.getLimitOutputErrors()) {
+              log.error("Java can't find MANIFEST.MF in the archive");
+            } else {
+              log.debug("Java can't find MANIFEST.MF in the archive");
+            }
           } else {
 
             log.debug("Detected manifest entries: " + manifest.getEntries().keySet());
@@ -221,8 +256,12 @@ public class JarCheckerMojo extends AbstractMojo {
               final Attributes.Name keyName = new Attributes.Name(key);
               if (manifest.getAttributes(key) == null &&
                   !manifest.getMainAttributes().containsKey(keyName)) {
-                log.error("Can't find key '" + key + "' in MANIFEST.MF");
-                errorCounter.incrementAndGet();
+                final int errors = errorCounter.incrementAndGet();
+                if (errors <= this.getLimitOutputErrors()) {
+                  log.error("Can't find key '" + key + "' in MANIFEST.MF");
+                } else {
+                  log.debug("Can't find key '" + key + "' in MANIFEST.MF");
+                }
               }
             }
 
@@ -230,8 +269,12 @@ public class JarCheckerMojo extends AbstractMojo {
               final Attributes.Name keyName = new Attributes.Name(key);
               if (manifest.getAttributes(key) != null ||
                   manifest.getMainAttributes().containsKey(keyName)) {
-                log.error("Detected key '" + key + "' in MANIFEST.MF");
-                errorCounter.incrementAndGet();
+                final int errors = errorCounter.incrementAndGet();
+                if (errors <= this.getLimitOutputErrors()) {
+                  log.error("Detected key '" + key + "' in MANIFEST.MF");
+                } else {
+                  log.debug("Detected key '" + key + "' in MANIFEST.MF");
+                }
               }
             }
           }
@@ -241,20 +284,32 @@ public class JarCheckerMojo extends AbstractMojo {
         }
       }
 
+      final AtomicInteger illegalClassVersionCounter = new AtomicInteger();
+      final AtomicInteger maxFoundJavaVersion = new AtomicInteger();
+
       final ClassVisitor classVisitor = new ClassVisitor(Opcodes.ASM9) {
         @Override
-        public void visit(final int version, final int access, final String name,
+        public void visit(int version, final int access, final String name,
                           final String signature, final String superName,
                           final String[] interfaces) {
+          version &= 0xFFFF;
+          maxFoundJavaVersion.set(Math.max(maxFoundJavaVersion.get(), version));
           if (finalJavaVersionComparator != null) {
-            if (!finalJavaVersionComparator.compare(version & 0xFFFF, javaVersion.getValue())) {
-              final int errorNum = errorCounter.getAndIncrement();
-              if (errorNum < MAX_SHOWN_ERRORS) {
-                final JavaVersion classVersion = JavaVersion.decode(version & 0xFFFF);
+            if (!finalJavaVersionComparator.compare(version, javaVersion.getValue())) {
+              final int foundIllegalVersionErrors = illegalClassVersionCounter.incrementAndGet();
+              final int foundErrors = errorCounter.getAndIncrement();
+              final boolean end = foundErrors >= getLimitOutputErrors() ||
+                  foundIllegalVersionErrors >= getLimitIllegalClassVersionErrors();
+              if (end) {
+                if (foundIllegalVersionErrors == getLimitIllegalClassVersionErrors() + 1) {
+                  log.error("more illegal class versions...");
+                }
+              } else {
+                final JavaVersion classVersion = JavaVersion.decode(version);
                 log.error("Detected illegal class version " +
-                    (classVersion == null ? "UNKNOWN" : classVersion.getText()) + " : " + name);
-              } else if (errorNum == MAX_SHOWN_ERRORS) {
-                log.error("...");
+                    (classVersion == null ?
+                        ("0x" + Integer.toHexString(version).toUpperCase(Locale.ENGLISH)) :
+                        classVersion.getText()) + " : " + name);
               }
             }
           }
@@ -275,25 +330,29 @@ public class JarCheckerMojo extends AbstractMojo {
         final String path = entry.getName();
 
         if (!resourcesExpected.isEmpty()) {
-          final Iterator<String> iter = resourcesExpected.iterator();
-          while (iter.hasNext()) {
-            final String pattern = iter.next();
+          final Iterator<String> expectedResourcesIterator = resourcesExpected.iterator();
+          while (expectedResourcesIterator.hasNext()) {
+            final String pattern = expectedResourcesIterator.next();
             if (antPathMatcher.match(pattern, path)) {
               log.info("Contains " + path + " (pattern: " + pattern + ")");
-              iter.remove();
+              expectedResourcesIterator.remove();
             }
           }
         }
 
         if (!resourcesUnexpected.isEmpty()) {
-          final Iterator<String> iter = resourcesUnexpected.iterator();
-          while (iter.hasNext()) {
-            final String pattern = iter.next();
+          final Iterator<String> unexpectedResourcesIterator = resourcesUnexpected.iterator();
+          while (unexpectedResourcesIterator.hasNext()) {
+            final String pattern = unexpectedResourcesIterator.next();
             if (antPathMatcher.match(pattern, path)) {
               detectedUnexpectedPattern.add(pattern);
-              log.error("Detected unexpected " + path + " (pattern: " + pattern + ")");
-              iter.remove();
-              errorCounter.incrementAndGet();
+              final int errors = errorCounter.incrementAndGet();
+              if (errors <= this.getLimitOutputErrors()) {
+                log.error("Detected unexpected " + path + " (pattern: " + pattern + ")");
+              } else {
+                log.debug("Detected unexpected " + path + " (pattern: " + pattern + ")");
+              }
+              unexpectedResourcesIterator.remove();
             }
           }
         }
@@ -326,9 +385,8 @@ public class JarCheckerMojo extends AbstractMojo {
           continue;
         }
 
-        classCounter.incrementAndGet();
-
         try {
+          classCounter.incrementAndGet();
           new ClassReader(
               IOUtils.readFully(jarFile.getInputStream(entry), (int) entry.getSize())).accept(
               classVisitor,
@@ -338,25 +396,37 @@ public class JarCheckerMojo extends AbstractMojo {
         }
       }
 
-      if (Thread.currentThread().isInterrupted()) {
-        log.warn("Interrupted...");
-        return;
-      }
-
       if (!resourcesExpected.isEmpty()) {
         for (final String s : resourcesExpected) {
-          log.error("Can't find resource for pattern: " + s);
-          errorCounter.incrementAndGet();
+          final int errors = errorCounter.incrementAndGet();
+          if (errors <= this.getLimitOutputErrors()) {
+            log.error("Can't find resource for pattern: " + s);
+          } else {
+            log.debug("Can't find resource for pattern: " + s);
+          }
         }
       }
 
       if (!detectedUnexpectedPattern.isEmpty()) {
         for (final String s : detectedUnexpectedPattern) {
-          log.error("Detected unexpected resource for pattern: " + s);
+          final int errors = errorCounter.incrementAndGet();
+          if (errors <= this.getLimitOutputErrors()) {
+            log.error("Detected unexpected resource for pattern: " + s);
+          } else {
+            log.debug("Detected unexpected resource for pattern: " + s);
+          }
         }
       }
 
       log.info("Processed " + classCounter.get() + " class(es)");
+      if (illegalClassVersionCounter.get() > 0) {
+        final JavaVersion version = JavaVersion.decode(maxFoundJavaVersion.get());
+        log.info("Total detected illegal class versions " + illegalClassVersionCounter.get() +
+            ", detected max JDK version "
+            + (version == null ?
+            " 0x" + Integer.toHexString(maxFoundJavaVersion.get()).toUpperCase(Locale.ENGLISH) :
+            version.name()));
+      }
 
       if (errorCounter.get() != 0) {
         throw new MojoFailureException("Detected " + errorCounter.get() + " error(s)");

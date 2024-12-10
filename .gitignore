@@ -8,3 +8,4 @@ dependency-reduced-pom.xml
 buildNumber.properties
 /meta-checker/nbproject/
 /meta-utils/nbproject/
+/.idea/
