@@ -58,6 +58,7 @@ public class CheckerMojo extends AbstractMojo {
   private static final String DELIMITER = "................................";
   private static final String FAILURE_STRING =
       "Detected annotation '%s' defined to be recognized as error";
+
   private static final String[] BANNER = new String[] {
       "  __  __  ____  ____   __   ",
       " (  \\/  )( ___)(_  _) /__\\  ",
@@ -65,10 +66,13 @@ public class CheckerMojo extends AbstractMojo {
       " (_/\\/\\_)(____) (__)(__)(__)",
       "https://github.com/raydac/meta",
       ""};
+
   @Parameter(defaultValue = "${project}", readonly = true, required = true)
   private MavenProject project;
+
   @Parameter(defaultValue = "${session}", readonly = true, required = true)
   private MavenSession session;
+
   /**
    * Folder which will be recursively used as the source of class files.
    */
@@ -127,6 +131,14 @@ public class CheckerMojo extends AbstractMojo {
    */
   @Parameter(name = "maxAllowedTimeComplexity")
   private String maxAllowedTimeComplexity;
+
+  /**
+   * Limit number of output class names for violated jdk version.
+   *
+   * @since 1.2.0
+   */
+  @Parameter(name = "violatingClassOutputLimit", defaultValue = "42")
+  private int violatingClassOutputLimit = 42;
   /**
    * Define max allowed value for detected memory complexity annotation, if detected annotation has bigger complexity then it will be recognized as error.
    *
@@ -140,7 +152,8 @@ public class CheckerMojo extends AbstractMojo {
    * @since 1.1.0
    */
   @Parameter(name = "hideBanner", defaultValue = "false")
-  private boolean hideBanner;
+  private boolean hideBanner = false;
+
   private LongComparator comparatorForJavaVersion;
   private JavaVersion decodedJavaVersion;
   private Pattern[] ignoreClassesAsPatterns;
@@ -218,7 +231,7 @@ public class CheckerMojo extends AbstractMojo {
         }
         getLog().info(DELIMITER);
       }
-      getLog().info("Folder to look for classes : " + targetDirectoryFile.getAbsolutePath());
+      getLog().info("Class file folder : " + targetDirectoryFile.getAbsolutePath());
       getLog().info(DELIMITER);
     }
 
@@ -251,7 +264,7 @@ public class CheckerMojo extends AbstractMojo {
     final Map<MetaAnnotation, AtomicInteger> counters = new EnumMap<>(MetaAnnotation.class);
 
     final AtomicInteger counterWarnings = new AtomicInteger();
-    final AtomicInteger counterErrors = new AtomicInteger();
+    final AtomicInteger counterTotalErrors = new AtomicInteger();
     final AtomicInteger counterInfo = new AtomicInteger();
 
     final Complexity theMaxAllowedTimeComplexity;
@@ -383,7 +396,7 @@ public class CheckerMojo extends AbstractMojo {
 
       @Override
       public void error(final String error, final boolean showProcessingItem) {
-        counterErrors.incrementAndGet();
+        counterTotalErrors.incrementAndGet();
         getLog().error((showProcessingItem ? currentProcessingItemAsString() + ' ' : "") + error);
       }
 
@@ -394,6 +407,8 @@ public class CheckerMojo extends AbstractMojo {
       }
 
     };
+
+    int classVersionViolationCounter = 0;
 
     final long startTime = System.currentTimeMillis();
     int processedClasses = 0;
@@ -415,10 +430,16 @@ public class CheckerMojo extends AbstractMojo {
           processedClasses++;
 
           if (!isClassVersionAllowed(parsed)) {
-            context.error(String.format("Detected class version violator, version %s at %s",
-                JavaVersion.decode(parsed.getMajor()), file.getAbsolutePath()), false);
-            counterErrors.incrementAndGet();
-            break;
+            if (classVersionViolationCounter < this.getViolatingClassOutputLimit()) {
+              classVersionViolationCounter++;
+              final int major = parsed.getMajor();
+              final JavaVersion javaVersion = JavaVersion.decode(major);
+              context.error(String.format("Detected class version violation, detected %s: %s",
+                  javaVersion == null ?
+                      ("0x" + Integer.toHexString(major).toUpperCase(Locale.ENGLISH)) : javaVersion,
+                  file.getAbsolutePath()), false);
+            }
+            counterTotalErrors.incrementAndGet();
           }
           classIndex++;
           for (final MetaAnnotation p : MetaAnnotation.VALUES) {
@@ -449,53 +470,74 @@ public class CheckerMojo extends AbstractMojo {
             }
           }
         }
-
-        if (counterErrors.get() > 0) {
+        if (counterTotalErrors.get() > 0) {
           throw new MojoFailureException(
-              String.format("Detected %d error(s)", counterErrors.get()));
+              String.format("The check found %d error(s)", counterTotalErrors.get()));
         }
       } else {
-        getLog().debug("There are not defined annotations to be interpreted as error");
+        getLog().debug("There are no annotations defined that are interpreted as an error");
       }
     } finally {
-      if ((counterErrors.get() | counterInfo.get() | counterWarnings.get()) != 0) {
+      if ((counterTotalErrors.get() | counterInfo.get() | counterWarnings.get()) != 0) {
         getLog().info(DELIMITER);
       }
 
       final int totalAnnotations = counters.values().stream().mapToInt(AtomicInteger::get).sum();
 
-      getLog().info(String.format("Processed classes : %d", processedClasses));
-      getLog().info(String.format("Detected annotations : %d", totalAnnotations));
+      getLog().info(String.format("          Processed classes: %d", processedClasses));
+      getLog().info(String.format("       Detected annotations: %d", totalAnnotations));
+      getLog().info(String.format("             Detected To-Do: %d",
+          extractCounter(counters, MetaAnnotation.TODO).get()));
       getLog().info(
-          String.format("Detected To-Do : %d",
-              extractCounter(counters, MetaAnnotation.TODO).get()));
-      getLog().info(
-          String.format("Detected risks : %d",
+          String.format("             Detected risks: %d",
               extractCounter(counters, MetaAnnotation.RISKY).get()));
-      getLog().info(String.format("Detected experimental : %d",
-          extractCounter(counters, MetaAnnotation.EXPERIMENTAL).get()));
-
-      if (counterWarnings.get() > 0) {
-        getLog().warn(String.format("Total warnings : %d", counterWarnings.get()));
+      getLog().info(
+          String.format("      Detected experimental: %d",
+              extractCounter(counters, MetaAnnotation.EXPERIMENTAL).get()));
+      if (classVersionViolationCounter > 0) {
+        getLog().error(
+            String.format("Class version violation(s): %d",
+                classVersionViolationCounter));
       } else {
-        getLog().info(String.format("Total warnings : %d", counterWarnings.get()));
+        getLog().info(
+            String.format(" Class version violation(s): %d",
+                classVersionViolationCounter));
       }
 
-      if (counterErrors.get() > 0) {
-        getLog().error(String.format("Total errors : %d", counterErrors.get()));
+      if (counterWarnings.get() > 0) {
+        getLog().warn(
+            String.format("          Total warnings: %d", counterWarnings.get()));
       } else {
-        getLog().info(String.format("Total errors : %d", counterErrors.get()));
+        getLog().info(
+            String.format("             Total warnings: %d", counterWarnings.get()));
+      }
+
+      if (counterTotalErrors.get() > 0) {
+        getLog().error(
+            String.format("              Total errors: %d", counterTotalErrors.get()));
+      } else {
+        getLog().info(
+            String.format("               Total errors: %d", counterTotalErrors.get()));
       }
 
       getLog().info(DELIMITER);
-      getLog().info(String.format("Total spent time : %s",
-          Utils.printTimeDelay(Duration.ofMillis(System.currentTimeMillis() - startTime))));
+      getLog().info(
+          String.format("           Total spent time: %s",
+              Utils.printTimeDelay(Duration.ofMillis(System.currentTimeMillis() - startTime))));
     }
 
-    if (counterErrors.get() > 0) {
+    if (counterTotalErrors.get() > 0) {
       throw new MojoFailureException(
-          String.format("Detected %d error(s), see the log", counterErrors.get()));
+          String.format("Detected %d error(s), see the log", counterTotalErrors.get()));
     }
+  }
+
+  public int getViolatingClassOutputLimit() {
+    return this.violatingClassOutputLimit;
+  }
+
+  public void setViolatingClassOutputLimit(int value) {
+    this.violatingClassOutputLimit = value;
   }
 
   public boolean isHideBanner() {

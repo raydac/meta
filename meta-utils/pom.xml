@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0</version>
   </parent>
   
   <artifactId>meta-utils</artifactId>
@@ -19,42 +19,9 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>com.igormaznitsa</groupId>
-            <artifactId>meta-checker</artifactId>
-            <version>1.1.3</version>
-            <configuration>
-              <restrictClassFormat>6</restrictClassFormat>
-              <failForAnnotations>
-                <param>risky</param>
-                <param>todo</param>
-              </failForAnnotations>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>check</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
             <executions>
-              <execution>
-                <id>make-distributive</id>
-                <phase>install</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-                <configuration>
-                  <appendAssemblyId>false</appendAssemblyId>
-                  <finalName>${project.artifactId}-${project.version}-${timestamp}-distr</finalName>
-                  <descriptors>
-                    <descriptor>src/assemble/distribution.xml</descriptor>
-                  </descriptors>
-                </configuration>
-              </execution>
               <execution>
                 <id>make-bundle</id>
                 <phase>install</phase>

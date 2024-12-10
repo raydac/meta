@@ -13,14 +13,14 @@ It is a small general-purpose library includes:
 
 # Change log
 
-- __1.2.0 (SNAPSHOT)__
+- __1.2.0 (10-dec-2024)__
  - __minimal JDK 11__
  - __minimal Maven 3.8.1__
  - removed vulnerable dependencies
  - minor renaming of methods
- - use of Joda Time replaced by Java API
- - updated dependencies
- - minor refactoring and typo fixing
+- use of Joda Time replaced by Java Time API
+- updated dependencies and improved new JDK support
+- refactoring and typo fixing
 
 - __1.1.3 (06-jan-2019)__
  - updated the `uber-pom` dependency
