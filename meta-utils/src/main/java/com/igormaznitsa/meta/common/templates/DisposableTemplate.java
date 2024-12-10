@@ -44,7 +44,7 @@ public abstract class DisposableTemplate implements Disposable,Serializable {
    * The Constructor.
    * @since 1.0
    */
-  @Warning("Must be called in successors")
+  @Warning("must be called in successors")
   public DisposableTemplate () {
     DISPOSABLE_OBJECT_COUNTER.incrementAndGet();
   }

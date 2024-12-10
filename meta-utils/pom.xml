@@ -101,6 +101,25 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>com.igormaznitsa</groupId>
+        <artifactId>meta-checker</artifactId>
+        <version>${project.version}</version>
+        <configuration>
+          <restrictClassFormat>${maven.compiler.release}</restrictClassFormat>
+          <failForAnnotations>
+            <param>risky</param>
+            <param>todo</param>
+          </failForAnnotations>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>

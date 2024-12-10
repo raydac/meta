@@ -16,14 +16,14 @@
 
 package com.igormaznitsa.meta.checker;
 
+import static com.igormaznitsa.meta.checker.Utils.pressing;
+import static java.util.Objects.requireNonNull;
+
 import com.igormaznitsa.meta.Complexity;
 import com.igormaznitsa.meta.annotation.Weight;
 import com.igormaznitsa.meta.checker.extracheck.MethodParameterChecker;
 import com.igormaznitsa.meta.checker.jversion.JavaVersion;
 import com.igormaznitsa.meta.checker.jversion.LongComparator;
-import com.igormaznitsa.meta.common.utils.Assertions;
-import com.igormaznitsa.meta.common.utils.GetUtils;
-import com.igormaznitsa.meta.common.utils.StrUtils;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
@@ -159,13 +159,13 @@ public class CheckerMojo extends AbstractMojo {
   private Pattern[] ignoreClassesAsPatterns;
 
   private static Weight.Unit decodeWeight(final String value) {
-    final String normalized = StrUtils.pressing(GetUtils.ensureNonNullStr(value)).replace("_", "");
+    final String normalized = pressing(value == null ? "" : value).replace("_", "");
     if (normalized.isEmpty()) {
       return null;
     }
 
     for (final Weight.Unit u : Weight.Unit.values()) {
-      if (normalized.equalsIgnoreCase(StrUtils.pressing(u.name()).replace("_", ""))) {
+      if (normalized.equalsIgnoreCase(pressing(u.name()).replace("_", ""))) {
         return u;
       }
     }
@@ -173,7 +173,7 @@ public class CheckerMojo extends AbstractMojo {
   }
 
   private static Complexity decodeComplexity(final String value) {
-    final String normalized = StrUtils.pressing(GetUtils.ensureNonNullStr(value)).replace("_", "");
+    final String normalized = pressing(value == null ? "" : value).replace("_", "");
     if (normalized.isEmpty()) {
       return null;
     }
@@ -181,8 +181,8 @@ public class CheckerMojo extends AbstractMojo {
     Complexity detected = null;
 
     for (final Complexity c : Complexity.values()) {
-      final String name = StrUtils.pressing(c.name()).replace("_", "");
-      final String formula = StrUtils.pressing(c.getFormula()).replace("_", "");
+      final String name = pressing(c.name()).replace("_", "");
+      final String formula = pressing(c.getFormula()).replace("_", "");
       if (normalized.equalsIgnoreCase(name) || normalized.equalsIgnoreCase(formula)) {
         detected = c;
         break;
@@ -338,7 +338,7 @@ public class CheckerMojo extends AbstractMojo {
 
         final int line = Utils.findLineNumber(this.node);
         String className = Utils.normalizeClassNameAndRemoveSubclassName(
-            Assertions.assertNotNull(this.javaClass).getClassName());
+            requireNonNull(this.javaClass).getClassName());
         final String nodeName = Utils.asString(this.javaClass, this.node);
 
         builder.append(className).append(".java").append(":[");
@@ -522,7 +522,7 @@ public class CheckerMojo extends AbstractMojo {
 
       getLog().info(DELIMITER);
       getLog().info(
-          String.format("           Total spent time: %s",
+          String.format(" Total spent time: %s",
               Utils.printTimeDelay(Duration.ofMillis(System.currentTimeMillis() - startTime))));
     }
 
@@ -636,7 +636,7 @@ public class CheckerMojo extends AbstractMojo {
       return true;
     }
     return this.comparatorForJavaVersion.compare(klazz.getMajor(),
-        Assertions.assertNotNull(this.decodedJavaVersion).getValue());
+        requireNonNull(this.decodedJavaVersion).getValue());
   }
 
   private static class AbortException extends RuntimeException {

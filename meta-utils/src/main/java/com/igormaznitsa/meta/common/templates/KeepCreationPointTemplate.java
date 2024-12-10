@@ -42,7 +42,7 @@ public abstract class KeepCreationPointTemplate implements Serializable {
   /**
    * The Constructor.
    */
-  @Warning("Must be called in successors, must not be called through constructor chain else you will see your constructors in stack trace!")
+  @Warning("must be called in successors, must not be called through constructor chain else you will see your constructors in stack trace!")
   public KeepCreationPointTemplate(){
     REGISTRY.put(this, new CallTrace(true, true, CallTrace.EOL_LINUX));
   }

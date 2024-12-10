@@ -119,7 +119,7 @@ public final class Deferrers {
    * @return the same object from arguments.
    * @since 1.0
    */
-  @Warning("Using reflection")
+  @Warning("using reflection")
   @Weight(Weight.Unit.NORMAL)
   public static <T> T deferredClose(@Nullable final T closeable) {
     if (closeable != null) {

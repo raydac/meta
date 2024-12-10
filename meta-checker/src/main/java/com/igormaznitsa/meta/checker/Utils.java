@@ -16,6 +16,8 @@
 
 package com.igormaznitsa.meta.checker;
 
+import static java.util.Objects.requireNonNull;
+
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,6 +46,18 @@ public abstract class Utils {
   }
 
   private Utils() {
+  }
+
+  public static String pressing(final String value) {
+    final StringBuilder result = new StringBuilder(requireNonNull(value).length());
+    for (int index = 0; index < value.length(); index++) {
+      final char chr = value.charAt(index);
+      if (Character.isWhitespace(chr) || Character.isISOControl(chr)) {
+        continue;
+      }
+      result.append(chr);
+    }
+    return result.toString();
   }
 
   public static String printTimeDelay(final Duration duration) {

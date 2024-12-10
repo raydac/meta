@@ -15,8 +15,6 @@
  */
 package com.igormaznitsa.meta.checker.extracheck;
 
-import static com.igormaznitsa.meta.common.utils.Assertions.fail;
-
 import com.igormaznitsa.meta.annotation.MayContainNull;
 import com.igormaznitsa.meta.annotation.MustNotContainNull;
 import com.igormaznitsa.meta.checker.Context;
@@ -125,15 +123,15 @@ public final class MethodParameterChecker {
     }
   }
 
-  private static Set<String> classesToNameSet(final Object... klazzes) {
+  private static Set<String> classesToNameSet(final Object... classObjects) {
     final Set<String> result = new HashSet<>();
-    for (final Object k : klazzes) {
-      if (k instanceof Class) {
-        result.add(Utils.makeSignatureForClass((Class<?>) k));
-      } else if (k instanceof String) {
-        result.add(Utils.makeSignatureForClass((String) k));
+    for (final Object a : classObjects) {
+      if (a instanceof Class) {
+        result.add(Utils.makeSignatureForClass((Class<?>) a));
+      } else if (a instanceof String) {
+        result.add(Utils.makeSignatureForClass((String) a));
       } else {
-        throw fail("Unexpected object type [" + k + ']');
+        throw new IllegalArgumentException("Unexpected object type [" + a + ']');
       }
     }
     return result;
