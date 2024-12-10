@@ -31,7 +31,7 @@ public class NeedsRefactoring extends AbstractMetaAnnotationProcessor {
                              final ParameterAnnotationEntry parameterAnnotationEntry,
                              final AnnotationEntry annotationEntry) {
     final String text = extractStringValue("value", annotationEntry, "");
-    context.warning("is marked for refactoring" + addSemicolonIfNeeded(text), true);
+    context.warning("refactoring needed" + addSemicolonIfNeeded(text), true);
     return 1;
   }
 

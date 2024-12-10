@@ -28,6 +28,7 @@ import com.igormaznitsa.meta.checker.processors.MustNotContainNull;
 import com.igormaznitsa.meta.checker.processors.NeedsRefactoring;
 import com.igormaznitsa.meta.checker.processors.NonDetermined;
 import com.igormaznitsa.meta.checker.processors.OneWayChange;
+import com.igormaznitsa.meta.checker.processors.PureFunction;
 import com.igormaznitsa.meta.checker.processors.ReturnsOriginal;
 import com.igormaznitsa.meta.checker.processors.Risky;
 import com.igormaznitsa.meta.checker.processors.ThrowsRuntimeException;
@@ -43,23 +44,24 @@ import java.util.stream.Collectors;
 public enum MetaAnnotation {
   CONSTRAINT(new Constraint()),
   DETERMINED(new Determined()),
-  LAZYINITED(new LazyInited()),
-  LINK(new Link()),
-  MAYCONTAINNULL(new MayContainNull()),
-  MUSTNOTCONTAINNULL(new MustNotContainNull()),
-  NEEDSREFACTORING(new NeedsRefactoring()),
-  NONDETERMINED(new NonDetermined()),
-  ONEWAYCHANGE(new OneWayChange()),
-  RETURNSORIGHNAL(new ReturnsOriginal()),
-  RISKY(new Risky()),
   EXPERIMENTAL(new Experimental()),
+  IMPLEMENTATION_NOTE(new ImplementationNote()),
+  LAZY_INITED(new LazyInited()),
+  LINK(new Link()),
+  MAY_CONTAIN_NULL(new MayContainNull()),
+  MEMORY_COMPLEXITY(new MemoryComplexity()),
+  MUST_NOT_CONTAIN_NULL(new MustNotContainNull()),
+  NEEDS_REFACTORING(new NeedsRefactoring()),
+  NON_DETERMINED(new NonDetermined()),
+  ONE_WAY_CHANGE(new OneWayChange()),
+  PURE_FUNCTION(new PureFunction()),
+  RETURNS_ORIGINAL(new ReturnsOriginal()),
+  RISKY(new Risky()),
+  THROW_RUNTIME_EXCEPTION(new ThrowsRuntimeException()),
+  TIME_COMPLEXITY(new TimeComplexity()),
   TODO(new ToDo()),
   WARNING(new Warning()),
-  IMPLSPECIFIC(new ImplementationNote()),
-  WEIGHT(new Weight()),
-  THROWSRE(new ThrowsRuntimeException()),
-  TIMECOMPLEXITY(new TimeComplexity()),
-  MEMORYCOMPLEXITY(new MemoryComplexity());
+  WEIGHT(new Weight());
 
   public static final List<MetaAnnotation> VALUES = List.of(MetaAnnotation.values());
   private final AbstractMetaAnnotationProcessor processor;

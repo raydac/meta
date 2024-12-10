@@ -31,7 +31,7 @@ public class Warning extends AbstractMetaAnnotationProcessor {
                              final ParameterAnnotationEntry parameterAnnotationEntry,
                              final AnnotationEntry annotationEntry) {
     final String text = extractStringValue("value", annotationEntry, "");
-    context.warning("!!! " + text, true);
+    context.warning(text.isBlank() ? " WARNING!" : text, true);
     return 1;
   }
 

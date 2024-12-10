@@ -21,7 +21,9 @@ import java.lang.annotation.ElementType;
 import java.util.List;
 import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.classfile.Method;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
+import org.apache.bcel.generic.Type;
 
 public class ReturnsOriginal extends AbstractMetaAnnotationProcessor {
 
@@ -30,6 +32,13 @@ public class ReturnsOriginal extends AbstractMetaAnnotationProcessor {
                              final ElementType type,
                              final ParameterAnnotationEntry parameterAnnotationEntry,
                              final AnnotationEntry annotationEntry) {
+    if (type == ElementType.METHOD) {
+      final Method method = (Method) context.getNode();
+      if (method.getReturnType() == Type.VOID) {
+        context.error("void result marked by @" +
+            com.igormaznitsa.meta.annotation.ReturnsOriginal.class.getSimpleName(), true);
+      }
+    }
     return 1;
   }
 

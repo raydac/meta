@@ -30,7 +30,6 @@ public class ThrowsRuntimeException extends AbstractMetaAnnotationProcessor {
                              final ElementType type,
                              final ParameterAnnotationEntry parameterAnnotationEntry,
                              final AnnotationEntry annotationEntry) {
-//    final String text = extractStrValue("value", ae,"");
     return extractsAnnotationsIfRepeatable(context, annotationEntry,
         com.igormaznitsa.meta.annotation.ThrowsRuntimeExceptions.class).size();
   }

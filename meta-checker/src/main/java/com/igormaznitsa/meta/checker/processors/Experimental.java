@@ -31,7 +31,7 @@ public class Experimental extends AbstractMetaAnnotationProcessor {
                              final ParameterAnnotationEntry parameterAnnotationEntry,
                              final AnnotationEntry annotationEntry) {
     final String text = extractStringValue("value", annotationEntry, "");
-    context.warning("is marked as experimental" + addSemicolonIfNeeded(text), true);
+    context.warning("marked as experimental one" + addSemicolonIfNeeded(text), true);
     return 1;
   }
 

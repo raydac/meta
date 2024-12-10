@@ -39,8 +39,8 @@ public class MustNotContainNull extends AbstractMetaAnnotationProcessor {
     final boolean error;
     switch (type) {
       case FIELD: {
-        final Field method = (Field) context.getNode();
-        error = !isObjectType(method.getType());
+        final Field field = (Field) context.getNode();
+        error = !isObjectType(field.getType());
         name = "a non-object field";
         break;
       }
