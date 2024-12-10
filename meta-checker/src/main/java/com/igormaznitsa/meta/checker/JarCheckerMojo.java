@@ -309,7 +309,7 @@ public class JarCheckerMojo extends AbstractMojo {
                 log.error("Detected illegal class version " +
                     (classVersion == null ?
                         ("0x" + Integer.toHexString(version).toUpperCase(Locale.ENGLISH)) :
-                        classVersion.getText()) + " : " + name);
+                        classVersion.getText()) + " : " + name.replace("/", "."));
               }
             }
           }
@@ -380,8 +380,10 @@ public class JarCheckerMojo extends AbstractMojo {
           }
         }
 
-        if (!process || entry.isDirectory() ||
-            !entry.getName().toLowerCase(Locale.ENGLISH).endsWith(".class")) {
+        if (!process
+            || entry.isDirectory()
+            || path.startsWith("META-INF/")
+            || !entry.getName().toLowerCase(Locale.ENGLISH).endsWith(".class")) {
           continue;
         }
 
