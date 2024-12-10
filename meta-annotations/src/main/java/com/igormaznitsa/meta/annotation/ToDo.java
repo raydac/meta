@@ -27,7 +27,15 @@ import java.lang.annotation.Target;
  * @since 1.0
  */
 @Documented
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.CONSTRUCTOR, ElementType.PACKAGE, ElementType.ANNOTATION_TYPE})
+@Target({
+    ElementType.TYPE,
+    ElementType.FIELD,
+    ElementType.METHOD,
+    ElementType.PARAMETER,
+    ElementType.CONSTRUCTOR,
+    ElementType.PACKAGE,
+    ElementType.ANNOTATION_TYPE
+})
 @Repeatable(ToDos.class)
 @Retention (RetentionPolicy.CLASS)
 public @interface ToDo {

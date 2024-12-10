@@ -33,8 +33,7 @@ import java.lang.annotation.Target;
     ElementType.PARAMETER,
     ElementType.CONSTRUCTOR,
     ElementType.PACKAGE,
-    ElementType.ANNOTATION_TYPE,
-    ElementType.LOCAL_VARIABLE
+    ElementType.ANNOTATION_TYPE
 })
 @Retention (RetentionPolicy.CLASS)
 public @interface Warning {
