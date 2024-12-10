@@ -1,6 +1,6 @@
 [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/meta-annotations/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|meta-annotations|1.1.3|jar)
-[![Java 6.0+](https://img.shields.io/badge/java-6.0%2b-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/meta-annotations/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|meta-annotations|1.2.0|jar)
+[![Java 11+](https://img.shields.io/badge/java-11.0%2b-green.svg)](https://bell-sw.com/pages/downloads/l)
 [![PayPal donation](https://img.shields.io/badge/donation-PayPal-red.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AHWJHJFBAWGL2)
 [![Yandex.Money donation](https://img.shields.io/badge/donation-Я.деньги-yellow.svg)](https://money.yandex.ru/embed/small.xml?account=41001158080699&quickpay=small&yamoney-payment-type=on&button-text=01&button-size=l&button-color=orange&targets=%D0%9F%D0%BE%D0%B6%D0%B5%D1%80%D1%82%D0%B2%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5+%D0%BD%D0%B0+%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B+%D1%81+%D0%BE%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8B%D0%BC+%D0%B8%D1%81%D1%85%D0%BE%D0%B4%D0%BD%D1%8B%D0%BC+%D0%BA%D0%BE%D0%B4%D0%BE%D0%BC&default-sum=100&successURL=)
 
@@ -60,7 +60,7 @@ To use annotations just add dependency to the library
 <dependency>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta-annotations</artifactId>
-    <version>1.1.3</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 It shades JSR-305 annotations from the FindBugs library so that they also will be available for usage automatically.
@@ -72,7 +72,7 @@ Just add the lines below into build section.
 <dependency>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta-utils</artifactId>
-    <version>1.1.3</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 ## com.igormaznitsa.meta.common.utils.Deferrers
@@ -115,7 +115,7 @@ Also the plugin allows to fail build process if detected some annotations, it al
 <plugin>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>meta-checker</artifactId>
-    <version>1.1.3</version>
+    <version>1.2.0</version>
     <configuration>
         <restrictClassFormat>7</restrictClassFormat>
         <failForAnnotations>
