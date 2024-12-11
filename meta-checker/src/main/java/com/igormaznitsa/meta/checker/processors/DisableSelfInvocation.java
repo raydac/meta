@@ -41,9 +41,6 @@ public class DisableSelfInvocation extends AbstractMetaAnnotationProcessor {
     final Method method = (Method) context.getNode();
     final ConstantPoolGen constantPoolGen = new ConstantPoolGen(javaClass.getConstantPool());
     for (final Method m : javaClass.getMethods()) {
-      if (m.equals(method)) {
-        continue;
-      }
       final MethodGen thatMethod = new MethodGen(m, javaClass.getClassName(), constantPoolGen);
       final LineNumberTable lineNumberTable = thatMethod.getLineNumberTable(constantPoolGen);
 
