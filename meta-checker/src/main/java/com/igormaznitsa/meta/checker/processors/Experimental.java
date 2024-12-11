@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.checker.processors;
 
 import com.igormaznitsa.meta.checker.Context;
@@ -31,7 +32,9 @@ public class Experimental extends AbstractMetaAnnotationProcessor {
                              final ParameterAnnotationEntry parameterAnnotationEntry,
                              final AnnotationEntry annotationEntry) {
     final String text = extractStringValue("value", annotationEntry, "");
-    context.warning("marked as experimental one" + addSemicolonIfNeeded(text), true);
+    if (!text.isBlank()) {
+      context.warning("marked as experimental one" + addSemicolonIfNeeded(text), true);
+    }
     return 1;
   }
 
@@ -39,5 +42,5 @@ public class Experimental extends AbstractMetaAnnotationProcessor {
   public List<Class<? extends Annotation>> getProcessedAnnotationClasses() {
     return List.of(com.igormaznitsa.meta.annotation.Experimental.class);
   }
-  
+
 }

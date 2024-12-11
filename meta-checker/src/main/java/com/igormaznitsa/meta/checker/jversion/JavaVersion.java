@@ -38,7 +38,9 @@ public enum JavaVersion {
   JDK20("20.0", 0x40),
   JDK21("21.0", 0x41),
   JDK22("22.0", 0x42),
-  JDK23("23.0", 0x43);
+  JDK23("23.0", 0x43),
+  JDK24("24.0", 0x44),
+  JDK25("25.0", 0x45);
 
   private final String text;
   private final int value;

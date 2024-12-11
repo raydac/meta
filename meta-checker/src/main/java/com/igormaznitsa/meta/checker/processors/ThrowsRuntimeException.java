@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.checker.processors;
 
 import com.igormaznitsa.meta.checker.Context;
@@ -20,6 +21,7 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.util.List;
 import org.apache.bcel.classfile.AnnotationEntry;
+import org.apache.bcel.classfile.ElementValue;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.ParameterAnnotationEntry;
 
@@ -30,8 +32,21 @@ public class ThrowsRuntimeException extends AbstractMetaAnnotationProcessor {
                              final ElementType type,
                              final ParameterAnnotationEntry parameterAnnotationEntry,
                              final AnnotationEntry annotationEntry) {
-    return extractsAnnotationsIfRepeatable(context, annotationEntry,
-        com.igormaznitsa.meta.annotation.ThrowsRuntimeExceptions.class).size();
+    final List<AnnotationEntry> annotations =
+        extractsAnnotationsIfRepeatable(context, annotationEntry,
+            com.igormaznitsa.meta.annotation.ThrowsRuntimeExceptions.class);
+
+    for (final AnnotationEntry entry : annotations) {
+      final ElementValue value = extractValue("value", entry);
+      if (value == null) {
+        context.error("detected @" +
+            com.igormaznitsa.meta.annotation.ThrowsRuntimeExceptions.class.getSimpleName() +
+            " without value", true);
+        break;
+      }
+    }
+
+    return annotations.size();
   }
 
   @Override
@@ -39,5 +54,5 @@ public class ThrowsRuntimeException extends AbstractMetaAnnotationProcessor {
     return List.of(com.igormaznitsa.meta.annotation.ThrowsRuntimeException.class,
         com.igormaznitsa.meta.annotation.ThrowsRuntimeExceptions.class);
   }
-  
+
 }

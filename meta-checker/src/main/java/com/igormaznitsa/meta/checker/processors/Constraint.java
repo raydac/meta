@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.checker.processors;
 
 import com.igormaznitsa.meta.checker.Context;
@@ -27,22 +28,24 @@ import org.apache.commons.jexl2.JexlEngine;
 
 public final class Constraint extends AbstractMetaAnnotationProcessor {
 
+  static final Pattern ARG_SEARCHER =
+      Pattern.compile(".*?(?:\\b|\\s)X(\\b|\\s).*?", Pattern.CASE_INSENSITIVE);
   private final JexlEngine JEXL = new JexlEngine();
-  static final Pattern ARG_SEARCHER = Pattern.compile(".*?(?:\\b|\\s)X(\\b|\\s).*?",Pattern.CASE_INSENSITIVE);
-  
-  public Constraint(){
+
+  public Constraint() {
     super();
   }
-  
+
   @Override
   protected int doProcessing(final Context context, final JavaClass javaClass,
                              final ElementType type,
                              final ParameterAnnotationEntry parameterAnnotationEntry,
                              final AnnotationEntry annotationEntry) {
     final String text = extractStringValue("value", annotationEntry, "");
-    try{
-      if (!ARG_SEARCHER.matcher(JEXL.createExpression(text).dump()).matches())
+    try {
+      if (!ARG_SEARCHER.matcher(JEXL.createExpression(text).dump()).matches()) {
         context.error(String.format("can't detect 'X' at constraint expression '%s'", text), true);
+      }
     } catch (Throwable thr) {
       context.error(String.format("wrong constraint expression '%s'", text), true);
     }
@@ -53,5 +56,5 @@ public final class Constraint extends AbstractMetaAnnotationProcessor {
   public List<Class<? extends Annotation>> getProcessedAnnotationClasses() {
     return List.of(com.igormaznitsa.meta.annotation.Constraint.class);
   }
-  
+
 }

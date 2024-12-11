@@ -201,13 +201,13 @@ public class JarCheckerMojo extends AbstractMojo {
 
       if (this.restrictClassFormat != null) {
 
-        String javaClassVersion = this.restrictClassFormat.trim();
+        String jdkVersionText = this.restrictClassFormat.trim();
 
-        if (javaClassVersion.isEmpty()) {
+        if (jdkVersionText.isEmpty()) {
           throw new IllegalArgumentException("Detected empty value for 'restrictClassFormat'");
         }
 
-        javaVersionComparator = LongComparator.find(javaClassVersion);
+        javaVersionComparator = LongComparator.find(jdkVersionText);
 
         final int versionOffset;
         if (javaVersionComparator == null) {
@@ -216,12 +216,12 @@ public class JarCheckerMojo extends AbstractMojo {
         } else {
           versionOffset = javaVersionComparator.getText().length();
         }
-        javaClassVersion = javaClassVersion.substring(versionOffset).trim();
+        jdkVersionText = jdkVersionText.substring(versionOffset).trim();
 
-        javaVersion = JavaVersion.decode(javaClassVersion);
+        javaVersion = JavaVersion.decode(jdkVersionText);
         if (javaVersion == null) {
           throw new IllegalArgumentException(
-              "Illegal java version in 'restrictClassFormat': " + javaClassVersion);
+              "Unexpected java version for 'restrictClassFormat': " + jdkVersionText);
         }
 
         log.info("Class version restriction: " + javaVersionComparator.getText() + ' ' +
@@ -306,7 +306,7 @@ public class JarCheckerMojo extends AbstractMojo {
                 }
               } else {
                 final JavaVersion classVersion = JavaVersion.decode(version);
-                log.error("Detected illegal class version " +
+                log.error("Detected class version violation " +
                     (classVersion == null ?
                         ("0x" + Integer.toHexString(version).toUpperCase(Locale.ENGLISH)) :
                         classVersion.getText()) + " : " + name.replace("/", "."));

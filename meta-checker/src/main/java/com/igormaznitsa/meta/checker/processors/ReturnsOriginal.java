@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.checker.processors;
 
 import com.igormaznitsa.meta.checker.Context;
@@ -46,5 +47,5 @@ public class ReturnsOriginal extends AbstractMetaAnnotationProcessor {
   public List<Class<? extends Annotation>> getProcessedAnnotationClasses() {
     return List.of(com.igormaznitsa.meta.annotation.ReturnsOriginal.class);
   }
-  
+
 }

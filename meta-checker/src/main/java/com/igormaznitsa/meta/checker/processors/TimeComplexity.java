@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.checker.processors;
 
 import com.igormaznitsa.meta.checker.Context;
@@ -33,22 +34,23 @@ public class TimeComplexity extends AbstractMetaAnnotationProcessor {
                              final AnnotationEntry annotationEntry) {
     final ElementValue element = extractValue("value", annotationEntry);
     if (element == null) {
-      context.error("Can't find value int " + annotationEntry.getAnnotationType() + " annotation",
+      context.error("can't find value for @" +
+              com.igormaznitsa.meta.annotation.TimeComplexity.class.getSimpleName() + " annotation",
           true);
-    }
-    else {
+    } else {
       try {
-        final com.igormaznitsa.meta.Complexity unit = com.igormaznitsa.meta.Complexity.valueOf(element.stringifyValue());
+        final com.igormaznitsa.meta.Complexity unit =
+            com.igormaznitsa.meta.Complexity.valueOf(element.stringifyValue());
         final com.igormaznitsa.meta.Complexity maxAllowed = context.getMaxAllowedTimeComplexity();
-        if (maxAllowed!=null){
-          if (unit.ordinal()>maxAllowed.ordinal()) {
-            context.error("Detected violation for time complexity : "+unit.name(), true);
+        if (maxAllowed != null) {
+          if (unit.ordinal() > maxAllowed.ordinal()) {
+            context.error("detected violation for time complexity : " + unit.name(), true);
           }
         }
-      }
-      catch (Exception ex) {
-        context.error("Can't get information about complexity from annotation " +
-            annotationEntry.getAnnotationType() + " [" + element.stringifyValue() + "]", true);
+      } catch (Exception ex) {
+        context.error("Can't get information about complexity from @" +
+            com.igormaznitsa.meta.annotation.TimeComplexity.class.getSimpleName() + " [" +
+            element.stringifyValue() + "]", true);
       }
     }
     return 1;
@@ -58,5 +60,5 @@ public class TimeComplexity extends AbstractMetaAnnotationProcessor {
   public List<Class<? extends Annotation>> getProcessedAnnotationClasses() {
     return List.of(com.igormaznitsa.meta.annotation.TimeComplexity.class);
   }
-  
+
 }

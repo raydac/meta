@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.checker.processors;
 
 import com.igormaznitsa.meta.checker.Context;
@@ -37,8 +38,10 @@ public class Weight extends AbstractMetaAnnotationProcessor {
           true);
     } else {
       try {
-        final com.igormaznitsa.meta.annotation.Weight.Unit unit = com.igormaznitsa.meta.annotation.Weight.Unit.valueOf(element.stringifyValue());
-        final com.igormaznitsa.meta.annotation.Weight.Unit maxAllowed = context.getMaxAllowedWeightLevel();
+        final com.igormaznitsa.meta.annotation.Weight.Unit unit =
+            com.igormaznitsa.meta.annotation.Weight.Unit.valueOf(element.stringifyValue());
+        final com.igormaznitsa.meta.annotation.Weight.Unit maxAllowed =
+            context.getMaxAllowedWeightLevel();
 
         if (maxAllowed == null) {
           if (unit.ordinal() >= com.igormaznitsa.meta.annotation.Weight.Unit.EXTRAHARD.ordinal()) {

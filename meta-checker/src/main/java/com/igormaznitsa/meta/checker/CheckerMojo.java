@@ -434,7 +434,7 @@ public class CheckerMojo extends AbstractMojo {
               classVersionViolationCounter++;
               final int major = parsed.getMajor();
               final JavaVersion javaVersion = JavaVersion.decode(major);
-              context.error(String.format("Detected class version violation, detected %s: %s",
+              context.error(String.format("detected class version violation, detected %s: %s",
                   javaVersion == null ?
                       ("0x" + Integer.toHexString(major).toUpperCase(Locale.ENGLISH)) : javaVersion,
                   file.getAbsolutePath()), false);

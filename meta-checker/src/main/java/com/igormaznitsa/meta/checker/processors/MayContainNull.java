@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.checker.processors;
 
 import java.lang.annotation.Annotation;
@@ -24,5 +25,5 @@ public class MayContainNull extends MustNotContainNull {
   public List<Class<? extends Annotation>> getProcessedAnnotationClasses() {
     return List.of(com.igormaznitsa.meta.annotation.MayContainNull.class);
   }
-  
+
 }

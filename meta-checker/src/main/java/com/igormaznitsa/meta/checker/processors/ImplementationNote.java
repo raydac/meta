@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.checker.processors;
 
 import com.igormaznitsa.meta.checker.Context;
@@ -30,6 +31,12 @@ public class ImplementationNote extends AbstractMetaAnnotationProcessor {
                              final ElementType type,
                              final ParameterAnnotationEntry parameterAnnotationEntry,
                              final AnnotationEntry annotationEntry) {
+    final String text = extractStringValue("value", annotationEntry, null);
+    if (text == null) {
+      context.error(
+          "found @" + com.igormaznitsa.meta.annotation.ImplementationNote.class.getSimpleName() +
+              " without text", true);
+    }
     return 1;
   }
 
@@ -37,5 +44,5 @@ public class ImplementationNote extends AbstractMetaAnnotationProcessor {
   public List<Class<? extends Annotation>> getProcessedAnnotationClasses() {
     return List.of(com.igormaznitsa.meta.annotation.ImplementationNote.class);
   }
-  
+
 }
