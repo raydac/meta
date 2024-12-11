@@ -18,6 +18,7 @@ package com.igormaznitsa.meta.checker;
 import com.igormaznitsa.meta.checker.processors.AbstractMetaAnnotationProcessor;
 import com.igormaznitsa.meta.checker.processors.Constraint;
 import com.igormaznitsa.meta.checker.processors.Determined;
+import com.igormaznitsa.meta.checker.processors.DisableSelfInvocation;
 import com.igormaznitsa.meta.checker.processors.Experimental;
 import com.igormaznitsa.meta.checker.processors.ImplementationNote;
 import com.igormaznitsa.meta.checker.processors.LazyInited;
@@ -44,6 +45,7 @@ import java.util.stream.Collectors;
 public enum MetaAnnotation {
   CONSTRAINT(new Constraint()),
   DETERMINED(new Determined()),
+  DISABLE_SELF_INVOCATION(new DisableSelfInvocation()),
   EXPERIMENTAL(new Experimental()),
   IMPLEMENTATION_NOTE(new ImplementationNote()),
   LAZY_INITED(new LazyInited()),

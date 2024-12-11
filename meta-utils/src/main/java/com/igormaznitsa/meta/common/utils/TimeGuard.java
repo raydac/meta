@@ -18,6 +18,7 @@ package com.igormaznitsa.meta.common.utils;
 import static com.igormaznitsa.meta.common.utils.Assertions.assertNotNull;
 
 import com.igormaznitsa.meta.annotation.Constraint;
+import com.igormaznitsa.meta.annotation.DisableSelfInvocation;
 import com.igormaznitsa.meta.annotation.MustNotContainNull;
 import com.igormaznitsa.meta.annotation.Weight;
 import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
@@ -222,7 +223,7 @@ public final class TimeGuard {
    * @since 1.0
    */
   @Weight(value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
-  // WARNING! Don't make a call from methods of the class to not break stack depth!
+  @DisableSelfInvocation
   public static void addGuard(@Nullable final String alertMessage, @Constraint("X>0") final long maxAllowedDelayInMilliseconds) {
     final List<TimeData> list = REGISTRY.get();
     list.add(new TimeData(ThreadUtils.stackDepth(), alertMessage, maxAllowedDelayInMilliseconds, null));
@@ -237,7 +238,7 @@ public final class TimeGuard {
    * @since 1.0
    */
   @Weight(value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
-  // WARNING! Don't make a call from methods of the class to not break stack depth!
+  @DisableSelfInvocation
   public static void addPoint(@Nonnull final String timePointName, @Nonnull final TimeAlertListener listener) {
     final List<TimeData> list = REGISTRY.get();
     list.add(new TimeData(ThreadUtils.stackDepth(), timePointName, -1L, assertNotNull(listener)));
@@ -320,8 +321,8 @@ public final class TimeGuard {
    * @see #cancelAll()
    * @since 1.0
    */
-  // WARNING! Don't make a call from methods of the class to not break stack depth!
   @Weight(value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth")
+  @DisableSelfInvocation
   public static void addGuard(@Nullable
       final String alertMessage,
       @Constraint("X>0")
