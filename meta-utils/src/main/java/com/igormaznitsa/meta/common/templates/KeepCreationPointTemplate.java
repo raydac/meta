@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.common.templates;
 
 import com.igormaznitsa.meta.annotation.Warning;
@@ -26,13 +27,13 @@ import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Allows to keep information about point where instance of the class was created.
- * 
- * @since 1.0
+ *
  * @see CallTrace
+ * @since 1.0
  */
 @ThreadSafe
 public abstract class KeepCreationPointTemplate implements Serializable {
-  
+
   private static final long serialVersionUID = 2779254573622012575L;
 
   private static final Map<KeepCreationPointTemplate, CallTrace> REGISTRY =
@@ -43,16 +44,17 @@ public abstract class KeepCreationPointTemplate implements Serializable {
    * The Constructor.
    */
   @Warning("must be called in successors, must not be called through constructor chain else you will see your constructors in stack trace!")
-  public KeepCreationPointTemplate(){
+  public KeepCreationPointTemplate() {
     REGISTRY.put(this, new CallTrace(true, true, CallTrace.EOL_LINUX));
   }
 
   /**
    * Get the creation point stack trace for the instance.
+   *
    * @return the creation point stack trace
    */
   @Nonnull
-  public final CallTrace getCreationPoint(){
+  public final CallTrace getCreationPoint() {
     return REGISTRY.get(this);
   }
 

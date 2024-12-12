@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.common.utils;
 
 import com.igormaznitsa.meta.annotation.Weight;
@@ -21,51 +22,55 @@ import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Auxiliary methods for thread processing.
+ *
  * @since 1.0
  */
 @ThreadSafe
 public final class ThreadUtils {
 
-  private ThreadUtils () {
+  private ThreadUtils() {
   }
 
   /**
    * Just suspend the current thread for defined interval in milliseconds.
+   *
    * @param milliseconds milliseconds to sleep
    * @return false if the sleep has been interrupted by InterruptedException, true otherwise.
-   * @see Thread#sleep(long) 
+   * @see Thread#sleep(long)
    * @since 1.0
    */
   @Weight(Weight.Unit.VARIABLE)
   public static boolean silentSleep(final long milliseconds) {
     boolean result = true;
-    try{
+    try {
       Thread.sleep(milliseconds);
-    }catch(InterruptedException ex){
+    } catch (InterruptedException ex) {
       result = false;
     }
     return result;
   }
-  
+
   /**
    * Get the stack element of the calling method.
+   *
    * @return the stack trace element for the calling method.
    * @since 1.0
    */
-  @Weight (Weight.Unit.VARIABLE)
+  @Weight(Weight.Unit.VARIABLE)
   @Nonnull
-  public static StackTraceElement stackElement () {
+  public static StackTraceElement stackElement() {
     final StackTraceElement[] allElements = Thread.currentThread().getStackTrace();
     return allElements[2];
   }
 
   /**
    * Get the stack call depth for the caller.
+   *
    * @return the caller method stack depth.
    * @since 1.0
    */
-  @Weight (Weight.Unit.VARIABLE)
-  public static int stackDepth () {
+  @Weight(Weight.Unit.VARIABLE)
+  public static int stackDepth() {
     return Thread.currentThread().getStackTrace().length - 1;
   }
 }

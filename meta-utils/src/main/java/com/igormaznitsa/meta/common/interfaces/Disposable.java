@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.common.interfaces;
 
 import com.igormaznitsa.meta.annotation.Weight;
@@ -24,20 +25,22 @@ import javax.annotation.concurrent.ThreadSafe;
  * @since 1.0
  */
 @ThreadSafe
-@Weight (Weight.Unit.VARIABLE)
+@Weight(Weight.Unit.VARIABLE)
 public interface Disposable {
-  
+
   /**
    * Check that the object is disposed.
+   *
    * @return true if the object is disposed
    * @since 1.0
    */
-  boolean isDisposed ();
+  boolean isDisposed();
 
   /**
    * Dispose object.
+   *
    * @since 1.0
    */
-  void dispose ();
+  void dispose();
 
 }

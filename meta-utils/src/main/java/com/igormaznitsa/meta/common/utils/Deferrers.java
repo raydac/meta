@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.common.utils;
 
 import static com.igormaznitsa.meta.common.utils.Assertions.assertNotNull;
@@ -37,56 +38,11 @@ import javax.annotation.concurrent.ThreadSafe;
  * Auxiliary tool to defer some actions and process them in some point in the future. It checks stack depth and executes only locally (for the stack level) defer actions. <b>It works
  * through ThreadLocal so that actions saved separately for every thread.</b>
  *
- * @since 1.0
  * @see ThreadLocal
+ * @since 1.0
  */
 @ThreadSafe
 public final class Deferrers {
-
-  private Deferrers() {
-  }
-
-  /**
-   * Class wrapping executeDeferred method and stack depth for action.
-   *
-   * @since 1.0
-   */
-  @Immutable
-  @Weight(Weight.Unit.VARIABLE)
-  public abstract static class Deferred implements Serializable {
-
-    private static final long serialVersionUID = -1134788854676942497L;
-
-    private final int stackDepth;
-
-    /**
-     * The Constructor.
-     *
-     * @since 1.0
-     */
-    @Weight(value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth@")
-    public Deferred() {
-      this.stackDepth = ThreadUtils.stackDepth() - 1;
-    }
-
-    /**
-     * Get the stack depth detected during object creation.
-     *
-     * @return the stack depth
-     * @since 1.0
-     */
-    public int getStackDepth() {
-      return this.stackDepth;
-    }
-
-    /**
-     * Execute call.
-     *
-     * @throws Exception it will be thrown for error.
-     * @since 1.0
-     */
-    public abstract void executeDeferred() throws Exception;
-  }
 
   /**
    * Inside registry for defer actions.
@@ -96,6 +52,9 @@ public final class Deferrers {
   @MustNotContainNull
   private static final ThreadLocal<List<Deferred>> REGISTRY =
       ThreadLocal.withInitial(ArrayList::new);
+
+  private Deferrers() {
+  }
 
   /**
    * Defer some action.
@@ -114,7 +73,7 @@ public final class Deferrers {
    * Defer object containing public close() method. It catches all exceptions during closing and make notifications only for global error listeners. It finds a public 'close'
    * method of the object and call that through reflection.
    *
-   * @param <T> type of the object to be processed
+   * @param <T>       type of the object to be processed
    * @param closeable an object with close() method.
    * @return the same object from arguments.
    * @since 1.0
@@ -142,7 +101,7 @@ public final class Deferrers {
   /**
    * Defer closing of a closeable object.
    *
-   * @param <T> type of closeable object
+   * @param <T>       type of closeable object
    * @param closeable an object implements java.io.Closeable
    * @return the same closeable object from arguments
    * @since 1.0
@@ -254,7 +213,8 @@ public final class Deferrers {
         try {
           deferred.executeDeferred();
         } catch (Exception ex) {
-          final UnexpectedProcessingError error = new UnexpectedProcessingError("Error during deferred action processing", ex);
+          final UnexpectedProcessingError error =
+              new UnexpectedProcessingError("Error during deferred action processing", ex);
           MetaErrorListeners.fireError(error.getMessage(), error);
         } finally {
           iterator.remove();
@@ -279,5 +239,47 @@ public final class Deferrers {
       REGISTRY.remove();
     }
     return result;
+  }
+
+  /**
+   * Class wrapping executeDeferred method and stack depth for action.
+   *
+   * @since 1.0
+   */
+  @Immutable
+  @Weight(Weight.Unit.VARIABLE)
+  public abstract static class Deferred implements Serializable {
+
+    private static final long serialVersionUID = -1134788854676942497L;
+
+    private final int stackDepth;
+
+    /**
+     * The Constructor.
+     *
+     * @since 1.0
+     */
+    @Weight(value = Weight.Unit.VARIABLE, comment = "Depends on the current call stack depth@")
+    public Deferred() {
+      this.stackDepth = ThreadUtils.stackDepth() - 1;
+    }
+
+    /**
+     * Get the stack depth detected during object creation.
+     *
+     * @return the stack depth
+     * @since 1.0
+     */
+    public int getStackDepth() {
+      return this.stackDepth;
+    }
+
+    /**
+     * Execute call.
+     *
+     * @throws Exception it will be thrown for error.
+     * @since 1.0
+     */
+    public abstract void executeDeferred() throws Exception;
   }
 }

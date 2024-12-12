@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.common.utils;
 
 import com.igormaznitsa.meta.annotation.MayContainNull;
@@ -86,7 +87,7 @@ public final class ArrayUtils {
    * Join arrays provided as parameters, all arrays must be the same type, null
    * values allowed.
    *
-   * @param <T> type of array
+   * @param <T>    type of array
    * @param arrays array of arrays to be joined
    * @return all joined arrays as single array
    * @since 1.0
@@ -102,8 +103,9 @@ public final class ArrayUtils {
         commonLength += array.length;
       }
     }
-    @SuppressWarnings("unchecked")
-    final T[] result = (T[]) Array.newInstance(arrays.getClass().getComponentType().getComponentType(), commonLength);
+    @SuppressWarnings("unchecked") final T[] result =
+        (T[]) Array.newInstance(arrays.getClass().getComponentType().getComponentType(),
+            commonLength);
     int position = 0;
     for (final T[] array : arrays) {
       if (array != null) {
@@ -117,18 +119,19 @@ public final class ArrayUtils {
   /**
    * Append element to the start of an array.
    *
-   * @param <T> type of array elements
+   * @param <T>     type of array elements
    * @param element element to be added into start of array, can be null
-   * @param array target array
+   * @param array   target array
    * @return new array where the element on the first position
    * @since 1.1.3
    */
   @Nonnull
   @MayContainNull
   @Weight(Weight.Unit.NORMAL)
-  public static <T> T[] append(@Nullable final T element, @MayContainNull @Nonnull final T[] array) {
-    @SuppressWarnings("unchecked")
-    final T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), array.length + 1);
+  public static <T> T[] append(@Nullable final T element,
+                               @MayContainNull @Nonnull final T[] array) {
+    @SuppressWarnings("unchecked") final T[] result =
+        (T[]) Array.newInstance(array.getClass().getComponentType(), array.length + 1);
     System.arraycopy(array, 0, result, 1, array.length);
     result[0] = element;
     return result;
@@ -137,8 +140,8 @@ public final class ArrayUtils {
   /**
    * Append elements to the end of an array
    *
-   * @param <T> type of array elements
-   * @param array target array
+   * @param <T>      type of array elements
+   * @param array    target array
    * @param elements elements to be added to the end of the target array
    * @return new array where elements are placed in the end
    * @since 1.1.3
@@ -147,9 +150,11 @@ public final class ArrayUtils {
   @Nonnull
   @MayContainNull
   @Weight(Weight.Unit.NORMAL)
-  public static <T> T[] append(@MayContainNull @Nonnull final T[] array, @MayContainNull final T... elements) {
-    @SuppressWarnings("unchecked")
-    final T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), array.length + elements.length);
+  public static <T> T[] append(@MayContainNull @Nonnull final T[] array,
+                               @MayContainNull final T... elements) {
+    @SuppressWarnings("unchecked") final T[] result =
+        (T[]) Array.newInstance(array.getClass().getComponentType(),
+            array.length + elements.length);
     System.arraycopy(array, 0, result, 0, array.length);
     int index = array.length;
     for (final T element : elements) {

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.common.exceptions;
 
 import com.igormaznitsa.meta.annotation.Weight;
@@ -22,19 +23,19 @@ import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Interface for a meta error processor catching errors detected by the common module methods.
- * 
+ *
  * @since 1.0
  */
 @ThreadSafe
 public interface MetaErrorListener {
-  
+
   /**
    * The Method will be called if detected some error.
-   * @param text text message
+   *
+   * @param text  text message
    * @param error error object
-   * 
    * @since 1.0
    */
-  @Weight (Weight.Unit.LIGHT)
-  void onDetectedError (@Nullable String text, @Nonnull Throwable error);
+  @Weight(Weight.Unit.LIGHT)
+  void onDetectedError(@Nullable String text, @Nonnull Throwable error);
 }

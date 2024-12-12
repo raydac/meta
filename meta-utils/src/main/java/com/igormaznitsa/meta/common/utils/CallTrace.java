@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.common.utils;
 
 import com.igormaznitsa.meta.annotation.Weight;
@@ -33,24 +34,20 @@ import javax.annotation.concurrent.ThreadSafe;
 @Immutable
 public class CallTrace implements Serializable {
 
-  private static final long serialVersionUID = -3908621401136825952L;
-
-  private static final Charset UTF8 = StandardCharsets.UTF_8;
-
   /**
    * Default end-of-line for linux.
    *
    * @since 1.0
    */
   public static final String EOL_LINUX = "\n";
-
   /**
    * Default end-of-line for windows.
    *
    * @since 1.0
    */
   public static final String EOL_WINDOWS = "\r\n";
-
+  private static final long serialVersionUID = -3908621401136825952L;
+  private static final Charset UTF8 = StandardCharsets.UTF_8;
   private final boolean packed;
   private final byte[] stacktrace;
   private final String threadDescriptor;
@@ -59,8 +56,8 @@ public class CallTrace implements Serializable {
   /**
    * The Constructor allows to create call trace history point for the called method.
    *
-   * @since 1.0
    * @see #EOL_LINUX
+   * @since 1.0
    */
   public CallTrace() {
     this(true, true, EOL_LINUX);
@@ -70,12 +67,11 @@ public class CallTrace implements Serializable {
    * The Constructor allows to create call trace history with defined end-of-line symbol and since needed stack item position.
    *
    * @param skipConstructors flag to skip first calls from constructors in the stack.
-   * @param pack flag shows that string data must be packed, false if it should not be packed
-   * @param eol string shows which end-of-line should be used
-   *
-   * @since 1.0.2
+   * @param pack             flag shows that string data must be packed, false if it should not be packed
+   * @param eol              string shows which end-of-line should be used
    * @see #EOL_LINUX
    * @see #EOL_WINDOWS
+   * @since 1.0.2
    */
   @Weight(value = Weight.Unit.VARIABLE, comment = "Depends on the call stack depth")
   public CallTrace(final boolean skipConstructors, final boolean pack, @Nonnull final String eol) {
@@ -128,7 +124,8 @@ public class CallTrace implements Serializable {
    */
   @Nonnull
   public String restoreStackTrace() {
-    return "THREAD_ID : " + this.threadDescriptor + this.eol + new String(this.packed ? IOUtils.unpackData(this.stacktrace) : this.stacktrace, UTF8);
+    return "THREAD_ID : " + this.threadDescriptor + this.eol +
+        new String(this.packed ? IOUtils.unpackData(this.stacktrace) : this.stacktrace, UTF8);
   }
 
   @Override

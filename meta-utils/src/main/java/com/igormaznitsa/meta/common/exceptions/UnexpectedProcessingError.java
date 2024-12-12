@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.meta.common.exceptions;
 
 import javax.annotation.Nullable;
@@ -20,6 +21,7 @@ import javax.annotation.Nullable;
 
 /**
  * Thrown if detected unexpected exception during processing.
+ *
  * @since 1.0
  */
 public class UnexpectedProcessingError extends Error {
@@ -28,12 +30,14 @@ public class UnexpectedProcessingError extends Error {
 
   /**
    * Constructor for description and cause.
+   *
    * @param message the description
-   * @param cause  the cause
+   * @param cause   the cause
    * @since 1.0
    */
-  public UnexpectedProcessingError (@Nullable final String message, @Nullable final Throwable cause) {
+  public UnexpectedProcessingError(@Nullable final String message,
+                                   @Nullable final Throwable cause) {
     super(message, cause);
   }
-  
+
 }
