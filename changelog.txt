@@ -1,5 +1,6 @@
-- 1.2.1 (SNAPSHOT)
+- 1.2.1 (14-dec-2024)
  - added annotations PureFunction and DisableSelfInvocation
+ - added `check` functions into `TimeGuard`
  - fixed search for classes in META-INF for checker
  - refactoring
 

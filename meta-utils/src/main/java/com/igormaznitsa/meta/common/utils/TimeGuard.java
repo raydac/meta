@@ -25,10 +25,15 @@ import com.igormaznitsa.meta.annotation.Weight;
 import com.igormaznitsa.meta.common.exceptions.MetaErrorListeners;
 import com.igormaznitsa.meta.common.exceptions.TimeViolationError;
 import com.igormaznitsa.meta.common.exceptions.UnexpectedProcessingError;
+import com.igormaznitsa.meta.common.interfaces.CheckedRunnable;
+import com.igormaznitsa.meta.common.interfaces.CheckedSupplier;
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.BiConsumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -170,6 +175,65 @@ public final class TimeGuard {
         }
       }
     }
+  }
+
+  /**
+   * Allows to get notification for executing supplier if it spent time bigger than expected.
+   *
+   * @param maxTime     max allowed time for supplier
+   * @param supplier    supplier, must not be null
+   * @param notificator notificator to get notification if spent too big time
+   * @param <T>         type of returned result
+   * @return result of supplier
+   * @since 1.2.1
+   */
+  public static <T> T check(
+      @Nonnull final Duration maxTime,
+      @Nonnull CheckedSupplier<T> supplier,
+      @Nonnull BiConsumer<Long, Exception> notificator
+  ) {
+    Objects.requireNonNull(notificator);
+    Objects.requireNonNull(supplier);
+    Objects.requireNonNull(notificator);
+    final long time = System.currentTimeMillis();
+    try {
+      final T result = supplier.get();
+      final long detectedDelay = System.currentTimeMillis() - time;
+      if (detectedDelay > maxTime.toMillis()) {
+        notificator.accept(detectedDelay, null);
+      }
+      return result;
+    } catch (Exception ex) {
+      final long detectedDelay = System.currentTimeMillis() - time;
+      if (detectedDelay > maxTime.toMillis()) {
+        notificator.accept(detectedDelay, ex);
+      } else {
+        notificator.accept(null, ex);
+      }
+      if (ex instanceof RuntimeException) {
+        throw (RuntimeException) ex;
+      }
+      throw new RuntimeException(ex);
+    }
+  }
+
+  /**
+   * Allows to get notification for executing runnable if it spent time bigger than expected.
+   *
+   * @param maxTime     max allowed time for supplier
+   * @param runnable    runnable to be executed
+   * @param notificator notificator to get notification if spent too big time
+   * @since 1.2.1
+   */
+  public static void check(
+      @Nonnull final Duration maxTime,
+      @Nonnull CheckedRunnable runnable,
+      @Nonnull BiConsumer<Long, Exception> notificator
+  ) {
+    check(maxTime, () -> {
+      runnable.run();
+      return null;
+    }, notificator);
   }
 
   /**
